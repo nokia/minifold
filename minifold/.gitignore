@@ -1,0 +1,22 @@
+# Object files
+*.pyc
+__pycache__
+
+# Editors
+
+*~
+*.swp
+.exrc
+
+# Packages
+
+packages/
+*.dsc
+*.deb
+*.tar.gz
+*.changes
+
+# Patches
+
+*.diff
+*.patch

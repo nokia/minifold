@@ -1,0 +1,8 @@
+build
+data
+debian
+dist
+minifold.egg-info
+*.pyc
+*.swp
+*.swo

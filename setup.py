@@ -21,7 +21,7 @@ setup(
     long_description = LONG_DESCRIPTION,
     author           = "Marc-Olivier Buob",
     author_email     = "marc-olivier.buob@nokia-bell-labs.com",
-    url              = "gitolite3@git.lincs.fr:minifold",
+    url              = "http://github.com/nokia/minifold",
     license          = "BSD-3",
     zip_safe         = False,
     packages         = find_packages(),

@@ -12,6 +12,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .query import Query, ACTION_READ
+from .join_if import merge_dict
 
 def are_naturally_joined(l :dict, r :dict) -> bool:
     inter_keys = set(l.keys()) & set(r.keys())
@@ -27,7 +28,7 @@ def natural_join(l_entries :list, r_entries :list) -> list:
     for l in l_entries:
         for r in r_entries:
             if are_naturally_joined(l, r):
-                ret.append({**l, **r})
+                ret.append(merge_dict(l, r))
     return ret
 
 class NaturalJoinConnector:

@@ -21,7 +21,9 @@ RIGHT_JOIN      = 3 # Returns right entries + matching left entries (=> left att
 FULL_OUTER_JOIN = 4 # Returns left and right entries while merging matching entries
 
 def merge_dict(l :dict, r :dict) -> dict:
-    return {**l, **r}
+    ret = l.copy()
+    ret.update(r)
+    return ret
 
 def join_mode_to_string(mode :int) -> str:
     if   mode == INNER_JOIN:      return "INNER JOIN"

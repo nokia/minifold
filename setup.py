@@ -25,5 +25,6 @@ setup(
     license          = "BSD-3",
     zip_safe         = False,
     packages         = find_packages(),
-    package_dir      = {'minifold' : 'minifold'},
+    requires         = ["typing"],
+    package_dir      = {"minifold" : "minifold"},
 )

@@ -8,7 +8,7 @@
 import os
 from setuptools import find_packages, setup
 
-__version__        = (0, 9, 1)
+__version__        = (0, 9, 2)
 ROOT_PATH          = os.path.abspath(os.path.dirname(__file__))
 LONG_DESCRIPTION   = open(os.path.join(ROOT_PATH, "README.rst")).read()
 

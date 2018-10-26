@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+from copy import deepcopy
 from typing import List
 
 ACTION_CREATE = 0
@@ -38,6 +39,9 @@ class Query:
         self.m_offset = offset
         self.m_limit = limit
         self.m_sort_by = sort_by
+
+    def copy(self):
+        return deepcopy(self)
 
     @property
     def action(self) -> int:

@@ -21,10 +21,10 @@ class Connector:
 
     def query(self, q :Query) -> list:
         if Connector.enable_debug:
-            Log.debug("%s: --> %s" % (self.__class__.__name__, q))
+            Log.debug("%r: --> %s" % (self, q))
         # This method must be overloaded
 
     def answer(self, entries :list) -> list:
         if Connector.enable_debug:
-            Log.debug("%s: <-- %s" % (self.__class__.__name__, "\n".join([str(entry) for entry in entries])))
+            Log.debug("%r: <--\n%s" % (self, "\n".join([str(entry) for entry in entries])))
         return entries

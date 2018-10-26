@@ -94,7 +94,7 @@ class Query:
     def __str__(self) -> str:
         return "%(action)s%(attributes)s%(object)s%(filters)s%(limit)s%(offset)s%(sort_by)s" % {
             "action"     : action_to_str(self.action),
-            "attributes" : " %s" % ", ".join(self.attributes) if len(self.attributes) > 0 else "*",
+            "attributes" : " %s" % ", ".join(self.attributes) if len(self.attributes) > 0 else " *",
             "object"     : " FROM %s" % self.object   if self.object  else "",
             "filters"    : " WHERE %s" % self.filters if self.filters else "",
             "limit"      : " LIMIT %s" % self.limit   if self.limit   else "",

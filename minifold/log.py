@@ -12,20 +12,88 @@ __license__    = "BSD-3"
 
 import sys
 
+DEBUG   = 0
+INFO    = 1
+WARNING = 2
+ERROR   = 3
+
+# Shell colors
+DEFAULT = 0
+RED     = 1
+GREEN   = 2
+YELLOW  = 3
+BLUE    = 4
+PINK    = 5
+CYAN    = 6
+GRAY    = 7
+
+# Shell style
+DEFAULT    = 0
+BOLD       = 1
+UNDERLINED = 4
+LIGHTENING = 5
+HIGHLITHED = 7
+
 class Log:
-    # TODO: leave enable_print to False before committing
-    # TODO: implement log level
-    # TODO: load log level from config file
     enable_print = False
 
-    @classmethod
-    def info(self, s):
-        if Log.enable_print == True: print("INFO: %s" % s, file = sys.stderr)
+    # TODO: The following static paramters should be load from ~/.minifoldrc
+    with_color   = True
+    log_level    = 0
+    dark_bg      = False
+
+    message_header = {
+        DEBUG   : "DEBUG",
+        INFO    : "INFO",
+        WARNING : "WARNING",
+        ERROR   : "ERROR",
+    }
+
+    message_color = {
+        DEBUG   : CYAN,
+        INFO    : GREEN,
+        WARNING : YELLOW,
+        ERROR   : RED,
+    }
+
+    @staticmethod
+    def start_style(
+        fg_color :int = None,
+        bg_color :int = None,
+        styles :list = list()
+    ) -> str:
+        styling = list()
+        if fg_color != None: styling.append("3%d" % fg_color)
+        if bg_color != None: styling.append("4%d" % bg_color)
+        if styles: styling += styles
+        return "\033[%sm" % ";".join(styling) if styling else ""
+
+    @staticmethod
+    def default_style() -> str:
+        return "\033[0m"
 
     @classmethod
-    def error(self, s):
-        if Log.enable_print == True: print("ERROR: %s" % s, file = sys.stderr)
+    def print(cls, message_type :int, message :str, file = sys.stderr):
+        if cls.enable_print and message_type >= cls.log_level:
+            color  = cls.message_color[message_type]
+            header = cls.message_header[message_type]
+            print(
+                "%(start_style)s%(message)s%(end_style)s" % {
+                    "start_style" : cls.start_style(fg_color = color),
+                    "message"     : " ".join([header, message]),
+                    "end_style"   : cls.default_style()
+                }
+            )
 
     @classmethod
-    def warning(self, s):
-        if Log.enable_print == True: print("WARNING: %s" % s, file = sys.stderr)
+    def debug(cls, s): cls.print(DEBUG, s)
+
+    @classmethod
+    def info(cls, s): cls.print(INFO, s)
+
+    @classmethod
+    def warning(cls, s): cls.print(WARNING, s)
+
+    @classmethod
+    def error(cls, s): cls.print(ERROR, s)
+

@@ -28,6 +28,10 @@ class LdapConnector(Connector):
         self.m_connection = Connection(self.m_server, ldap_user, ldap_password)
         self.m_connection.bind()
 
+    def __enter__(self):
+        self.m_connection.__enter__()
+        return self
+
     def __exit__(self, type, value, traceback):
         self.m_connection.unbind()
 
@@ -130,6 +134,6 @@ class LdapConnector(Connector):
                     results.append(entry)
         else:
             raise RuntimeError("Not implemented")
-        return results
+        return self.answer(results)
 
 

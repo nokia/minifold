@@ -30,8 +30,10 @@ class SelectConnector(Connector):
     def attributes(self):
         return self.m_attributes
 
-    def query(self, q :Query) -> list:
-        super().query(q)
+    def query(self, query :Query) -> list:
+        super().query(query)
+        q = query.copy()
+        q.attributes = [attribute for attribute in q.attributes if attribute in self.m_attributes]
         return self.answer(
             select(
                 self.m_child.query(q),

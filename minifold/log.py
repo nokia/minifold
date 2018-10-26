@@ -28,19 +28,19 @@ CYAN    = 6
 GRAY    = 7
 
 # Shell style
-DEFAULT    = 0
-BOLD       = 1
-UNDERLINED = 4
-LIGHTENING = 5
-HIGHLITHED = 7
+DEFAULT     = 0
+BOLD        = 1
+UNDERLINED  = 4
+BLINKING    = 5
+HIGHLIGHTED = 7
 
 class Log:
     enable_print = False
 
-    # TODO: The following static paramters should be load from ~/.minifoldrc
+    # TODO: The following static paramaters should be load from ~/.minifoldrc
+    # TODO: dark / light colors
     with_color   = True
     log_level    = 0
-    dark_bg      = False
 
     message_header = {
         DEBUG   : "DEBUG",

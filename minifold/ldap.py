@@ -16,18 +16,20 @@ try:
 except ImportError:
     raise ImportError("LdapConnector requires python3-ldap3: please run: apt-get install python3-ldap3")
 
-from .query                  import Query, ACTION_READ
-from .binary_predicate       import BinaryPredicate
-from .log                    import Log
+from .connector             import Connector
+from .query                 import Query, ACTION_READ
+from .binary_predicate      import BinaryPredicate
+from .log                   import Log
 
-class LdapConnector(Connection):
+class LdapConnector(Connector):
     def __init__(self, ldap_host, ldap_user = None, ldap_password = None, ldap_use_ssl = None):
+        super().__init__()
         self.m_server     = Server(ldap_host, use_ssl = ldap_use_ssl, get_info = ALL)
-        super(LdapConnector, self).__init__(self.m_server, ldap_user, ldap_password)
-        self.bind()
+        self.m_connection = Connection(self.m_server, ldap_user, ldap_password)
+        self.m_connection.bind()
 
     def __exit__(self, type, value, traceback):
-        self.unbind()
+        self.m_connection.unbind()
 
     @staticmethod
     def operator_to_ldap(op :str) -> str:
@@ -92,6 +94,7 @@ class LdapConnector(Connection):
         return d if sane == True else dict()
 
     def query(self, q :Query):
+        super().query(q)
         results = list()
 
         if q.action == ACTION_READ:
@@ -107,7 +110,7 @@ class LdapConnector(Connection):
 
             try:
                 Log.info("--> LDAP: dn = %s filter = %s attributes = %s" % (q.object, filter, attributes))
-                self.search(
+                self.m_connection.search(
                     q.object,
                     filter,
                     search_scope = SUBTREE,
@@ -117,7 +120,7 @@ class LdapConnector(Connection):
                 Log.error("LdapConnector::query: Invalid filter: %s" % filter)
                 raise e
 
-            for entry in self.response:
+            for entry in self.m_connection.response:
                 entry = LdapConnector.sanitize_dict(entry["raw_attributes"])
                 if len(entry) > 0:
                     # Fix missing keys

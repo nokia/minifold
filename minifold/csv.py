@@ -12,16 +12,19 @@ __license__    = "BSD-3"
 
 import csv
 
+from .connector             import Connector
 from .query                 import Query, ACTION_READ, action_to_str
 
-class CsvConnector:
+class CsvConnector(Connector):
     def __init__(self, filename :str, delimiter=' ', quotechar='"'):
+        super().__init__()
         reader = csv.reader(open(filename, "rt"), delimiter=delimiter, quotechar=quotechar)
         rows = [row for row in reader]
         self.m_keys = rows[0]
         self.m_entries = [{self.m_keys[i] : v for i, v in enumerate(row)} for row in rows[1:]]
 
     def query(self, q :Query) -> list:
+        super().query(q)
         ret = list()
         if q.action == ACTION_READ:
             queried_attributes = set(q.attributes) & set(self.keys) if len(q.attributes) > 0 else self.keys
@@ -35,7 +38,7 @@ class CsvConnector:
                         ret.append(entry)
         else:
             raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
-        return ret
+        return self.answer(ret)
 
     @property
     def keys(self) -> set:

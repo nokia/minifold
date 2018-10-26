@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+from .connector             import Connector
 from .query                 import Query, ACTION_READ
 from .values_from_dict      import ValuesFromDictFonctor
 
@@ -20,8 +21,9 @@ def sort_by(attributes :list, entries :list, reverse = False) -> list:
     fonctor = ValuesFromDictFonctor(attributes)
     return sort_by_impl(fonctor, entries, reverse)
 
-class SortByConnector:
+class SortByConnector(Connector):
     def __init__(self, attributes :list, child, reverse = False):
+        super().__init__()
         self.m_fonctor = ValuesFromDictFonctor(attributes)
         self.m_child = child
         self.m_reverse = reverse
@@ -35,10 +37,14 @@ class SortByConnector:
         return self.m_reverse
 
     def query(self, q :Query) -> list:
-        return self.answer(self.m_child.query(q))
-
-    def answer(self, entries :list) -> list:
-        return sort_by_impl(self.m_fonctor, entries, self.m_reverse)
+        super().query(q)
+        return self.answer(
+            sort_by_impl(
+                self.m_fonctor,
+                self.m_child.query(q),
+                self.m_reverse
+            )
+        )
 
     def __str__(self) -> str:
         return "SORT BY %s" % ", ".join(self.m_fonctor.attributes)

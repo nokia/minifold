@@ -26,6 +26,7 @@ except ImportError:
 import json, urllib.parse
 
 from .binary_predicate      import BinaryPredicate
+from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
 from .strings               import remove_accents, to_canonic_fullname
@@ -41,8 +42,9 @@ DBLP_ALIASES = {
     "url"     : "dblp_url",
 }
 
-class DblpConnector:
+class DblpConnector(Connector):
     def __init__(self, map_dblp_name = {}, dblp_api_url = DBLP_API_URL):
+        super().__init__()
         self.m_api_url = dblp_api_url
         self.m_format  = "json" # valid values are: "xml", "json", and "jsonp".
         self.m_map_dblp_name = map_dblp_name
@@ -177,6 +179,7 @@ class DblpConnector:
         return [DblpConnector.sanitize_entry(q, entry) for entry in entries]
 
     def query(self, q :Query) -> list:
+        super().query(q)
         entries = list()
         if q.action == ACTION_READ:
 

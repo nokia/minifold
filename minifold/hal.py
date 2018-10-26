@@ -19,6 +19,7 @@ except ImportError:
 import json, urllib.parse
 
 from .binary_predicate      import BinaryPredicate
+from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
 from .strings               import remove_accents
@@ -72,8 +73,9 @@ HAL_ALIASES = {
     "version_i"             : "version"
 }
 
-class HalConnector:
+class HalConnector(Connector):
     def __init__(self, map_hal_id = {}, map_hal_name = {}, hal_api_url = HAL_API_URL):
+        super().__init__()
         self.m_api_url      = hal_api_url
         self.m_format       = "json"
         self.m_map_hal_id   = map_hal_id
@@ -230,6 +232,7 @@ class HalConnector:
         return entries
 
     def query(self, q :Query) -> list:
+        super().query(q)
         entries = list()
         if q.action == ACTION_READ:
             attributes = None
@@ -296,8 +299,4 @@ class HalConnector:
                 raise RuntimeError("Cannot get reply from %s" % self.m_api_url)
 
         return self.answer(entries)
-
-    def answer(self, entries :list) -> list:
-        return entries
-
 

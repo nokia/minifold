@@ -13,6 +13,7 @@ __license__    = "BSD-3"
 from copy                   import deepcopy
 
 from .binary_predicate      import BinaryPredicate
+from .connector             import Connector
 from .query                 import Query
 
 def rename_list(l :list, mapping :dict) -> list:
@@ -53,7 +54,7 @@ def rename_filters(filters, mapping :dict):
         filters.m_left  = rename_filters(filters.left,  mapping)
         filters.m_right = rename_filters(filters.right, mapping)
     else:
-        raise RuntimeError("rename_filters: unsupported type %s" % type(filters))
+        raise RuntimeError("rename_filters: unsupported type %s: filters = %s" % (type(filters), filters))
     return filters
 
 def rename_sort_by(sort_by :dict, mapping :dict) -> dict:
@@ -72,13 +73,15 @@ def reverse_dict(d :dict) -> dict:
         ret[v] = k
     return ret
 
-class RenameConnector():
+class RenameConnector(Connector):
     def __init__(self, mapping :dict = {}, child = None):
+        super().__init__()
         self.m_map_rq = mapping
         self.m_map_qr = reverse_dict(mapping)
         self.m_child  = child
 
     def query(self, q :Query) -> list:
+        super().query(q)
         assert self.child != None
         q_renamed = rename_query(deepcopy(q), self.map_qr)
         return self.answer(self.child.query(q_renamed))

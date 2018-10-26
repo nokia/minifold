@@ -116,9 +116,6 @@ class HtmlTableConnector(EntriesConnector):
         with open(filename, "r") as f:
             s = f.read()
             self.m_parser.feed(s)
-        super(HtmlTableConnector, self).__init__(self.m_entries)
-
-    def query(self, q) -> list:
-        return super(HtmlTableConnector, self).query(q)
+        super().__init__(self.m_entries)
 
 

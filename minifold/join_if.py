@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+from .connector             import Connector
 from .query                 import Query, ACTION_READ
 
 # The following schema summarizes the different joins
@@ -98,9 +99,9 @@ def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -
 
     return ret
 
-
-class JoinIfConnector:
-    def __init__(self, left, right, join_if, mode = INNER_JOIN):
+class JoinIfConnector(Connector):
+    def __init__(self, left :Connector, right :Connector, join_if, mode :int = INNER_JOIN):
+        super().__init__()
         self.m_left = left
         self.m_right = right
         self.m_join_if = join_if
@@ -109,11 +110,22 @@ class JoinIfConnector:
         self.m_mode = mode
 
     def query(self, q :Query) -> list:
+        super().query(q)
         self.m_left_entries.clear()
         self.m_right_entries.clear()
         self.m_left_entries = self.left.query(q)
         self.m_right_entries = self.right.query(q)
-        return self.answer()
+        if   self.m_mode == INNER_JOIN:
+            ret = inner_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+        elif self.m_mode == LEFT_JOIN:
+            ret = left_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+        elif self.m_mode == RIGHT_JOIN:
+            ret = right_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+        elif self.m_mode == FULL_OUTER_JOIN:
+            ret = full_outer_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+        else:
+            raise ValueError("JoinIfConnector::answer: Invalid mode %s:" % self.m_mode)
+        return self.answer(ret)
 
     @property
     def mode(self):
@@ -130,18 +142,4 @@ class JoinIfConnector:
     @property
     def join_if(self):
         return self.m_join_if
-
-    def answer(self) -> list:
-        if   self.m_mode == INNER_JOIN:
-            return inner_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
-        elif self.m_mode == LEFT_JOIN:
-            return left_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
-        elif self.m_mode == RIGHT_JOIN:
-            return right_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
-        elif self.m_mode == FULL_OUTER_JOIN:
-            return full_outer_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
-        else:
-            raise ValueError("JoinIfConnector::answer: Invalid mode %s:" % self.m_mode)
-
-
 

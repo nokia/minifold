@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+from .connector             import Connector
 from .query                 import Query, ACTION_READ
 
 def unnest(map_key_unnestedkey :dict, entries :list) -> list:
@@ -24,8 +25,9 @@ def unnest(map_key_unnestedkey :dict, entries :list) -> list:
                 ret.append({new_attribute : values})
     return ret
 
-class UnnestConnector:
+class UnnestConnector(Connector):
     def __init__(self, map_key_unnestedkey :dict, child):
+        super().__init__()
         self.m_child = child
         self.m_map_key_unnestedkey = map_key_unnestedkey
 
@@ -37,9 +39,12 @@ class UnnestConnector:
         return self.m_map_key_unnestedkey[key]
 
     def query(self, q :Query) -> list:
-        return self.answer(self.child.query(q))
-
-    def answer(self, entries :list) -> list:
-        return unnest(self.m_map_key_unnestedkey)
+        super().query(q)
+        return self.answer(
+            unnest(
+                self.m_map_key_unnestedkey,
+                self.child.query(q)
+            )
+        )
 
 

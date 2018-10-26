@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+from .connector             import Connector
 from .query                 import Query, ACTION_READ
 from .values_from_dict      import ValuesFromDictFonctor
 
@@ -27,8 +28,9 @@ def group_by(attributes :list, entries :list) -> list:
     fonctor = ValuesFromDictFonctor(attributes)
     return group_by_impl(fonctor, entries)
 
-class GroupByConnector:
+class GroupByConnector(Connector):
     def __init__(self, attributes :list, child):
+        super().__init__()
         self.m_fonctor = ValuesFromDictFonctor(attributes)
         self.m_child = child
 
@@ -37,10 +39,13 @@ class GroupByConnector:
         return self.m_child
 
     def query(self, q :Query) -> list:
-        return self.answer(self.m_child.query(q))
-
-    def answer(self, entries :list) -> list:
-        return group_by_impl(self.m_fonctor, entries)
+        super().query(q)
+        return self.answer(
+            group_by_impl(
+                self.m_fonctor,
+                self.m_child.query(q)
+            )
+        )
 
     def __str__(self) -> str:
         return "GROUP BY %s" % ", ".join(self.m_fonctor.attributes)

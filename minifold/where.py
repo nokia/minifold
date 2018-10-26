@@ -10,13 +10,15 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+from .connector             import Connector
 from .query                 import Query, ACTION_READ
 
 def where(entries :list, f) -> list:
     return [entry for entry in entries if f(entry)]
 
-class WhereConnector:
+class WhereConnector(Connector):
     def __init__(self, child, keep_if):
+        super().__init__()
         self.m_child = child
         self.m_keep_if = keep_if
 
@@ -29,9 +31,11 @@ class WhereConnector:
         return self.m_keep_if
 
     def query(self, q :Query) -> list:
-        return self.answer(self.m_child.query(q))
-
-    def answer(self, entries :list) -> list:
-        return where(entries, self.m_keep_if)
-
+        super().query(q)
+        return self.answer(
+            where(
+                self.m_child.query(q),
+                self.m_keep_if
+            )
+        )
 

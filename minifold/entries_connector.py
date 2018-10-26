@@ -10,10 +10,12 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-from .query                 import Query, ACTION_READ, action_to_str
+from .connector  import Connector
+from .query      import Query, ACTION_READ, action_to_str
 
-class EntriesConnector:
+class EntriesConnector(Connector):
     def __init__(self, entries :list):
+        super().__init__()
         self.m_keys = set()
         if len(entries) > 0:
             for entry in entries:
@@ -21,6 +23,7 @@ class EntriesConnector:
         self.m_entries = entries
 
     def query(self, q :Query) -> list:
+        super().query(q)
         ret = list()
         if q.action == ACTION_READ:
             queried_attributes = set(q.attributes) & self.keys if len(q.attributes) > 0 else self.keys
@@ -34,7 +37,7 @@ class EntriesConnector:
                         ret.append(entry)
         else:
             raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
-        return ret
+        return self.answer(ret)
 
     @property
     def keys(self) -> set:

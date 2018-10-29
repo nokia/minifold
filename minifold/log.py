@@ -80,9 +80,10 @@ class Log:
             print(
                 "%(start_style)s%(message)s%(end_style)s" % {
                     "start_style" : cls.start_style(fg_color = color),
-                    "message"     : " ".join([header, message]),
+                    "message"     : " ".join([header, str(message)]),
                     "end_style"   : cls.default_style()
-                }
+                },
+                file = file
             )
 
     @classmethod

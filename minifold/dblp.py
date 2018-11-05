@@ -67,7 +67,6 @@ class DblpConnector(Connector):
             ret = map_dblp_name[s]
         except KeyError:
             s = remove_accents(s)
-            s = s.replace("ç", "c")
             words = s.lower().split()
             try:
                 words.remove("")
@@ -75,11 +74,14 @@ class DblpConnector(Connector):
                 pass
             # a-b means that b must follows a
             # a_b means that both a and b must be found
-            ret = "-".join(words)
+            # $ corresponds to exact match
+            # See: http://dblp.uni-trier.de/db/about/author.html
+            ret = "-".join(words) + "$"
 
-        # $ corresponds to exact match
-        # See: http://dblp.uni-trier.de/db/about/author.html
-        return "%s$" % ret
+        return ret
+
+    def get_dblp_name(self, s :str) -> str:
+        return DblpConnector.to_dblp_name(s, self.map_dblp_name)
 
     def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
         if p.operator == "&&":
@@ -92,7 +94,7 @@ class DblpConnector(Connector):
 
         if p.left in ["author", "authors", "researcher", "conference"]:
             if p.operator == "==":
-                result["prefix"] = DblpConnector.to_dblp_name(p.right, self.map_dblp_name)
+                result["prefix"] = self.get_dblp_name(p.right)
             else:
                 raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
         else:
@@ -133,9 +135,9 @@ class DblpConnector(Connector):
 
         if len(q.attributes) > 0:
             keys = set(entry.keys()) & set(q.attributes)
-            entry = {k: entry[k] for k in keys}
+            entry = {k : entry[k] for k in keys}
 
-        for k,v in entry.items():
+        for k, v in entry.items():
             if isinstance(v, str):
                 try:
                     entry[k] = int(v)
@@ -144,9 +146,10 @@ class DblpConnector(Connector):
 
         return entry
 
-    @staticmethod
-    def extract_entries(query :Query, results :list) -> list:
+    def extract_entries(self, query :Query, results :list) -> list:
         entries = list()
+        is_author_query = query.object not in {"publication", "researcher", "conference"}
+        canonic_fullname = to_canonic_fullname(self.get_dblp_name(query.object)).rstrip("$") if is_author_query else None
         try:
             raw_entries = results["result"]["hits"]["hit"]
             for raw_entry in raw_entries:
@@ -159,15 +162,24 @@ class DblpConnector(Connector):
                 except KeyError:
                     pass
 
-                # Unfortunately, DBLP seems unable to perform exact match search.
-                # For example searching "francois-durand$" returns "Jean-François Durand"
-                # when searching "François Durand". The following discards the
-                # false positives.
-
-                if query.object not in ["publication", "researcher", "conference"]:
-                    authors = [to_canonic_fullname(author) for author in entry["authors"]]
-                    if to_canonic_fullname(query.object) not in authors:
+                if is_author_query:
+                    # Unfortunately, DBLP seems unable to perform exact match search.
+                    # For example searching "francois-durand$" returns "Jean-François
+                    # Durand" publications.
+                    # The following discards the false positives.
+                    authors = entry["authors"]
+                    if isinstance(authors, str): authors = [authors]
+                    authors = [to_canonic_fullname(author) for author in authors]
+                    if canonic_fullname not in authors:
+                        Log.debug("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
+
+                    # Unfortunately, reasearchers having homonyms are not well named
+                    # (e.g "Giovanni Pau 0001" instead of "Giovanni Pau", so we have
+                    # to fix them
+                    if query.object in self.map_dblp_name.keys():
+                        reverted_map_dblp_name = {to_canonic_fullname(v) : k for k, v in self.map_dblp_name.items()}
+                        entry["authors"] = [reverted_map_dblp_name.get(to_canonic_fullname(author), author) for author in entry["authors"]]
 
                 entries.append(entry)
         except KeyError: # occurs if 0 DBLP publication found
@@ -195,7 +207,7 @@ class DblpConnector(Connector):
                 object = "publ"
 
             search = {
-                "prefix" : "" if use_dblp_name == False else DblpConnector.to_dblp_name(q.object, self.map_dblp_name),
+                "prefix" : "" if use_dblp_name == False else self.get_dblp_name(q.object),
                 "suffix" : ""
             }
 
@@ -229,7 +241,7 @@ class DblpConnector(Connector):
             else:
                 raise RuntimeError("Cannot get reply from %s" % self.m_api_url)
 
-        entries = DblpConnector.extract_entries(q, result)
+        entries = self.extract_entries(q, result)
         return self.answer(DblpConnector.sanitize_entries(q, entries))
 
     def answer(self, entries :list) -> list:

@@ -171,7 +171,7 @@ class DblpConnector(Connector):
                     if isinstance(authors, str): authors = [authors]
                     authors = [to_canonic_fullname(author) for author in authors]
                     if canonic_fullname not in authors:
-                        Log.debug("Ignoring %(title)s %(authors)s (homonym)" % entry)
+                        #Log.debug("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
 
                     # Unfortunately, reasearchers having homonyms are not well named

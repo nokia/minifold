@@ -174,12 +174,11 @@ class DblpConnector(Connector):
                         #Log.debug("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
 
-                    # Unfortunately, reasearchers having homonyms are not well named
-                    # (e.g "Giovanni Pau 0001" instead of "Giovanni Pau", so we have
-                    # to fix them
-                    if query.object in self.map_dblp_name.keys():
-                        reverted_map_dblp_name = {to_canonic_fullname(v) : k for k, v in self.map_dblp_name.items()}
-                        entry["authors"] = [reverted_map_dblp_name.get(to_canonic_fullname(author), author) for author in entry["authors"]]
+                    # Fix author names having homonyms are not well named (e.g
+                    # "Giovanni Pau 0001" instead of "Giovanni Pau").
+                    entry["authors"] = [
+                        author.rstrip(" 0123456789") for author in entry["authors"]
+                    ]
 
                 entries.append(entry)
         except KeyError: # occurs if 0 DBLP publication found

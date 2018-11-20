@@ -268,8 +268,7 @@ class HalConnector(Connector):
                 url_options.append("fl=%s" % attributes)
             if q.filters    != None:
                 url_options.append("fq=%s" % HalConnector.binary_predicate_to_hal(q.filters))
-            if q.limit      != None:
-                url_options.append("rows=%s" % int(q.limit))
+            url_options.append("rows=%s" % (int(q.limit) if q.limit else 2000))
             if q.sort_by    != None:
                 url_options.append("sort=%s" % ",".join([
                     "%s+%s" % (
@@ -281,7 +280,7 @@ class HalConnector(Connector):
             url_options += ["sort=submittedDate_tdate+desc", "wt=%s" % self.format]
 
             # Hardcoded rows=2000 to guarantee that all publications are fetched.
-            q_hal = "%(server)s/?q=%(options)s&rows=2000" % {
+            q_hal = "%(server)s/?q=%(options)s" % {
                 "server"  : self.api_url,
                 "options" : "&".join(url_options)
             }

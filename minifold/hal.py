@@ -280,7 +280,8 @@ class HalConnector(Connector):
 
             url_options += ["sort=submittedDate_tdate+desc", "wt=%s" % self.format]
 
-            q_hal = "%(server)s/?q=%(options)s" % {
+            # Hardcoded rows=2000 to guarantee that all publications are fetched.
+            q_hal = "%(server)s/?q=%(options)s&rows=2000" % {
                 "server"  : self.api_url,
                 "options" : "&".join(url_options)
             }

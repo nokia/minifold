@@ -24,14 +24,15 @@ def str_to_html(s :str) -> str:
     #return html.escape(s).rstrip(".").rstrip(",")
     return s.rstrip(".").rstrip(",")
 
-def dict_to_html(d :dict, keys :list) -> str:
+def dict_to_html(d :dict, keys :list, map_label :dict = dict()) -> str:
     html = "\n<table>\n"
     for k in keys:
         try:
             value = d[k]
             if value != None:
+                label = map_label.get(k, k).title()
                 html += "  <tr><th>%s</th><td>%s</td></tr>\n" % (
-                    k.title(),
+                    label,
                     value_to_html(value)
                 )
         except KeyError:

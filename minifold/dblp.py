@@ -171,7 +171,7 @@ class DblpConnector(Connector):
                         entry["authors"] = [entry["authors"]]
 
                     if canonic_fullname not in [to_canonic_fullname(author) for author in entry["authors"]]:
-                        Log.warning("Ignoring %(title)s %(authors)s (homonym)" % entry)
+                        #Log.warning("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
 
                     # Fix author names having homonyms are not well named (e.g

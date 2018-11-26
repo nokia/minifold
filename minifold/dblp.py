@@ -179,7 +179,6 @@ class DblpConnector(Connector):
                     entry["authors"] = [
                         author.rstrip(" 0123456789") for author in entry["authors"]
                     ]
-                    Log.debug("DBLP: authors2 = %s" % entry["authors"])
 
                 entries.append(entry)
         except KeyError: # occurs if 0 DBLP publication found

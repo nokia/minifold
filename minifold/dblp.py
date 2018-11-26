@@ -167,11 +167,11 @@ class DblpConnector(Connector):
                     # For example searching "francois-durand$" returns "Jean-François
                     # Durand" publications.
                     # The following discards the false positives.
-                    authors = entry["authors"]
-                    if isinstance(authors, str): authors = [authors]
-                    authors = [to_canonic_fullname(author) for author in authors]
-                    if canonic_fullname not in authors:
-                        #Log.debug("Ignoring %(title)s %(authors)s (homonym)" % entry)
+                    if isinstance(entry["authors"], str):
+                        entry["authors"] = [entry["authors"]]
+
+                    if canonic_fullname not in [to_canonic_fullname(author) for author in entry["authors"]]:
+                        Log.warning("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
 
                     # Fix author names having homonyms are not well named (e.g
@@ -179,6 +179,7 @@ class DblpConnector(Connector):
                     entry["authors"] = [
                         author.rstrip(" 0123456789") for author in entry["authors"]
                     ]
+                    Log.debug("DBLP: authors2 = %s" % entry["authors"])
 
                 entries.append(entry)
         except KeyError: # occurs if 0 DBLP publication found

@@ -12,26 +12,34 @@ __license__    = "BSD-3"
 
 import json, os, traceback
 from minifold.entries_connector import EntriesConnector
-from minifold.log               import Log
 
-def load_json_from_str(json_data :str) -> list:
-    return json.loads(json_data)
+def identity(json_py) -> list:
+    # Minifold expects a list of dict, so if you are looking
+    # for a specific part of the json file, this callback
+    # is an opportunity to extract the data of interests.
+    return json_py
 
-def load_json_from_file(json_filename :str) -> list:
+def load_json_from_str(json_data :str, extract_json = identity) -> list:
+    assert isinstance(json_data, str)
+    entries = extract_json(json.loads(json_data))
+    assert isinstance(entries, list), "Minifold expects a list of dict, got %s" % type(entries)
+    return entries
+
+def load_json_from_file(json_filename :str, extract_json = identity) -> list:
     entries = None
-    try:
-        with open(json_filename, "r") as f_json:
-            entries = load_json_from_str(f_json.read())
-    except Exception as e:
-        Log.error(traceback.print_exc())
+    with open(json_filename, "r") as f_json:
+        entries = load_json_from_str(f_json.read(), extract_json)
     return entries
 
 class JsonConnector(EntriesConnector):
-    def __init__(self, json_data :str):
-        super().__init__(load_json_from_str(json_data))
+    def __init__(self, json_data :str, extract_json = identity):
+        entries = load_json_from_str(json_data, extract_json)
+        assert isinstance(entries, list)
+        super().__init__(entries)
 
 class JsonFileConnector(JsonConnector):
-    def __init__(self, json_filename :str):
-        super().__init__(load_json_from_file(json_filename))
+    def __init__(self, json_filename :str, extract_json = identity):
+        with open(json_filename, "r") as f_json:
+            super().__init__(f_json.read(), extract_json)
     # For the moment we only support ACTION_READ queries,
     # but this could be extended

@@ -18,12 +18,6 @@ class ValuesFromDictFonctor:
     def attributes(self) -> list:
         return self.m_attributes
 
-    def get_values(self, entry :dict) -> tuple:
-        ret = tuple()
-        for key in self.attributes:
-            try:
-                ret += (entry.get(key),)
-            except KeyError as e:
-                raise KeyError("Entry %r has no key named %r" % (entry, key))
-        return ret
+    def __call__(self, entry :dict) -> tuple:
+        return tuple(entry.get(k) for k in self.attributes)
 

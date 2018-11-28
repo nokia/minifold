@@ -18,7 +18,7 @@ def unique_impl(fonctor :ValuesFromDictFonctor, entries :list) -> list:
     ret = list()
     seen_keys = set()
     for entry in entries:
-        key = fonctor.get_values(entry)
+        key = fonctor(entry)
         if len(key) == 1:
             (key,) = key
         if key not in seen_keys:

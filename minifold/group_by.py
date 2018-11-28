@@ -17,7 +17,7 @@ from .values_from_dict      import ValuesFromDictFonctor
 def group_by_impl(fonctor :ValuesFromDictFonctor, entries :list) -> dict:
     ret = dict()
     for entry in entries:
-        key = fonctor.get_values(entry)
+        key = fonctor(entry)
         if len(key) == 1:
             (key,) = key
         if key not in ret.keys(): ret[key] = list()

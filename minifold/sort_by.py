@@ -15,7 +15,7 @@ from .query                 import Query, ACTION_READ
 from .values_from_dict      import ValuesFromDictFonctor
 
 def sort_by_impl(fonctor : ValuesFromDictFonctor, entries :list, reverse = True) -> list:
-    return sorted(entries, key = fonctor.get_values, reverse = reverse)
+    return sorted(entries, key = fonctor, reverse = reverse)
 
 def sort_by(attributes :list, entries :list, reverse = False) -> list:
     fonctor = ValuesFromDictFonctor(attributes)

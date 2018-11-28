@@ -10,7 +10,8 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import html, re
+import re
+from html import escape
 
 PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
@@ -21,7 +22,7 @@ PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[
 #        return s.rstrip(".").rstrip(",")
 
 def str_to_html(s :str) -> str:
-    #return html.escape(s).rstrip(".").rstrip(",")
+    #return escape(s).rstrip(".").rstrip(",")
     return s.rstrip(".").rstrip(",")
 
 def dict_to_html(d :dict, keys :list, map_label :dict = dict()) -> str:
@@ -42,7 +43,7 @@ def dict_to_html(d :dict, keys :list, map_label :dict = dict()) -> str:
 
 def to_html_link(d :dict, k :str, v :str) -> str:
     try:
-        return "<a href=\"%s\">%s</a>" % (d[k], html.escape(v))
+        return "<a href=\"%s\">%s</a>" % (d[k], escape(v))
     except KeyError:
         return v
 
@@ -51,13 +52,13 @@ def value_to_html(x) -> str:
         ret = dict_to_html(x, x.keys())
     elif isinstance(x, str):
         if PATTERN_URL.match(x):
-            ret = "<a href=\"%s\">%s</a>" % (x, html.escape(x))
+            ret = "<a href=\"%s\">%s</a>" % (x, escape(x))
         else:
             ret = str_to_html(x)
     elif isinstance(x, (list, set)):
         ret = ", ".join([value_to_html(value) for value in x])
     else:
-        ret = html.escape("%s" % x)
+        ret = escape("%s" % x)
     return ret
 
 

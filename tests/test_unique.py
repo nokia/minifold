@@ -16,7 +16,6 @@ from pprint                         import pprint
 from minifold.entries_connector     import EntriesConnector
 from minifold.query                 import Query, ACTION_READ
 from minifold.unique                import unique, UniqueConnector
-from minifold.values_from_dict      import ValuesFromDictFonctor
 
 if __name__ == '__main__':
 

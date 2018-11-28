@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
-# PyBGL is available at https://github.com/nokia/PyBGL
+__author__     = "Marc-Olivier Buob"
+__maintainer__ = "Marc-Olivier Buob"
+__email__      = "marc-olivier.buob@nokia-bell-labs.com"
+__copyright__  = "Copyright (C) 2018, Nokia"
+__license__    = "BSD-3"
 
 try:
+    # PyBGL is available at https://github.com/nokia/PyBGL
     from pybgl.graph        import DirectedGraph, vertices, add_edge, add_vertex, edges, vertices
     from pybgl.graph_dp     import GraphDp
     from pybgl.graphviz     import dotstr_to_html

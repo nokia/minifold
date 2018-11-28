@@ -11,6 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .connector             import Connector
+from .hash                  import to_hashable
 from .query                 import Query, ACTION_READ
 from .values_from_dict      import ValuesFromDictFonctor
 
@@ -20,6 +21,7 @@ def group_by_impl(fonctor :ValuesFromDictFonctor, entries :list) -> dict:
         key = fonctor(entry)
         if len(key) == 1:
             (key,) = key
+        key = to_hashable(key)
         if key not in ret.keys(): ret[key] = list()
         ret[key].append(entry)
     return ret

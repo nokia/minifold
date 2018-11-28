@@ -78,3 +78,13 @@ def entries_to_html(entries :list) -> str:
         ])
     }
 
+def html(s :str):
+    """
+    Evaluate HTML code in a Jupyter Notebook.
+    Args:
+        s: A str containing HTML code.
+    """
+    from IPython.display import display, HTML
+    chart = HTML(s)
+    # or chart = charts.plot(...)
+    display(chart)

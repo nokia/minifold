@@ -22,7 +22,7 @@ class ValuesFromDictFonctor:
         ret = tuple()
         for key in self.attributes:
             try:
-                ret += (entry[key],)
+                ret += (entry.get(key),)
             except KeyError as e:
                 raise KeyError("Entry %r has no key named %r" % (entry, key))
         return ret

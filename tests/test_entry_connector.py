@@ -38,6 +38,8 @@ if __name__ == '__main__':
     print("Query: %s" % q)
 
     print("Result:")
-    pprint(entries_connector.query(q))
+    entries = entries_connector.query(q)
+    pprint(entries)
 
+    assert entries == [{'a': 100, 'c': 300, 'd': None}, {'a': 100, 'c': None, 'd': 400}]
     sys.exit(0)

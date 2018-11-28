@@ -30,11 +30,12 @@ class EntriesConnector(Connector):
             if len(queried_attributes) > 0:
                 for raw_entry in self.entries:
                     if q.filters == None or q.filters.match(raw_entry):
-                        entry = {k:v for k,v in raw_entry.items() if k in queried_attributes}
-                        missing_attributes = set(queried_attributes) - set(entry.keys())
-                        for k in missing_attributes:
-                            entry[k] = None
-                        ret.append(entry)
+                        #entry = {k:v for k,v in raw_entry.items() if k in queried_attributes}
+                        #missing_attributes = set(queried_attributes) - set(entry.keys())
+                        #for k in missing_attributes:
+                        #    entry[k] = None
+                        #ret.append(entry)
+                        ret.append({k : raw_entry.get(k) for k in queried_attributes})
         else:
             raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
         return self.answer(ret)

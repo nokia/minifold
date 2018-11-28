@@ -15,7 +15,7 @@ from .query                 import Query, ACTION_READ
 from .values_from_dict      import ValuesFromDictFonctor
 
 def unique_impl(fonctor :ValuesFromDictFonctor, entries :list) -> list:
-    ret = []
+    ret = list()
     seen_keys = set()
     for entry in entries:
         key = fonctor.get_values(entry)
@@ -23,7 +23,7 @@ def unique_impl(fonctor :ValuesFromDictFonctor, entries :list) -> list:
             (key,) = key
         if key not in seen_keys:
             ret.append(entry)
-        seen_keys.add(key)
+            seen_keys.add(key)
     return ret
 
 def unique(attributes :list, entries :list) -> list:

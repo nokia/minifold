@@ -11,7 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import re
-from html import escape
+from html       import escape
 
 PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
@@ -89,3 +89,10 @@ def html(s :str):
     chart = HTML(s)
     # or chart = charts.plot(...)
     display(chart)
+
+def print_error(x):
+    """
+    Print an error in a Jupyter Notebook.
+    """
+    print(str(x), file = sys.stderr)
+

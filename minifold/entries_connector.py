@@ -28,14 +28,12 @@ class EntriesConnector(Connector):
         if q.action == ACTION_READ:
             queried_attributes = set(q.attributes) & self.keys if len(q.attributes) > 0 else self.keys
             if len(queried_attributes) > 0:
-                for raw_entry in self.entries:
+                fetched = 0
+                for raw_entry in self.entries[q.offset:]:
                     if q.filters == None or q.filters.match(raw_entry):
-                        #entry = {k:v for k,v in raw_entry.items() if k in queried_attributes}
-                        #missing_attributes = set(queried_attributes) - set(entry.keys())
-                        #for k in missing_attributes:
-                        #    entry[k] = None
-                        #ret.append(entry)
                         ret.append({k : raw_entry.get(k) for k in queried_attributes})
+                        fetched += 1
+                        if fetched == q.limit: break
         else:
             raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
         return self.answer(ret)

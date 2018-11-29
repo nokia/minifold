@@ -28,6 +28,8 @@ if __name__ == '__main__':
     print("Entries:")
     pprint(entries)
 
+    #----------------------------------------
+
     entries_connector = EntriesConnector(entries)
     q = Query(
         action = ACTION_READ,
@@ -38,8 +40,33 @@ if __name__ == '__main__':
     print("Query: %s" % q)
 
     print("Result:")
-    entries = entries_connector.query(q)
-    pprint(entries)
+    result = entries_connector.query(q)
+    pprint(result)
 
-    assert entries == [{'a': 100, 'c': 300, 'd': None}, {'a': 100, 'c': None, 'd': 400}]
+    assert result == [{'a': 100, 'c': 300, 'd': None}, {'a': 100, 'c': None, 'd': 400}]
+
+    #----------------------------------------
+
+    offset = 1
+    limit = 2
+    attributes = ["a", "b", "c"]
+    q = Query(
+        attributes = attributes,
+        offset = offset,
+        limit = limit
+    )
+    print("Query: %s" % q)
+
+    print("Result:")
+    result = entries_connector.query(q)
+    pprint(result)
+
+    expected = [{k : entry.get(k) for k in attributes} for entry in entries[offset : offset + limit]]
+    assert result == expected, """
+        Got      : %s\n
+        Expected : %s\n
+    """ % (result, expected)
+
     sys.exit(0)
+
+

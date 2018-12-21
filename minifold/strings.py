@@ -13,12 +13,12 @@ __license__    = "BSD-3"
 import re, string
 
 def remove_accents(s :str) -> str:
-    s = s.replace("š", "s") # Merci Ana :)
-    s = s.replace("ć", "c") # La même :)
-    s = s.replace("ç", "c")
     s = s.replace("á", "a")
     s = s.replace("à", "a")
     s = s.replace("ä", "a")
+    s = s.replace("ć", "c") # Ana
+    s = s.replace("ç", "c")
+    s = s.replace("đ", "d") # Sladana
     s = s.replace("é", "e")
     s = s.replace("ê", "e")
     s = s.replace("è", "e")
@@ -26,13 +26,13 @@ def remove_accents(s :str) -> str:
     s = s.replace("í", "i")
     s = s.replace("î", "i")
     s = s.replace("ï", "i")
-    s = s.replace("ł", "l") # Merci Bartek
+    s = s.replace("ł", "l") # Bartek
     s = s.replace("ö", "o")
     s = s.replace("ô", "o")
     s = s.replace("û", "u")
     s = s.replace("ü", "u")
+    s = s.replace("š", "s") # Ana, Sladana
     s = s.replace("ß", "ss")
-
     return s
 
 def remove_ponctuation(s :str) -> str:

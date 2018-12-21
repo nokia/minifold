@@ -10,20 +10,40 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-# API specs:
+# 1) API specs:
 #   https://wiki.inria.fr/lincs/Dblp-api
 #
 # Examples:
 #   http://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json
 #   http://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json
-
+#
+# 2) By default DBLP only returns up to 30 records. See:
+#   https://dblp.org/faq/How+to+use+the+dblp+search+API.html
+# The default limit in DblpConnector is set to 9999.
+#
+# 3) It is possible to query a specific researcher using its DBLP-ID.
+# The ID can be found by browsing the page related to a researcher.
+#
+# Example:
+#   https://dblp.uni-trier.de/pers/hd/c/Chen:Chung_Shue
+#   The DBLP ID can be obtained by clicking on the export bibliography icon.
+#
+# For the moment, only XML is supported by DBLP.
+#   https://dblp.org/pid/30/1446.xml
+#
 try:
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError:
     raise ImportError("DblpConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
 
+try:
+    import xmltodict
+except ImportError:
+    raise ImportError("DblpConnector requires python3-xmltodict: please run: apt-get install python3-xmltodict")
+
 import json, urllib.parse
+from pprint import pformat
 
 from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
@@ -32,10 +52,10 @@ from .log                   import Log
 from .strings               import remove_accents, to_canonic_fullname
 from .query                 import Query, ACTION_READ
 
-# Default DBLP API queried.
-DBLP_API_URL = "http://dblp.dagstuhl.de/search"
+# Default queried DBLP API.
+DBLP_API_URL = "http://dblp.dagstuhl.de"
 
-# Maps DBLP ontology to our ontology
+# Maps DBLP ontology to our ontology.
 DBLP_ALIASES = {
     "type"    : "dblp_doc_type",
     "venue"   : "conference",
@@ -43,11 +63,15 @@ DBLP_ALIASES = {
 }
 
 class DblpConnector(Connector):
-    def __init__(self, map_dblp_name = {}, dblp_api_url = DBLP_API_URL):
+    def __init__(self, map_dblp_id = {}, map_dblp_name = {}, dblp_api_url = DBLP_API_URL):
         super().__init__()
         self.m_api_url = dblp_api_url
+        assert not dblp_api_url.endswith("/search") and not dblp_api_url.endswith("/search/"), \
+            "Invalid API URL [%s], remove '/search/' suffix" % dblp_api_url
         self.m_format  = "json" # valid values are: "xml", "json", and "jsonp".
+        self.m_map_dblp_id = map_dblp_id
         self.m_map_dblp_name = map_dblp_name
+        self.m_map_rev_name = {to_canonic_fullname(dblp_name) : name for (name, dblp_name) in map_dblp_name.items()}
 
     @property
     def api_url(self) -> str:
@@ -61,11 +85,14 @@ class DblpConnector(Connector):
     def map_dblp_name(self) -> str:
         return self.m_map_dblp_name
 
+    @property
+    def map_dblp_id(self) -> str:
+        return self.m_map_dblp_id
+
     @staticmethod
     def to_dblp_name(s :str, map_dblp_name = {}) -> str:
-        try:
-            ret = map_dblp_name[s]
-        except KeyError:
+        ret = map_dblp_name.get(s)
+        if ret is None:
             s = remove_accents(s)
             words = s.lower().split()
             try:
@@ -83,38 +110,49 @@ class DblpConnector(Connector):
     def get_dblp_name(self, s :str) -> str:
         return DblpConnector.to_dblp_name(s, self.map_dblp_name)
 
-    def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
-        if p.operator == "&&":
-            self.binary_predicate_to_dblp(p.left, result),
-            self.binary_predicate_to_dblp(p.right, result)
-            return
+    def get_dblp_id(self, s :str) -> str:
+        pid = self.m_map_dblp_id.get(s)
+        return pid if pid else self.get_dblp_name(s)
 
-        if not isinstance(p.left, str):
-            raise RuntimeError("binary_predicate_to_dblp: left operand (%r) of %s must be a string" % (p.left, p))
-
-        if p.left in ["author", "authors", "researcher", "conference"]:
-            if p.operator == "==":
-                result["prefix"] = self.get_dblp_name(p.right)
-            else:
-                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
-        else:
-            if p.operator == "==" or p.operator == "~":
-                result["suffix"] += "%20" + ("%s:%s" % (p.left, p.right))
-            else:
-                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
+#    def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
+#        # Recursive call only supported for && clauses
+#        if p.operator == "&&":
+#            self.binary_predicate_to_dblp(p.left, result),
+#            self.binary_predicate_to_dblp(p.right, result)
+#            return
+#
+#        # Simple predicate. The left member must be a attribute name of the entry.
+#        if not isinstance(p.left, str):
+#            raise RuntimeError("binary_predicate_to_dblp: left operand (%r) of %s must be a string" % (p.left, p))
+#
+#        if p.left in ["author", "authors", "researcher", "conference"]:
+#            # String attribute. Only "==" is supported.
+#            if p.operator == "==":
+#                result["prefix"] = self.get_dblp_name(p.right)
+#            else:
+#                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
+#        else:
+#            # Other attributes. Only "==" and "~" are supported.
+#            if p.operator == "==" or p.operator == "~":
+#                result["suffix"] += "%20" + ("%s:%s" % (p.left, p.right))
+#            else:
+#                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
 
     @staticmethod
     def to_doc_type(s :str) -> DocType:
         s = s.lower()
-        if   s in ["conference and workshop papers", "conference or workshop"]:
+        if   s in {
+            "article", "conference and workshop papers", "conference or workshop",
+            "incollection", "inproceedings", "proceedings"
+        }:
             return DocType.ARTICLE
         #elif s == "????":
         #    return DocType.COMM
         elif s == "journal articles":
             return DocType.JOURNAL
-        elif s == "informal publications":
+        elif s in {"informal publications", "reference works"}:
             return DocType.REPORT
-        elif s == "books and theses":
+        elif s in {"books and theses", "parts in books or collections"}:
             return DocType.BOOKS_AND_THESES
         #elif s == "????":
         #    return DocType.HDR
@@ -124,32 +162,44 @@ class DblpConnector(Connector):
             Log.warning("DblpConnector.to_doc_type: unknown type: %s" % s)
             return DocType.UNKNOWN
 
-    @staticmethod
-    def sanitize_entry(q :Query, entry :dict) -> dict:
-        # TODO not clear if we should keep "doc_type"
-        if (("doc_type" in q.attributes) and ("type" in entry.keys())) or (len(q.attributes) == 0 and q.object == "publication"):
-            entry["doc_type"] = DblpConnector.to_doc_type(entry["type"])
-        # TODO this should only be:
-        if (("dblp_doc_type" in q.attributes) and ("type" in entry.keys())) or (len(q.attributes) == 0 and q.object == "publication"):
-            entry["dblp_doc_type"] = DblpConnector.to_doc_type(entry["type"])
+    def sanitize_entry(self, q :Query, entry :dict) -> dict:
+        if "type" in entry.keys():
+            doc_type = DblpConnector.to_doc_type(entry["type"])
+            entry["doc_type"]      = doc_type # Compatible with Hal "doc_type" values.
+            entry["dblp_doc_type"] = doc_type # To compare Hal and DBLP doc_types.
 
         if len(q.attributes) > 0:
             keys = set(entry.keys()) & set(q.attributes)
             entry = {k : entry[k] for k in keys}
 
-        for k, v in entry.items():
+        for (k, v) in entry.items():
             if isinstance(v, str):
                 try:
                     entry[k] = int(v)
                 except ValueError:
                     pass
 
+        if "authors" in entry.keys():
+            # Fix author names having homonyms are not well-named (e.g
+            # "Giovanni Pau 0001" instead of "Giovanni Pau").
+            entry["authors"] = [
+                author.rstrip(" 0123456789") for author in entry["authors"]
+            ]
+
+            # Convert DBLP names to our names if needed.
+            entry["authors"] = [
+                self.m_map_rev_name.get(to_canonic_fullname(author), author) \
+                for author in entry["authors"]
+            ]
+
         return entry
 
     def extract_entries(self, query :Query, results :list) -> list:
         entries = list()
-        is_author_query = query.object not in {"publication", "researcher", "conference"}
-        canonic_fullname = to_canonic_fullname(self.get_dblp_name(query.object)).rstrip("$") if is_author_query else None
+        # If the query is not a standard Dblp object, we are pulling a bibliography
+        # of a researcher who is identified by q.object (PID or fullname)
+        is_bib_query = query.object not in {"publication", "researcher", "conference"}
+        canonic_fullname = to_canonic_fullname(self.get_dblp_name(query.object)).rstrip("$") if is_bib_query else None
         try:
             raw_entries = results["result"]["hits"]["hit"]
             for raw_entry in raw_entries:
@@ -162,7 +212,7 @@ class DblpConnector(Connector):
                 except KeyError:
                     pass
 
-                if is_author_query:
+                if is_bib_query:
                     # Unfortunately, DBLP seems unable to perform exact match search.
                     # For example searching "francois-durand$" returns "Jean-François
                     # Durand" publications.
@@ -170,78 +220,129 @@ class DblpConnector(Connector):
                     if isinstance(entry["authors"], str):
                         entry["authors"] = [entry["authors"]]
 
-                    if canonic_fullname not in [to_canonic_fullname(author) for author in entry["authors"]]:
+                    if canonic_fullname not in [
+                        to_canonic_fullname(author) for author in entry["authors"]
+                    ]:
                         #Log.warning("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
-
-                    # Fix author names having homonyms are not well named (e.g
-                    # "Giovanni Pau 0001" instead of "Giovanni Pau").
-                    entry["authors"] = [
-                        author.rstrip(" 0123456789") for author in entry["authors"]
-                    ]
 
                 entries.append(entry)
         except KeyError: # occurs if 0 DBLP publication found
             pass
         return entries
 
-    @staticmethod
-    def sanitize_entries(q :Query, entries :list) -> list:
-        return [DblpConnector.sanitize_entry(q, entry) for entry in entries]
+    def sanitize_entries(self, q :Query, entries :list) -> list:
+        return [self.sanitize_entry(q, entry) for entry in entries]
 
     def query(self, q :Query) -> list:
         super().query(q)
         entries = list()
         if q.action == ACTION_READ:
 
-            use_dblp_name = False
+            pid = None
+            format = self.format
             object = ""
-            if   q.object == "publication": object = "publ"
-            elif q.object == "researcher":  object = "author"
-            elif q.object == "conference":  object = "venue"
-            else:
-                # We assume that q.object is a DBLP id and that
-                # we're looking for the corresponding publications.
-                use_dblp_name = True
-                object = "publ"
-
-            search = {
-                "prefix" : "" if use_dblp_name == False else self.get_dblp_name(q.object),
-                "suffix" : ""
-            }
-
-            if q.filters != None:
-                self.binary_predicate_to_dblp(q.filters, search)
-
-            # DBLP API does not allow to select specific attributes,
-            # define filters, etc. It only returns publications matching
-            # a searched string.
             url_options = list()
-            url_options.append("%s%s" % (search["prefix"], search["suffix"]))
-            if q.limit  != None: url_options.append("h=%s" % q.limit)
-            if q.offset != None: url_options.append("f=%s" % q.offset)
-            url_options.append("format=%s" % self.format)
+            if   q.object == "publication":
+                object = "search/publ"
+            elif q.object == "researcher":
+                object = "search/author"
+            elif q.object == "conference":
+                object = "search/venue"
+            else:
+                fullname = q.object
+                pid = self.map_dblp_id.get(fullname)
+                dblp_name = self.get_dblp_name(fullname)
+                object = "pid" if pid else "search/publ"
+                # For the moment, DBLP only supports XML for pid-based queries.
+                # https://dblp.org/pid/30/1446.xml
+                if pid: format = "xml"
+                else: url_options.append(dblp_name)
 
-            q_dblp = "%(server)s/%(object)s/api?q=%(query)s" % {
-                "server" : self.api_url,
-                "object" : object,
-                "query"  : "&".join(url_options)
-            }
+            if object == "pid":
+                if q.filters or q.limit or q.offset is not None:
+                    Log.warning("DblpConnector: in query [%s]: WHERE, LIMIT, OFFSET clauses are not supported by DBLP" % q)
+                q_dblp = "%(server)s/%(object)s/%(pid)s.%(format)s" % {
+                    "server" : self.api_url,
+                    "object" : object,
+                    "pid"    : pid,
+                    "format" : format,
+                }
+            else:
+                # WHERE
+                if q.filters:
+                    Log.warning("DblpConnector: WHERE clause ignored in [%s]" % q)
+#                # The following dict is used to craft the DBLP query
+#                search = {
+#                    "prefix" : self.get_dblp_name(q.object),
+#                    "suffix" : ""
+#                }
+#
+#                if q.filters != None:
+#                    self.binary_predicate_to_dblp(q.filters, search)
+#
+#                url_options.append("%s%s" % (search["prefix"], search["suffix"]))
 
-            Log.info("--> DBLP: %s (%s)" % (q_dblp, q))
+                # OFFSET and LIMIT
+                url_options.append("h=%s" % q.limit if q.limit is not None else "h=9999")
+                if q.offset is not None:
+                    url_options.append("f=%s" % q.offset)
+
+                # Format of the result.
+                url_options.append("format=%s" % format)
+                q_dblp = "%(server)s/%(object)s/api?q=%(query)s" % {
+                    "server" : self.api_url,
+                    "object" : object,
+                    "query"  : "&".join(url_options)
+                }
+
+            Log.info("--> DBLP: %s" % q_dblp)
             http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
-            reply = http.request("GET", q_dblp)
+            reply = http.request("GET", q_dblp, retries = 5)
 
             if reply.status == 200:
-                if self.m_format == "json":
-                    result = json.loads(reply.data.decode("utf-8"))
-                else:
-                    raise RuntimeError("Format not implemented: %s" % self.m_format)
-            else:
-                raise RuntimeError("Cannot get reply from %s" % self.m_api_url)
+                data = reply.data.decode("utf-8")
+                if format == "json":
+                    result = json.loads(data)
+                    entries = self.extract_entries(q, result)
+                elif format == "xml":
+                    data = data.replace("<i>", "")
+                    data = data.replace("</i>", "")
+                    result = xmltodict.parse(data, dict_constructor=dict)
+                    # N.B. There are two other keys of interests
+                    # - "co" : coauthors
+                    # - "person" : information about the researcher
 
-        entries = self.extract_entries(q, result)
-        return self.answer(DblpConnector.sanitize_entries(q, entries))
+                    def xml_to_entry(d :dict) -> dict:
+                        publication_type = next(iter(d.keys()))
+                        entry = d[publication_type]
+                        entry["type"] = publication_type
+                        key = \
+                            "author" if "author" in entry.keys() else \
+                            "editor" if "editor" in entry.keys() else \
+                            None
+                        if key:
+                            # Sometimes, author is represented by a dict with key
+                            # '@orcid' and '#text'
+                            if isinstance(entry[key], str):
+                                entry[key] = [entry[key]]
+                            entry["authors"] = [
+                                author["#text"] if isinstance(author, dict) else author \
+                                for author in entry[key]
+                            ]
+                        else:
+                            Log.warning("No author found for this DBLP publication:\n%s" % \
+                                pformat(entry)
+                            )
+                        return entry
+
+                    entries = [xml_to_entry(d) for d in result["dblpperson"]["r"]]
+                else:
+                    raise RuntimeError("Format not implemented: %s" % self.format)
+            else:
+                raise RuntimeError("Cannot get reply from %s" % self.api_url)
+
+        return self.answer(self.sanitize_entries(q, entries))
 
     def answer(self, entries :list) -> list:
         return entries

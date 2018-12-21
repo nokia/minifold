@@ -22,7 +22,7 @@ from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
-from .strings               import remove_accents
+from .strings               import remove_accents, to_canonic_fullname
 from .query                 import Query, ACTION_READ, SORT_ASC
 
 # Default HAL API queried
@@ -80,6 +80,7 @@ class HalConnector(Connector):
         self.m_format       = "json"
         self.m_map_hal_id   = map_hal_id
         self.m_map_hal_name = map_hal_name
+        self.m_map_rev_name = {to_canonic_fullname(hal_name) : name for (name, hal_name) in map_hal_name.items()}
 
     @property
     def api_url(self) -> str:
@@ -99,14 +100,13 @@ class HalConnector(Connector):
 
     @staticmethod
     def to_hal_name(s, map_name = {}) -> str:
-        try:
-            s = map_name[s]
-        except KeyError:
+        ret = map_name.get(s)
+        if ret is None:
             s = s.lower()
             s = s.replace(" ", "-")
             s = remove_accents(s)
-            s = s.replace("ç", "%C3%A7")
-        return s
+            ret = s.replace("ç", "%C3%A7") # Merci aux François
+        return ret
 
     @staticmethod
     def string_to_hal(s) -> str:
@@ -157,7 +157,7 @@ class HalConnector(Connector):
 
     @staticmethod
     def sanitize_dict(d :dict) -> dict:
-        for k,v in d.items():
+        for k, v in d.items():
             if isinstance(v, list):
                 if len(v) == 1:
                     d[k] = v[0]
@@ -169,16 +169,20 @@ class HalConnector(Connector):
     def to_doc_type(s :str) -> DocType:
         ret = DocType.UNKNOWN
 
+        # TODO: use dict()
         s = s.lower()
         if   s in ["these", "ouv"]:
             ret = DocType.BOOKS_AND_THESES
-        elif s in ["comm"]: # Unfortunately, art may design journal articles
+        elif s in ["comm"]:
             ret = DocType.ARTICLE
-        elif s == "douv": # direction d'ouvrage (proceedings)
+        elif s == "douv":
+            # "douv" means "direction d'ouvrage" (aka proceedings)
             ret = DocType.ARTICLE
         elif s == "art":
+            # Unfortunately, "art" may design journal articles
             ret = DocType.JOURNAL
-        elif s in ["report", "mem", "presconf"]: # mem (mémoires) can be used for internship report. presconf = keynote
+        elif s in ["lecture", "report", "mem", "presconf"]:
+            # "mem" (mémoires) can be used for internship report. presconf = keynote
             ret = DocType.REPORT
         elif s == "poster":
             ret = DocType.POSTER
@@ -197,39 +201,46 @@ class HalConnector(Connector):
 
         return ret
 
-    @staticmethod
-    def sanitize_entries(entries :list) -> list:
-        for i, entry in enumerate(entries):
-            entries[i] = HalConnector.sanitize_dict(entry)
+    def sanitize_entry(self, entry :dict) -> dict:
+        entry = HalConnector.sanitize_dict(entry)
+        keys = entry.keys()
 
-            keys = entries[i].keys()
-
-            # << WORKAROUND: Otherwise sometimes the title is not returned ?!
-            if "title" not in keys:
-                for title_key in ["title_en", "title_fr"]:
-                    try:
-                        entries[i]["title"] = entries[i][title_key]
-                        break
-                    except KeyError:
-                        pass
-            # >> WORKAROUND
-
-            if "docType_s" in keys:
+        # << WORKAROUND: Otherwise sometimes the title is not returned ?!
+        if "title" not in keys:
+            for title_key in ["title_en", "title_fr"]:
                 try:
-                    entries[i]["doc_type"] = HalConnector.to_doc_type(entries[i]["docType_s"])
-                except ValueError as e:
-                    Log.warning("Invalid doc_type: %s" % e)
-                    Log.warning(entries[i])
-                    entries[i]["doc_type"] = DocType.UNKNOWN
-
-            if "authFullName_s" in keys:
-                if isinstance(entries[i]["authFullName_s"], str):
-                    entries[i]["authFullName_s"] = [entries[i]["authFullName_s"]]
-                elif isinstance(entries[i]["authFullName_s"], list):
+                    entry["title"] = entry[title_key]
+                    break
+                except KeyError:
                     pass
-                else:
-                    Log.warning("Invalid author list: %s", entries[i]["authFullName_s"])
-        return entries
+        # >> WORKAROUND
+
+        if "docType_s" in keys:
+            try:
+                entry["doc_type"] = HalConnector.to_doc_type(entry["docType_s"])
+            except ValueError as e:
+                Log.warning("Invalid doc_type: %s" % e)
+                Log.warning(entry)
+                entry["doc_type"] = DocType.UNKNOWN
+
+        if "authFullName_s" in keys:
+            if isinstance(entry["authFullName_s"], str):
+                entry["authFullName_s"] = [entry["authFullName_s"]]
+            elif isinstance(entry["authFullName_s"], list):
+                pass
+            else:
+                Log.warning("Invalid author list: %s", entry["authFullName_s"])
+
+            # Convert HAL names to our names if needed.
+            entry["authFullName_s"] = [
+                self.m_map_rev_name.get(to_canonic_fullname(author), author) \
+                for author in entry["authFullName_s"]
+            ]
+
+        return entry
+
+    def sanitize_entries(self, entries :list) -> list:
+        return [self.sanitize_entry(entry) for entry in entries]
 
     def query(self, q :Query) -> list:
         super().query(q)
@@ -249,16 +260,20 @@ class HalConnector(Connector):
             elif q.object == "publication":
                 object = "*:*"
             else:
-                # This object is not standard. By convention we assume that the user is querying
-                # publications related to a researcher. We try to use if HAL ID (if any).
+                # This is not a standard HAL object.
+                # By convention, we assume that the user is querying
+                # publications related to a researcher.
                 try:
+                    # Try to consider the object as a HAL ID.
+                    # Surround name with double quote (%22) to perform exact match.
                     hal_id = self.map_hal_id[q.object]
                     object = "*:*&fq=authIdHal_s:(%%22%s%%22)" % self.map_hal_id[q.object]
                 except KeyError:
-                    # If not found, we try to translate this string using self.map_hal_name.
-                    # If not found, this function crafts an infered HAL name
+                    # If not found, try to translate the string using self.map_hal_name.
+                    # Else, use the provided name.
+                    # Surround name with double quote (%22) to perform exact match.
                     hal_name = HalConnector.to_hal_name(q.object, self.map_hal_name)
-                    object = "authFullName_t:(%%22%s%%22)" % hal_name
+                    object = "authFullName_t:(%%22%s%%22)" % hal_name.replace(" ", "%%20")
 
             if object == None:
                 raise RuntimeError("Object not supported: %s" % q.object)
@@ -285,18 +300,26 @@ class HalConnector(Connector):
                 "options" : "&".join(url_options)
             }
 
-            Log.info("--> HAL: %s (%s)" % (q_hal, q))
+            Log.info("--> HAL: %s" % q_hal)
             http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
             reply = http.request("GET", q_hal)
             if reply.status == 200:
                 if self.m_format == "json":
-                    entries = HalConnector.sanitize_entries(
-                        json.loads(reply.data.decode("utf-8"))["response"]["docs"]
-                    )
+                    data = json.loads(reply.data.decode("utf-8"))
+                    try:
+                        entries = self.sanitize_entries(
+                            data["response"]["docs"]
+                        )
+                    except KeyError: # if "response" is not found, an error has occurred
+                        from pprint import pformat
+                        raise RuntimeError("HAL error:\n%s" % pformat(data))
                 else:
                     raise RuntimeError("Format not implemented: %s" % self.m_format)
             else:
-                raise RuntimeError("Cannot get reply from %s" % self.m_api_url)
+                raise RuntimeError("Cannot get reply from %s (status %s)" % (
+                    self.m_api_url,
+                    reply.status
+                ))
 
         return self.answer(entries)
 

@@ -26,6 +26,7 @@ def remove_accents(s :str) -> str:
     s = s.replace("í", "i")
     s = s.replace("î", "i")
     s = s.replace("ï", "i")
+    s = s.replace("ł", "l") # Merci Bartek
     s = s.replace("ö", "o")
     s = s.replace("ô", "o")
     s = s.replace("û", "u")

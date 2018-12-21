@@ -6,3 +6,4 @@ minifold.egg-info
 *.pyc
 *.swp
 *.swo
+.minifoldrc

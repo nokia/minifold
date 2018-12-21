@@ -131,7 +131,7 @@ class LdapConnector(Connector):
                     if len(q.attributes) > 0:
                         for missing_key in (set(q.attributes) - set(entry.keys())):
                             entry[missing_key] = None
-                    results.append(entry)
+                    results.append(dict(entry))
         else:
             raise RuntimeError("Not implemented")
         return self.answer(results)

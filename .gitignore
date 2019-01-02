@@ -7,3 +7,4 @@ minifold.egg-info
 *.swp
 *.swo
 .minifoldrc
+.pytest_cache

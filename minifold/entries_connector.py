@@ -30,10 +30,12 @@ class EntriesConnector(Connector):
             if len(queried_attributes) > 0:
                 fetched = 0
                 for raw_entry in self.entries[q.offset:]:
+                    if fetched == q.limit:
+                        # Note q.limit may be None. Then the number of fetched entries is not limited.
+                        break
                     if q.filters == None or q.filters.match(raw_entry):
                         ret.append({k : raw_entry.get(k) for k in queried_attributes})
                         fetched += 1
-                        if fetched == q.limit: break
         else:
             raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
         return self.answer(ret)

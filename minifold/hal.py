@@ -22,7 +22,7 @@ from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
-from .strings               import remove_accents, to_canonic_fullname
+from .strings               import to_international_string, to_canonic_fullname
 from .query                 import Query, ACTION_READ, SORT_ASC
 
 # Default HAL API queried
@@ -99,13 +99,17 @@ class HalConnector(Connector):
         return self.m_map_hal_name
 
     @staticmethod
+    def quote(s) -> str:
+        return "%%22%s%%22" % s
+
+    @staticmethod
     def to_hal_name(s, map_name = {}) -> str:
         ret = map_name.get(s)
         if ret is None:
             s = s.lower()
             s = s.replace(" ", "-")
-            s = remove_accents(s)
-            ret = s.replace("ç", "%C3%A7") # Merci aux François
+            s = s.replace("ç", "%C3%A7") # Merci aux François
+            ret = to_international_string(s)
         return ret
 
     @staticmethod
@@ -114,7 +118,7 @@ class HalConnector(Connector):
         s = s.replace("š", "s") # Merci Ana :)
         s = s.replace("ć", "c") # La même :)
         s = urllib.parse.quote(s)
-        return "%%22%s%%22" % s
+        return HalConnector.quote(s)
 
     @staticmethod
     def binary_predicate_to_hal(p :BinaryPredicate) -> str:
@@ -152,7 +156,7 @@ class HalConnector(Connector):
         else:
             raise RuntimeError("binary_predicate_to_hal: unsupported operator (%s): %s" % (p.operator, p))
 
-        # space in operators must also be substituted
+        # Space in HAL operators must also be replaced
         return ret.replace(" ", "%20")
 
     @staticmethod
@@ -265,15 +269,13 @@ class HalConnector(Connector):
                 # publications related to a researcher.
                 try:
                     # Try to consider the object as a HAL ID.
-                    # Surround name with double quote (%22) to perform exact match.
                     hal_id = self.map_hal_id[q.object]
-                    object = "*:*&fq=authIdHal_s:(%%22%s%%22)" % self.map_hal_id[q.object]
+                    object = "*:*&fq=authIdHal_s:(%s)" % HalConnector.quote(self.map_hal_id[q.object])
                 except KeyError:
                     # If not found, try to translate the string using self.map_hal_name.
                     # Else, use the provided name.
-                    # Surround name with double quote (%22) to perform exact match.
                     hal_name = HalConnector.to_hal_name(q.object, self.map_hal_name)
-                    object = "authFullName_t:(%%22%s%%22)" % hal_name.replace(" ", "%%20")
+                    object = "authFullName_t:(%%22%s%%22)" % HalConnector.quote(hal_name.replace(" ", "%%20"))
 
             if object == None:
                 raise RuntimeError("Object not supported: %s" % q.object)

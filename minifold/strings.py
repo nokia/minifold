@@ -12,28 +12,56 @@ __license__    = "BSD-3"
 
 import re, string
 
-def remove_accents(s :str) -> str:
-    s = s.replace("á", "a")
-    s = s.replace("à", "a")
-    s = s.replace("ä", "a")
-    s = s.replace("ć", "c") # Ana
-    s = s.replace("ç", "c")
-    s = s.replace("đ", "d") # Sladana
-    s = s.replace("é", "e")
-    s = s.replace("ê", "e")
-    s = s.replace("è", "e")
-    s = s.replace("ë", "e")
-    s = s.replace("í", "i")
-    s = s.replace("î", "i")
-    s = s.replace("ï", "i")
-    s = s.replace("ł", "l") # Bartek
-    s = s.replace("ö", "o")
-    s = s.replace("ô", "o")
-    s = s.replace("û", "u")
-    s = s.replace("ü", "u")
-    s = s.replace("š", "s") # Ana, Sladana
-    s = s.replace("ß", "ss")
-    return s
+MAP_TO_INTERNATIONAL = {
+    # Lower case
+    "á": "a",
+    "à": "a",
+    "ä": "a",
+    "ć": "c",
+    "ç": "c",
+    "đ": "d",
+    "é": "e",
+    "ê": "e",
+    "è": "e",
+    "ë": "e",
+    "í": "i",
+    "î": "i",
+    "ï": "i",
+    "ł": "l",
+    "ö": "o",
+    "ô": "o",
+    "û": "u",
+    "ü": "u",
+    "š": "s",
+    "ß": "ss",
+    # Upper case
+    "Á": "A",
+    "À": "A",
+    "Ä": "A",
+    "Ć": "C",
+    "Ç": "C",
+    "Đ": "D",
+    "É": "E",
+    "Ê": "E",
+    "È": "E",
+    "Ë": "E",
+    "Í": "I",
+    "Î": "I",
+    "Ï": "I",
+    "Ł": "L",
+    "Ö": "O",
+    "Ô": "O",
+    "Û": "U",
+    "Ü": "U",
+    "Š": "S",
+}
+
+def to_international_chr(c :chr) -> chr:
+    return MAP_TO_INTERNATIONAL.get(c, c)
+
+def to_international_string(s :str) -> str:
+    translator = str.maketrans(MAP_TO_INTERNATIONAL)
+    return s.translate(translator)
 
 def remove_ponctuation(s :str) -> str:
     translator = str.maketrans({key: None for key in string.punctuation})
@@ -41,19 +69,16 @@ def remove_ponctuation(s :str) -> str:
 
 def to_canonic_string(s :str) -> str:
     s = s.lower()
-    s = remove_accents(s)
+    s = to_international_string(s)
     s = remove_ponctuation(s)
     s = re.sub("[$^,?!.:]", "", s)
     s = re.sub("\\[a-zA-Z0-9]+ ", "", s) # remove latex directive
     s = re.sub(" +", " ", s)
-    #s = s.replace("data set", "dataset")
-    #s = " ".join(s.split())          # remove useless spaces
     s = s.replace(" ", "")            # remove space. Avoid issues like "data set" and "dataset"
     return s
 
 def to_canonic_fullname(s :str) -> str:
-    s = s.lower()
-    s = remove_accents(s)
+    s = to_international_string(s.lower())
     s = s.replace("-", " ")
     s = re.sub("\(.+\)", "", s)      # remove surnames
     s = re.sub("\&.*;", "", s)       # remove HTML

@@ -49,7 +49,7 @@ from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
-from .strings               import remove_accents, to_canonic_fullname
+from .strings               import to_international_string, to_canonic_fullname
 from .query                 import Query, ACTION_READ
 
 # Default queried DBLP API.
@@ -93,7 +93,7 @@ class DblpConnector(Connector):
     def to_dblp_name(s :str, map_dblp_name = {}) -> str:
         ret = map_dblp_name.get(s)
         if ret is None:
-            s = remove_accents(s)
+            s = to_international_string(s)
             words = s.lower().split()
             try:
                 words.remove("")

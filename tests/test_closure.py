@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -62,7 +62,6 @@ if WITH_PYBGL:
         html(dotstr_to_html(s_dot))
 
 def test_closure_g1():
-    print("test_closure_g1()")
     assert closure(0, EDGES1) == {0, 1, 2, 3, 4, 5}
     assert closure(1, EDGES1) == {1, 2, 3, 4, 5}
     assert closure(2, EDGES1) == {2, 3, 4, 5}
@@ -71,12 +70,10 @@ def test_closure_g1():
     assert closure(5, EDGES1) == {3, 5}
 
 def test_closure_g2():
-    print("test_closure_g2()")
     assert closure(0, EDGES2) == {0, 1}
     assert closure(1, EDGES2) == {1}
 
 def test_closure_g3():
-    print("test_closure_g3()")
     assert closure(0, EDGES3) == {0, 1, 2, 3, 4, 5}
     assert closure(1, EDGES3) == {1, 2, 3, 4, 5}
     assert closure(2, EDGES3) == {2, 3, 4, 5}
@@ -84,40 +81,21 @@ def test_closure_g3():
     assert closure(4, EDGES3) == {2, 3, 4, 5}
     assert closure(5, EDGES3) == {2, 3, 4, 5}
 
-def test_closure():
-    test_closure_g1()
-    test_closure_g2()
-    test_closure_g3()
-
 def test_minimal_cover_g1():
-    print("test_minimal_cover_g1()")
     min_fds = minimal_cover(EDGES1)
     if WITH_PYBGL:
         demo_minimal_cover(G1, min_fds)
     assert min_fds == {(0, 1), (1, 2), (2, 4), (4, 5), (5, 3)}
 
 def test_minimal_cover_g2():
-    print("test_minimal_cover_g2()")
     min_fds = minimal_cover(EDGES2)
     if WITH_PYBGL:
         demo_minimal_cover(G2, min_fds)
     assert min_fds == {(0, 1)}
 
 def test_minimal_cover_g3():
-    print("test_minimal_cover_g3()")
     min_fds = minimal_cover(EDGES3)
     if WITH_PYBGL:
         demo_minimal_cover(G3, min_fds)
     assert min_fds == {(0, 1), (1, 2), (2, 4), (4, 5), (5, 2), (5, 3)}
 
-def test_minimal_cover():
-    test_minimal_cover_g1()
-    test_minimal_cover_g2()
-    test_minimal_cover_g3()
-
-def test_closure_all():
-    test_closure()
-    test_minimal_cover()
-
-if __name__ == "__main__":
-    test_closure_all()

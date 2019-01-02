@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -10,29 +10,28 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import sys
-from pprint             import pprint
-
 from minifold.doc_type  import DocType
-from minifold.dblp      import DblpConnector
-from minifold.hal       import HalConnector
 
-if __name__ == '__main__':
-    x = DocType.HDR
-    y = DocType.BOOKS_AND_THESES
-    print("x = %s" % x)
-    print("y = %s" % x)
-    print("x < y = %s" % (x < y))
-    print("sorted = %s" % sorted([y, x]))
+def test_sort():
+    hdr = DocType.HDR
+    book  = DocType.BOOKS_AND_THESES
+    assert sorted([hdr, book]) == [book, hdr]
 
-    print("\nTest DBLP\n")
-    for s in ["conference and workshop papers", "conference or workshop", "journal articles", "informal publications", "books and theses", "editorship"]:
-        x = DblpConnector.to_doc_type(s)
-        print("%s --> %s" % (s, x))
+def test_dblp():
+    from minifold.dblp      import DblpConnector
+    for s in [
+        "conference and workshop papers",
+        "conference or workshop",
+        "journal articles",
+        "informal publications",
+        "books and theses",
+        "editorship"
+    ]:
+        assert DblpConnector.to_doc_type(s) != DocType.UNKNOWN
 
-    print("\nTest HAL\n")
+def test_hal():
+    from minifold.hal       import HalConnector
     for s in ["art", "comm", "report", "hdr", "couv", "patent"]:
-        x = HalConnector.to_doc_type(s)
-        print("%s --> %s" % (s, x))
+        assert HalConnector.to_doc_type(s) != DocType.UNKNOWN
 
-    sys.exit(0)
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -10,63 +10,46 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import sys
-from pprint                         import pprint
-
 from minifold.binary_predicate      import BinaryPredicate
 from minifold.entries_connector     import EntriesConnector
-from minifold.query                 import Query, ACTION_READ
+from minifold.query                 import Query
 
-if __name__ == '__main__':
-    entries = [
-        {'a' : 1,   'b' : 2,   'c' : 3},
-        {'a' : 10,  'b' : 20,  'c' : 30},
-        {'a' : 100, 'b' : 200, 'c' : 300},
-        {'a' : 100, 'b' : 200, 'd' : 400},
+ENTRIES = [
+    {'a' : 1,   'b' : 2,   'c' : 3},
+    {'a' : 10,  'b' : 20,  'c' : 30},
+    {'a' : 100, 'b' : 200, 'c' : 300},
+    {'a' : 100, 'b' : 200, 'd' : 400},
+]
+
+def test_query_select_where():
+    entries_connector = EntriesConnector(ENTRIES)
+    q = Query(
+        attributes = ["a", "c", "d"],
+        filters    = BinaryPredicate(BinaryPredicate("a", "<=", 100), "&&", BinaryPredicate("b", ">", 20))
+    )
+    result = entries_connector.query(q)
+
+    assert result == [
+        {'a': 100, 'c': 300, 'd': None},
+        {'a': 100, 'c': None, 'd': 400}
     ]
 
-    print("Entries:")
-    pprint(entries)
-
-    #----------------------------------------
-
-    entries_connector = EntriesConnector(entries)
-    q = Query(
-        action = ACTION_READ,
-        object = "",
-        attributes = ["a", "c", "d"],
-        filters = BinaryPredicate(BinaryPredicate("a", "<=", 100), "&&", BinaryPredicate("b", ">", 20))
-    )
-    print("Query: %s" % q)
-
-    print("Result:")
-    result = entries_connector.query(q)
-    pprint(result)
-
-    assert result == [{'a': 100, 'c': 300, 'd': None}, {'a': 100, 'c': None, 'd': 400}]
-
-    #----------------------------------------
-
-    offset = 1
-    limit = 2
+def test_offset_limit():
+    entries_connector = EntriesConnector(ENTRIES)
     attributes = ["a", "b", "c"]
-    q = Query(
-        attributes = attributes,
-        offset = offset,
-        limit = limit
-    )
-    print("Query: %s" % q)
+    for offset in range(len(ENTRIES)):
+        for limit in range(len(ENTRIES)):
+            q = Query(
+                attributes = attributes,
+                offset     = offset,
+                limit      = limit
+            )
 
-    print("Result:")
-    result = entries_connector.query(q)
-    pprint(result)
-
-    expected = [{k : entry.get(k) for k in attributes} for entry in entries[offset : offset + limit]]
-    assert result == expected, """
-        Got      : %s\n
-        Expected : %s\n
-    """ % (result, expected)
-
-    sys.exit(0)
+            result = entries_connector.query(q)
+            expected = [{k : entry.get(k) for k in attributes} for entry in ENTRIES[offset : offset + limit]]
+            assert result == expected, """
+                Got      : %s\n
+                Expected : %s\n
+            """ % (result, expected)
 
 

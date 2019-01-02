@@ -97,7 +97,6 @@ def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -
 
     return ret
 
-from minifold.log import Log
 class JoinIfConnector(Connector):
     def __init__(self, left :Connector, right :Connector, join_if, mode :int = INNER_JOIN):
         super().__init__()
@@ -114,8 +113,6 @@ class JoinIfConnector(Connector):
         self.m_right_entries.clear()
         self.m_left_entries = self.left.query(q)
         self.m_right_entries = self.right.query(q)
-        Log.debug("In %s: L <-- %r:\n%s" % (self, self.m_left, self.m_left_entries))
-        Log.debug("In %s: R <-- %r:\n%s" % (self, self.m_right, self.m_right_entries))
         if   self.m_mode == INNER_JOIN:
             ret = inner_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
         elif self.m_mode == LEFT_JOIN:

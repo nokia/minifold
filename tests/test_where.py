@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -10,40 +10,46 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import sys
-from pprint                         import pprint
-
 from minifold.binary_predicate      import BinaryPredicate
 from minifold.entries_connector     import EntriesConnector
 from minifold.query                 import Query, ACTION_READ
 from minifold.where                 import where, WhereConnector
 
-if __name__ == '__main__':
-    entries = [
-        {'a' : 1,   'b' : 2,   'c' : 3},
-        {'a' : 10,  'b' : 20,  'c' : 30},
-        {'a' : 100, 'b' : 200, 'c' : 300}
-    ]
+ENTRIES = [
+    {'a' : 1,   'b' : 2,   'c' : 3},
+    {'a' : 10,  'b' : 20,  'c' : 30},
+    {'a' : 100, 'b' : 200, 'c' : 300}
+]
 
-    # Method 1: filter with function
-    keep_if = lambda entry: entry['a'] <= 10 and entry["c"] > 0
-    pprint(where(entries, keep_if))
+KEEP_IF = lambda entry: entry['a'] <= 10 and entry["c"] > 0
 
-    # Method 2: if the connector supports filtering, pass the filter in the query
-    entries_connector = EntriesConnector(entries)
-    pprint(entries_connector.query(Query(
-        action = ACTION_READ,
-        object = "",
-        attributes = [],
-        filters = BinaryPredicate(BinaryPredicate("a", "<=", 10), "&&", BinaryPredicate("c", ">", 0))
-    )))
+EXPECTED = [
+    {'a' : 1,   'b' : 2,   'c' : 3},
+    {'a' : 10,  'b' : 20,  'c' : 30}
+]
 
-    # Method 3: if not, you could always filter afterwards
-    where_connector = WhereConnector(entries_connector, keep_if)
-    pprint(where_connector.query(Query(
-        action = ACTION_READ,
-        object = "",
-        attributes = [],
-    )))
+def test_where():
+    obtained = where(ENTRIES, KEEP_IF)
+    assert obtained == EXPECTED
 
-    sys.exit(0)
+def test_where_on_entries_connector():
+    entries_connector = EntriesConnector(ENTRIES)
+    obtained = entries_connector.query(
+        Query(
+            filters = BinaryPredicate(
+                BinaryPredicate("a", "<=", 10),
+                "&&",
+                BinaryPredicate("c", ">", 0)
+            )
+        )
+    )
+    assert obtained == EXPECTED
+
+def test_where_connector():
+    entries_connector = EntriesConnector(ENTRIES)
+    where_connector = WhereConnector(entries_connector, KEEP_IF)
+    obtained = where_connector.query(
+        Query()
+    )
+    assert obtained == EXPECTED
+

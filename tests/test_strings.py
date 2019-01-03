@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -10,19 +10,22 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import sys
+from minifold.strings import MAP_TO_INTERNATIONAL, remove_ponctuation, to_international_string, to_canonic_fullname
 
-from minifold.strings import to_canonic_fullname
+def test_to_international_string_lower():
+    s_in  = "ÁÀÄĆÇĐÉÊÈËÍÎÏŁÖÔÛÜŠáàäćçđéêèëíîïłöôûüšß"
+    s_out = "AAACCDEEEEIIILOOUUSaaaccdeeeeiiiloouusss"
+    assert to_international_string(s_in) == s_out
 
-if __name__ == '__main__':
+def remove_ponctuation():
+    s_in  = "a,,ä;â.à:a a"
+    s_out = "a  ä â à a a"
+    assert remove_ponctuation(s_in) == s_out
 
-    fullnames = [
-        "Diana Zeaiter-Joumblatt",
-        "Marc-Olivier Buob",
-        "Salah Eddine-Elayoubi"
-    ]
-
-    for fullname in fullnames:
-        print("%r --> %r" % (fullname, to_canonic_fullname(fullname)))
-
-    sys.exit(0)
+def to_canonic_fullname():
+    assert to_canonic_fullname("firstname1-firstname2 lastname")   == "firstname1 firstname2 lastname"
+    assert to_canonic_fullname("firstname (surname) lastname")     == "firstname lastname"
+    assert to_canonic_fullname("<b>firstname</b> <i>lastname</i>") == "firstname lastname"
+    assert to_canonic_fullname("firstname X. lastname")            == "firstname lastname"
+    assert to_canonic_fullname("  firstname   lastname ")          == "firstname lastname"
+    assert to_canonic_fullname("\it firstname lastname ")          == "firstname lastname"

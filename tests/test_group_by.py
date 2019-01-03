@@ -47,7 +47,7 @@ def test_group_by_c():
     assert len(aggregat)      == 4
 
 def test_group_by_ab():
-    aggregat = group_by(["a", "b"], ENTRIES)
+    aggregat = group_by(("a", "b"), ENTRIES)
     assert len(aggregat[(1,   200)]) == 1
     assert len(aggregat[(1,   250)]) == 1
     assert len(aggregat[(10,  200)]) == 1
@@ -55,7 +55,7 @@ def test_group_by_ab():
     assert len(aggregat)             == 4
 
 def test_group_by_ba():
-    aggregat = group_by(["b", "a"], ENTRIES)
+    aggregat = group_by(("b", "a"), ENTRIES)
     assert len(aggregat[(200, 1)])   == 1
     assert len(aggregat[(250, 1)])   == 1
     assert len(aggregat[(200, 10)])  == 1
@@ -65,7 +65,7 @@ def test_group_by_ba():
 def test_group_by_connector():
     print("connector group by b, a")
     group_by_connector = GroupByConnector(
-        ["b", "a"],
+        ("b", "a"),
         EntriesConnector(ENTRIES)
     )
 

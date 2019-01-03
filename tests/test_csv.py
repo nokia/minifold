@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -10,32 +10,47 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import sys
-from pprint             import pprint
-from minifold.csv       import CsvConnector
+import io
 
-from minifold.where     import where
-from minifold.group_by  import group_by
-from minifold.select    import select
-from minifold.sort_by   import sort_by
+from minifold.csv       import CsvConnector, CsvModeEnum
+from minifold.query     import Query
 
-if __name__ == "__main__":
-    filename = "/home/mando/git/gitolite/space_temp_alarm/BTS_Syslog_10.16.214.44_23_9_2015_10_20_13_40.csv"
-    connector = CsvConnector(filename, delimiter=',', quotechar='"')
+CSV_STRING = """col1,col2,col3
+1,2,3
+1111,22222,333
+"11,1",222,333
+"""
 
-    alarms = sort_by(
-        ["timestamp"],
-        select(
-            where(
-                connector.m_entries,
-                lambda e: e["severity"] in ["VIP", "WRN", "ERR"]
-            ),
-            ["timestamp", "process_id", "print_id"]
-        )
-    )
+DELIMITER = ","
+QUOTECHAR = "\""
 
-    aggregat = group_by(["process_id"], alarms)
-    pprint(aggregat)
+EXPECTED = [
+    {"col1" : "1",    "col2" : "2",     "col3" : "3"},
+    {"col1" : "1111", "col2" : "22222", "col3" : "333"},
+    {"col1" : "11,1", "col2" : "222",   "col3" : "333"},
+]
 
-    sys.exit(0)
+CSV_FILENAME = "data.csv"
+
+def test_csv_string():
+    connector = CsvConnector(CSV_STRING, delimiter=DELIMITER, quotechar=QUOTECHAR, mode=CsvModeEnum.STRING)
+    obtained = connector.query(Query())
+    assert obtained == EXPECTED
+
+def test_csv_stringio():
+    stream = io.StringIO(CSV_STRING)
+    connector = CsvConnector(stream, delimiter=DELIMITER, quotechar=QUOTECHAR, mode=CsvModeEnum.TEXTIO)
+    obtained = connector.query(Query())
+    assert obtained == EXPECTED
+
+def test_csv_textiowrapper():
+    with open(CSV_FILENAME) as stream:
+        connector = CsvConnector(stream, delimiter=DELIMITER, quotechar=QUOTECHAR, mode=CsvModeEnum.TEXTIO)
+        obtained = connector.query(Query())
+        assert obtained == EXPECTED
+
+def test_csv_filename():
+    connector = CsvConnector(CSV_FILENAME, delimiter=DELIMITER, quotechar=QUOTECHAR, mode=CsvModeEnum.FILENAME)
+    obtained = connector.query(Query())
+    assert obtained == EXPECTED
 

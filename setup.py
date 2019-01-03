@@ -26,5 +26,5 @@ setup(
     zip_safe         = False,
     packages         = find_packages(),
     requires         = ["typing"],
-    package_dir      = {"minifold" : "minifold"},
+    package_dir      = {"minifold" : "src"},
 )

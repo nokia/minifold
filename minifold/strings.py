@@ -13,27 +13,6 @@ __license__    = "BSD-3"
 import re, string
 
 MAP_TO_INTERNATIONAL = {
-    # Lower case
-    "á": "a",
-    "à": "a",
-    "ä": "a",
-    "ć": "c",
-    "ç": "c",
-    "đ": "d",
-    "é": "e",
-    "ê": "e",
-    "è": "e",
-    "ë": "e",
-    "í": "i",
-    "î": "i",
-    "ï": "i",
-    "ł": "l",
-    "ö": "o",
-    "ô": "o",
-    "û": "u",
-    "ü": "u",
-    "š": "s",
-    "ß": "ss",
     # Upper case
     "Á": "A",
     "À": "A",
@@ -54,6 +33,28 @@ MAP_TO_INTERNATIONAL = {
     "Û": "U",
     "Ü": "U",
     "Š": "S",
+    # Lower case
+    "á": "a",
+    "à": "a",
+    "ä": "a",
+    "ć": "c",
+    "ç": "c",
+    "đ": "d",
+    "é": "e",
+    "ê": "e",
+    "è": "e",
+    "ë": "e",
+    "í": "i",
+    "î": "i",
+    "ï": "i",
+    "ł": "l",
+    "ö": "o",
+    "ô": "o",
+    "û": "u",
+    "ü": "u",
+    "š": "s",
+    # Only lower
+    "ß": "ss",
 }
 
 def to_international_chr(c :chr) -> chr:
@@ -72,17 +73,17 @@ def to_canonic_string(s :str) -> str:
     s = to_international_string(s)
     s = remove_ponctuation(s)
     s = re.sub("[$^,?!.:]", "", s)
-    s = re.sub("\\[a-zA-Z0-9]+ ", "", s) # remove latex directive
+    s = re.sub("\\[a-zA-Z0-9]+ ", "", s) # Remove LateX macros
     s = re.sub(" +", " ", s)
-    s = s.replace(" ", "")            # remove space. Avoid issues like "data set" and "dataset"
+    s = s.replace(" ", "")               # Remove extra spaces
     return s
 
 def to_canonic_fullname(s :str) -> str:
     s = to_international_string(s.lower())
     s = s.replace("-", " ")
-    s = re.sub("\(.+\)", "", s)      # remove surnames
-    s = re.sub("\&.*;", "", s)       # remove HTML
-    s = re.sub("[a-zA-Z]+\.", "", s) # remove sigles
-    s = " ".join(s.split())          # remove useless spaces
+    s = re.sub("\(.+\)", "", s)      # Remove surnames
+    s = re.sub("\&.*;", "", s)       # Remove HTML
+    s = re.sub("[a-zA-Z]+\.", "", s) # Remove sigles
+    s = " ".join(s.split())          # Remove useless spaces
     return s
 

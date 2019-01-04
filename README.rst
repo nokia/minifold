@@ -18,10 +18,8 @@ To use all connectors, it is advised to also install the following packages:
 
 For example, under Debian-based distribution, run:
 
-```bash
   sudo apt-get update
   sudo apt-get install python3 python3-ldap3 python3-pycountry python3-urllib3 python3-tweepy
-```
 
 ==================
 Installation steps

@@ -12,9 +12,9 @@ Minifold requires Python_ 3.
 
 To use all connectors, it is advised to also install the following packages:
 
-- `python3-ldap3` for LDAP connector;
-- `python3-pycountry` and `python3-urllib3` for HAL and DBLP connectors;
-- `python3-tweepy` for Twitter connector.
+- ``python3-ldap3`` for LDAP connector;
+- ``python3-pycountry`` and ``python3-urllib3`` for HAL and DBLP connectors;
+- ``python3-tweepy`` for Twitter connector.
 
 For example, under Debian-based distribution, run:
 
@@ -44,7 +44,7 @@ Testing
 ==================
 
 1. Test scripts are provided in tests/ directory.
-2. Install `python3-pytest`. 
+2. Install ``python3-pytest``. 
 3. Run tests as follows:
 
 .. code:: shell
@@ -56,11 +56,11 @@ Testing
 Packaging
 ==================
 
-Install the packages needed to build `.rpm` and `.deb` packages:
+Install the packages needed to build ``.rpm`` and ``.deb`` packages:
 
-- `python3-setuptools`
-- `python3-stdeb` for `.deb` packages
-- `rpm` for `.rpm` packages
+- ``python3-setuptools``
+- ``python3-stdeb`` for ``.deb`` packages
+- ``rpm`` for ``.rpm`` packages
 
 For example, under Debian-based distribution, run:
 
@@ -69,14 +69,14 @@ For example, under Debian-based distribution, run:
   sudo apt-get update
   sudo apt-get install python3-setuptools python3-stdeb rpm
 
-To build `.rpm` package (in `dist/`), run:
+To build ``.rpm`` package (in ``dist/``), run:
 
 .. code:: shell
 
   cd ~/git/minifold/tests/
   python3 setup.py bdist_rpm
 
-To build `.deb` package (in `deb_dist`), run:
+To build ``.deb`` package (in ``deb_dist/``), run:
 
 .. code:: shell
 

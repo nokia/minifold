@@ -18,9 +18,10 @@ To use all connectors, it is advised to also install the following packages:
 
 For example, under Debian-based distribution, run:
 
-::
+```bash
   sudo apt-get update
   sudo apt-get install python3 python3-ldap3 python3-pycountry python3-urllib3 python3-tweepy
+```
 
 ==================
 Installation steps
@@ -30,7 +31,6 @@ From sources
 
 - The sources are available on the minifold git_.
 
-::
   mkdir ~/git
   git clone https://github.com/nokia/minifold.git
   cd ~/git/minifold
@@ -45,7 +45,6 @@ Testing
 2. Install `python3-pytest`. 
 3. Run tests as follows:
 
-::
   cd ~/git/minifold/tests/
   pytest-3
 
@@ -61,18 +60,15 @@ Install the packages needed to build `.rpm` and `.deb` packages:
 
 For example, under Debian-based distribution, run:
 
-::
   sudo apt-get update
   sudo apt-get install python3-setuptools python3-stdeb rpm
 
 To build `.rpm` package (in `dist/`), run:
 
-::
   cd ~/git/minifold/tests/
   python3 setup.py bdist_rpm
 
 To build `.deb` package (in `deb_dist`), run:
 
-::
   python3 setup.py --command-packages=stdeb.command bdist_deb
 

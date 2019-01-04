@@ -1,10 +1,12 @@
 build
 data
 debian
+deb_dist
 dist
 minifold.egg-info
 *.pyc
 *.swp
 *.swo
+*.tar.gz
 .minifoldrc
 .pytest_cache

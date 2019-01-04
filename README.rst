@@ -5,6 +5,12 @@ Minifold
 .. _git: https://github.com/nokia/minifold.git 
 
 ==================
+Overview
+==================
+
+Minifold is a Python module able to interact with various data sources (e.g. CSV, LDAP, SQL, twitter, etc.) and to query/combine/aggregate them with database-like operators.
+
+==================
 Dependencies
 ==================
 

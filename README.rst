@@ -1,8 +1,8 @@
 Minifold
 ==============
 
-.. _Python: http://python.org/
 .. _git: https://github.com/nokia/minifold.git 
+.. _wiki: https://github.com/nokia/minifold/wiki
 
 ==================
 Overview
@@ -10,11 +10,13 @@ Overview
 
 Minifold is a Python module able to interact with various data sources (e.g. CSV, LDAP, SQL, twitter, etc.) and to query/combine/aggregate them with database-like operators.
 
+For more information, visit the wiki_.
+
 ==================
 Dependencies
 ==================
 
-Minifold requires Python_ 3.
+Minifold requires `Python 3 <http://python.org/>`.
 
 To use all connectors, it is advised to also install the following packages:
 
@@ -35,7 +37,7 @@ Installation steps
 From sources
 ------------------
 
-- The sources are available on the minifold git_.
+- The sources are available on git_.
 
 .. code:: shell
 
@@ -49,7 +51,7 @@ From sources
 Testing
 ==================
 
-1. Test scripts are provided in tests/ directory.
+1. Test scripts are provided in ``tests/`` directory.
 2. Install ``python3-pytest``. 
 3. Run tests as follows:
 

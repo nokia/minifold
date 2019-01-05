@@ -9,8 +9,22 @@ import os
 from setuptools import find_packages, setup
 
 __version__        = (0, 9, 2)
-ROOT_PATH          = os.path.abspath(os.path.dirname(__file__))
-LONG_DESCRIPTION   = open(os.path.join(ROOT_PATH, "README.rst")).read()
+
+README = ""
+try:
+    with open("README.rst") as f_readme:
+        README = f_readme.read()
+except:
+    pass
+
+HISTORY = ""
+try:
+    with open("HISTORY.rst") as f_history:
+        HISTORY = f_history.read()
+except:
+    pass
+
+LONG_DESCRIPTION = "%s\n\n%s" % (README, HISTORY)
 
 # Copy is only triggered if the file does not yet exists.
 
@@ -24,7 +38,8 @@ setup(
     url              = "http://github.com/nokia/minifold",
     license          = "BSD-3",
     zip_safe         = False,
-    packages         = find_packages(),
+    packages         = ["minifold"],
+    package_dir      = {"minifold" : "src/"},
     requires         = ["typing"],
-    package_dir      = {"minifold" : "src"},
+    test_suite       = "tests",
 )

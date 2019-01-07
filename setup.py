@@ -5,8 +5,7 @@
 #     python3 setup.py install
 #     python3 setup.py bdist_rpm
 
-import os
-from setuptools import find_packages, setup
+from setuptools import setup
 
 __version__        = (0, 9, 2)
 

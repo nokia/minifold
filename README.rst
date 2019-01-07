@@ -42,8 +42,9 @@ From sources
 .. code:: shell
 
   mkdir ~/git
+  cd ~/git
   git clone https://github.com/nokia/minifold.git
-  cd ~/git/minifold
+  cd minifold
   python3 setup.py build
   sudo python3 setup.py install
 

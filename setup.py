@@ -37,7 +37,7 @@ setup(
     url              = "http://github.com/nokia/minifold",
     license          = "BSD-3",
     zip_safe         = False,
-    packages         = find_packages(),
+    packages         = ["minifold"],
     package_dir      = {"minifold" : "src/"},
     requires         = ["typing"],
     test_suite       = "tests",

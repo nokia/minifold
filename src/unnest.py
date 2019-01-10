@@ -41,6 +41,7 @@ class UnnestConnector(Connector):
     def query(self, q :Query) -> list:
         super().query(q)
         return self.answer(
+            q,
             unnest(
                 self.m_map_key_unnestedkey,
                 self.child.query(q)

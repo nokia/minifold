@@ -342,7 +342,4 @@ class DblpConnector(Connector):
             else:
                 raise RuntimeError("Cannot get reply from %s" % self.api_url)
 
-        return self.answer(self.sanitize_entries(q, entries))
-
-    def answer(self, entries :list) -> list:
-        return entries
+        return self.answer(q, self.sanitize_entries(q, entries))

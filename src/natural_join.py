@@ -11,8 +11,9 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-from .query import Query, ACTION_READ
-from .join_if import merge_dict
+from .connector import Connector
+from .query     import Query, ACTION_READ
+from .join_if   import merge_dict
 
 def are_naturally_joined(l :dict, r :dict) -> bool:
     inter_keys = set(l.keys()) & set(r.keys())
@@ -31,7 +32,7 @@ def natural_join(l_entries :list, r_entries :list) -> list:
                 ret.append(merge_dict(l, r))
     return ret
 
-class NaturalJoinConnector:
+class NaturalJoinConnector(Connector):
     def __init__(self, left, right):
         self.m_left = left
         self.m_right = right
@@ -43,7 +44,10 @@ class NaturalJoinConnector:
         self.m_right_entries.clear()
         self.m_left_entries = self.left.query(q)
         self.m_right_entries = self.right.query(q)
-        return self.answer()
+        return self.answer(
+            q,
+            natural_join(self.m_left_entries, self.m_right_entries)
+        )
 
     @property
     def left(self):
@@ -52,8 +56,5 @@ class NaturalJoinConnector:
     @property
     def right(self):
         return self.m_right
-
-    def answer(self) -> list:
-        return natural_join(self.m_left_entries, self.m_right_entries)
 
 

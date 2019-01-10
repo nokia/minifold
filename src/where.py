@@ -33,6 +33,7 @@ class WhereConnector(Connector):
     def query(self, q :Query) -> list:
         super().query(q)
         return self.answer(
+            q,
             where(
                 self.m_child.query(q),
                 self.m_keep_if

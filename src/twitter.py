@@ -110,11 +110,4 @@ class TwitterConnector:
         else:
             raise ValueError("TwitterConnector: invalid object '%s'" % q.object)
 
-        return self.answer(entries)
-
-    def answer(self, entries) -> list:
-        """
-        Returns:
-            A list of dict containing the queried entries.
-        """
-        return entries
+        return self.answer(q, entries)

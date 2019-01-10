@@ -75,7 +75,7 @@ class CsvConnector(Connector):
                         ret.append(entry)
         else:
             raise RuntimeError("CsvConnector.query: %s not yet implemented" % action_to_str(q.action))
-        return self.answer(ret)
+        return self.answer(q, ret)
 
     @property
     def keys(self) -> set:

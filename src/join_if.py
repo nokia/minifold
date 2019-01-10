@@ -114,16 +114,16 @@ class JoinIfConnector(Connector):
         self.m_left_entries = self.left.query(q)
         self.m_right_entries = self.right.query(q)
         if   self.m_mode == INNER_JOIN:
-            ret = inner_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+            entries = inner_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
         elif self.m_mode == LEFT_JOIN:
-            ret = left_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+            entries = left_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
         elif self.m_mode == RIGHT_JOIN:
-            ret = right_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+            entries = right_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
         elif self.m_mode == FULL_OUTER_JOIN:
-            ret = full_outer_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
+            entries = full_outer_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
         else:
             raise ValueError("JoinIfConnector::answer: Invalid mode %s:" % self.m_mode)
-        return self.answer(ret)
+        return self.answer(q, entries)
 
     @property
     def mode(self):

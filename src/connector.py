@@ -24,7 +24,11 @@ class Connector:
             Log.debug("%r: --> %s" % (self, q))
         # This method must be overloaded
 
-    def answer(self, entries :list) -> list:
+    def answer(self, q :Query, entries :list) -> list:
         if Connector.enable_debug:
-            Log.debug("%r: <--\n%s" % (self, "\n".join([str(entry) for entry in entries])))
+            Log.debug("%r: <-- %s\n%s" % (
+                self,
+                q,
+                "\n".join([str(entry) for entry in entries])
+            ))
         return entries

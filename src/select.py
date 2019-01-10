@@ -35,6 +35,7 @@ class SelectConnector(Connector):
         q = query.copy()
         q.attributes = [attribute for attribute in q.attributes if attribute in self.m_attributes]
         return self.answer(
+            query,
             select(
                 self.m_child.query(q),
                 self.m_attributes

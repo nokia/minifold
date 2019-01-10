@@ -99,7 +99,7 @@ class LdapConnector(Connector):
 
     def query(self, q :Query):
         super().query(q)
-        results = list()
+        entries = list()
 
         if q.action == ACTION_READ:
             if len(q.attributes) == 0:
@@ -131,9 +131,9 @@ class LdapConnector(Connector):
                     if len(q.attributes) > 0:
                         for missing_key in (set(q.attributes) - set(entry.keys())):
                             entry[missing_key] = None
-                    results.append(dict(entry))
+                    entries.append(dict(entry))
         else:
             raise RuntimeError("Not implemented")
-        return self.answer(results)
+        return self.answer(q, entries)
 
 

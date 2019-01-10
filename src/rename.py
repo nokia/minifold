@@ -84,10 +84,13 @@ class RenameConnector(Connector):
         super().query(q)
         assert self.child != None
         q_renamed = rename_query(deepcopy(q), self.map_qr)
-        return self.answer(self.child.query(q_renamed))
-
-    def answer(self, entries :list) -> list:
-        return rename(self.map_rq, entries)
+        return self.answer(
+            q,
+            rename(
+                self.map_rq,
+                self.child.query(q_renamed)
+            )
+        )
 
     @property
     def child(self):

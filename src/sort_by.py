@@ -39,6 +39,7 @@ class SortByConnector(Connector):
     def query(self, q :Query) -> list:
         super().query(q)
         return self.answer(
+            q,
             sort_by_impl(
                 self.m_fonctor,
                 self.m_child.query(q),

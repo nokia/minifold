@@ -42,8 +42,9 @@ class LambdasConnector(Connector):
         # - if q.filters    involves a field in m_map_lambdas.keys(), where(q.filters, self.child(... WHERE True))
         super().query(q)
         return self.answer(
+            q,
             lambdas(
                 self.m_map_lambdas,
-                self.answer(self.child.query(q))
+                self.child.query(q)
             )
         )

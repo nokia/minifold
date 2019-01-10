@@ -24,7 +24,7 @@ class EntriesConnector(Connector):
 
     def query(self, q :Query) -> list:
         super().query(q)
-        ret = list()
+        entries = list()
         if q.action == ACTION_READ:
             queried_attributes = set(q.attributes) & self.keys if len(q.attributes) > 0 else self.keys
             if len(queried_attributes) > 0:
@@ -34,11 +34,11 @@ class EntriesConnector(Connector):
                         # Note q.limit may be None. Then the number of fetched entries is not limited.
                         break
                     if q.filters == None or q.filters.match(raw_entry):
-                        ret.append({k : raw_entry.get(k) for k in queried_attributes})
+                        entries.append({k : raw_entry.get(k) for k in queried_attributes})
                         fetched += 1
         else:
             raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
-        return self.answer(ret)
+        return self.answer(q, entries)
 
     @property
     def keys(self) -> set:

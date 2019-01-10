@@ -323,5 +323,5 @@ class HalConnector(Connector):
                     reply.status
                 ))
 
-        return self.answer(entries)
+        return self.answer(q, entries)
 

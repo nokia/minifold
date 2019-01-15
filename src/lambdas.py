@@ -32,6 +32,9 @@ class LambdasConnector(Connector):
     def child(self):
         return self.m_child
 
+    def attributes(self, object :str) -> set:
+        return self.m_child.attributes(object) | self.m_map_lambdas
+
     def query(self, q :Query) -> list:
         #matching_lambdas_keys = set(q.attributes) & set(self.m_map_lambdas.keys())
         #if len(matching_lambdas_keys):

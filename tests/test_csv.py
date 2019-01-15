@@ -54,3 +54,7 @@ def test_csv_filename():
     obtained = connector.query(Query())
     assert obtained == EXPECTED
 
+def test_csv_attributes():
+    stream = io.StringIO(CSV_STRING)
+    connector = CsvConnector(stream, delimiter=DELIMITER, quotechar=QUOTECHAR, mode=CsvModeEnum.TEXTIO)
+    assert connector.attributes("") == {"col1", "col2", "col3"}

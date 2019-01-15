@@ -42,6 +42,9 @@ class UniqueConnector(Connector):
     def child(self):
         return self.m_child
 
+    def attributes(self, object :str) -> set:
+        return self.child.attributes(object)
+
     def query(self, q :Query) -> list:
         super().query(q)
         return self.answer(

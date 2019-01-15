@@ -22,6 +22,9 @@ class SelectConnector(Connector):
         self.m_child = child
         self.m_attributes = attributes
 
+    def attributes(self, object :str) -> set:
+        return set(self.m_attributes)
+
     @property
     def child(self):
         return self.m_child

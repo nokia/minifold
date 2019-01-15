@@ -28,6 +28,9 @@ class SortByConnector(Connector):
         self.m_child = child
         self.m_desc = desc
 
+    def attributes(self, object :str) -> set:
+        return self.child.attributes(object)
+
     @property
     def child(self):
         return self.m_child

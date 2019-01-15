@@ -40,6 +40,9 @@ class GroupByConnector(Connector):
     def child(self):
         return self.m_child
 
+    def attributes(self, object :str):
+        return set(self.m_fonctor.attributes)
+
     def query(self, q :Query) -> list:
         super().query(q)
         return self.answer(

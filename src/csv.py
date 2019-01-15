@@ -15,6 +15,7 @@ from enum       import Enum
 
 from .connector import Connector
 from .query     import Query, ACTION_READ, action_to_str
+from .log       import Log
 
 class CsvModeEnum(Enum):
     FILENAME = 0 # Use text file
@@ -26,8 +27,6 @@ class CsvModeEnum(Enum):
         i = len(self.__class__.__name__)
         return s[i + 1:]
 
-from minifold.log import Log
-Log.enable_print = True
 class CsvConnector(Connector):
     def __init__(
         self,
@@ -37,7 +36,6 @@ class CsvConnector(Connector):
         mode      :CsvModeEnum = CsvModeEnum.FILENAME
     ):
         super().__init__()
-        Log.debug(mode)
         stream = open(data, "rt")  if mode == CsvModeEnum.FILENAME else \
                  io.StringIO(data) if mode == CsvModeEnum.STRING   else \
                  data              if mode == CsvModeEnum.TEXTIO   else \
@@ -56,33 +54,19 @@ class CsvConnector(Connector):
         if mode == CsvModeEnum.FILENAME and stream:
             stream.close()
 
-        # Assuming that keys are declared in the first line of the CSV data.
-        self.m_keys = rows[0]
-        self.m_entries = [{self.m_keys[i] : v for i, v in enumerate(row)} for row in rows[1:]]
+        # Assuming that attributes are declared in the first line of the CSV data.
+        self.indexed_attributes = rows[0]
+        self.entries = [{self.indexed_attributes[i] : v for i, v in enumerate(row)} for row in rows[1:]]
 
-    def query(self, q :Query) -> list:
-        super().query(q)
+    def attributes(self, object :str):
+        return set(self.indexed_attributes)
+
+    def query(self, query :Query) -> list:
+        super().query(query)
         ret = list()
-        if q.action == ACTION_READ:
-            queried_attributes = set(q.attributes) & set(self.keys) if len(q.attributes) > 0 else self.keys
-            if len(queried_attributes) > 0:
-                for raw_entry in self.entries:
-                    if q.filters == None or q.filters.match(raw_entry):
-                        entry = {k : v for k, v in raw_entry.items() if k in queried_attributes}
-                        missing_attributes = set(queried_attributes) - set(entry.keys())
-                        for k in missing_attributes:
-                            entry[k] = None
-                        ret.append(entry)
+        if query.action == ACTION_READ:
+            ret = self.reshape_entries(query, self.entries)
         else:
-            raise RuntimeError("CsvConnector.query: %s not yet implemented" % action_to_str(q.action))
-        return self.answer(q, ret)
-
-    @property
-    def keys(self) -> set:
-        return self.m_keys
-
-    @property
-    def entries(self) -> list:
-        return self.m_entries
-
+            raise RuntimeError("CsvConnector.query: %s not yet implemented" % action_to_str(query.action))
+        return self.answer(query, ret)
 

@@ -26,6 +26,9 @@ class WhereConnector(Connector):
     def child(self):
         return self.m_child
 
+    def attributes(self, object :str) -> set:
+        return self.child.attributes(object)
+
     @property
     def keep_if(self):
         return self.m_keep_if

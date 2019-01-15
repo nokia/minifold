@@ -42,7 +42,7 @@ try:
 except ImportError:
     raise ImportError("DblpConnector requires python3-xmltodict: please run: apt-get install python3-xmltodict")
 
-import json, urllib.parse
+import json
 from pprint import pformat
 
 from .binary_predicate      import BinaryPredicate
@@ -72,6 +72,9 @@ class DblpConnector(Connector):
         self.m_map_dblp_id = map_dblp_id
         self.m_map_dblp_name = map_dblp_name
         self.m_map_rev_name = {to_canonic_fullname(dblp_name) : name for (name, dblp_name) in map_dblp_name.items()}
+
+    def attributes(self, object :str):
+        raise NotImplemented
 
     @property
     def api_url(self) -> str:
@@ -114,29 +117,29 @@ class DblpConnector(Connector):
         pid = self.m_map_dblp_id.get(s)
         return pid if pid else self.get_dblp_name(s)
 
-#    def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
-#        # Recursive call only supported for && clauses
-#        if p.operator == "&&":
-#            self.binary_predicate_to_dblp(p.left, result),
-#            self.binary_predicate_to_dblp(p.right, result)
-#            return
-#
-#        # Simple predicate. The left member must be a attribute name of the entry.
-#        if not isinstance(p.left, str):
-#            raise RuntimeError("binary_predicate_to_dblp: left operand (%r) of %s must be a string" % (p.left, p))
-#
-#        if p.left in ["author", "authors", "researcher", "conference"]:
-#            # String attribute. Only "==" is supported.
-#            if p.operator == "==":
-#                result["prefix"] = self.get_dblp_name(p.right)
-#            else:
-#                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
-#        else:
-#            # Other attributes. Only "==" and "~" are supported.
-#            if p.operator == "==" or p.operator == "~":
-#                result["suffix"] += "%20" + ("%s:%s" % (p.left, p.right))
-#            else:
-#                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
+    def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
+        # Recursive call only supported for && clauses
+        if p.operator == "&&":
+            self.binary_predicate_to_dblp(p.left, result),
+            self.binary_predicate_to_dblp(p.right, result)
+            return
+
+        # Simple predicate. The left member must be a attribute name of the entry.
+        if not isinstance(p.left, str):
+            raise RuntimeError("binary_predicate_to_dblp: left operand (%r) of %s must be a string" % (p.left, p))
+
+        if p.left in ["author", "authors", "researcher", "conference"]:
+            # String attribute. Only "==" is supported.
+            if p.operator == "==":
+                result["prefix"] = self.get_dblp_name(p.right)
+            else:
+                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
+        else:
+            # Other attributes. Only "==" and "~" are supported.
+            if p.operator == "==" or p.operator == "~":
+                result["suffix"] += "%20" + ("%s:%s" % (p.left, p.right))
+            else:
+                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
 
     @staticmethod
     def to_doc_type(s :str) -> DocType:
@@ -162,14 +165,14 @@ class DblpConnector(Connector):
             Log.warning("DblpConnector.to_doc_type: unknown type: %s" % s)
             return DocType.UNKNOWN
 
-    def sanitize_entry(self, q :Query, entry :dict) -> dict:
+    def reshape_entry(self, query :Query, entry :dict) -> dict:
         if "type" in entry.keys():
             doc_type = DblpConnector.to_doc_type(entry["type"])
             entry["doc_type"]      = doc_type # Compatible with Hal "doc_type" values.
             entry["dblp_doc_type"] = doc_type # To compare Hal and DBLP doc_types.
 
-        if len(q.attributes) > 0:
-            keys = set(entry.keys()) & set(q.attributes)
+        if len(query.attributes) > 0:
+            keys = set(entry.keys()) & set(query.attributes)
             entry = {k : entry[k] for k in keys}
 
         for (k, v) in entry.items():
@@ -197,7 +200,7 @@ class DblpConnector(Connector):
     def extract_entries(self, query :Query, results :list) -> list:
         entries = list()
         # If the query is not a standard Dblp object, we are pulling a bibliography
-        # of a researcher who is identified by q.object (PID or fullname)
+        # of a researcher who is identified by query.object (PID or fullname)
         is_bib_query = query.object not in {"publication", "researcher", "conference"}
         canonic_fullname = to_canonic_fullname(self.get_dblp_name(query.object)).rstrip("$") if is_bib_query else None
         try:
@@ -231,26 +234,26 @@ class DblpConnector(Connector):
             pass
         return entries
 
-    def sanitize_entries(self, q :Query, entries :list) -> list:
-        return [self.sanitize_entry(q, entry) for entry in entries]
+    def reshape_entries(self, query :Query, entries :list) -> list:
+        return [self.reshape_entry(query, entry) for entry in entries]
 
-    def query(self, q :Query) -> list:
-        super().query(q)
+    def query(self, query :Query) -> list:
+        super().query(query)
         entries = list()
-        if q.action == ACTION_READ:
+        if query.action == ACTION_READ:
 
             pid = None
             format = self.format
             object = ""
             url_options = list()
-            if   q.object == "publication":
+            if   query.object == "publication":
                 object = "search/publ"
-            elif q.object == "researcher":
+            elif query.object == "researcher":
                 object = "search/author"
-            elif q.object == "conference":
+            elif query.object == "conference":
                 object = "search/venue"
             else:
-                fullname = q.object
+                fullname = query.object
                 pid = self.map_dblp_id.get(fullname)
                 dblp_name = self.get_dblp_name(fullname)
                 object = "pid" if pid else "search/publ"
@@ -260,8 +263,8 @@ class DblpConnector(Connector):
                 else: url_options.append(dblp_name)
 
             if object == "pid":
-                if q.filters or q.limit or q.offset is not None:
-                    Log.warning("DblpConnector: in query [%s]: WHERE, LIMIT, OFFSET clauses are not supported by DBLP" % q)
+                if query.filters or query.limit or query.offset is not None:
+                    Log.warning("DblpConnector: in query [%s]: WHERE, LIMIT, OFFSET clauses are not supported by DBLP" % query)
                 q_dblp = "%(server)s/%(object)s/%(pid)s.%(format)s" % {
                     "server" : self.api_url,
                     "object" : object,
@@ -270,23 +273,20 @@ class DblpConnector(Connector):
                 }
             else:
                 # WHERE
-                if q.filters:
-                    Log.warning("DblpConnector: WHERE clause ignored in [%s]" % q)
-#                # The following dict is used to craft the DBLP query
-#                search = {
-#                    "prefix" : self.get_dblp_name(q.object),
-#                    "suffix" : ""
-#                }
-#
-#                if q.filters != None:
-#                    self.binary_predicate_to_dblp(q.filters, search)
-#
-#                url_options.append("%s%s" % (search["prefix"], search["suffix"]))
+                if query.filters:
+                    Log.warning("DblpConnector: WHERE clause ignored in [%s]" % query)
+
+                    search = {
+                        "prefix" : self.get_dblp_name(query.object),
+                        "suffix" : ""
+                    }
+                    self.binary_predicate_to_dblp(query.filters, search)
+                    url_options.append("%s%s" % (search["prefix"], search["suffix"]))
 
                 # OFFSET and LIMIT
-                url_options.append("h=%s" % q.limit if q.limit is not None else "h=9999")
-                if q.offset is not None:
-                    url_options.append("f=%s" % q.offset)
+                url_options.append("h=%s" % query.limit if query.limit is not None else "h=9999")
+                if query.offset:
+                    url_options.append("f=%s" % query.offset)
 
                 # Format of the result.
                 url_options.append("format=%s" % format)
@@ -304,7 +304,7 @@ class DblpConnector(Connector):
                 data = reply.data.decode("utf-8")
                 if format == "json":
                     result = json.loads(data)
-                    entries = self.extract_entries(q, result)
+                    entries = self.extract_entries(query, result)
                 elif format == "xml":
                     data = data.replace("<i>", "")
                     data = data.replace("</i>", "")
@@ -342,4 +342,4 @@ class DblpConnector(Connector):
             else:
                 raise RuntimeError("Cannot get reply from %s" % self.api_url)
 
-        return self.answer(q, self.sanitize_entries(q, entries))
+        return self.answer(query, self.reshape_entries(query, entries))

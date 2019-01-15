@@ -39,13 +39,17 @@ class NaturalJoinConnector(Connector):
         self.m_left_entries = list()
         self.m_right_entries = list()
 
-    def query(self, q :Query) -> list:
+    def attributes(self, object :str) -> set:
+        return self.m_left.attributes(object) \
+             | self.m_right.attributes(object)
+
+    def query(self, query :Query) -> list:
         self.m_left_entries.clear()
         self.m_right_entries.clear()
-        self.m_left_entries = self.left.query(q)
-        self.m_right_entries = self.right.query(q)
+        self.m_left_entries = self.left.query(query)
+        self.m_right_entries = self.right.query(query)
         return self.answer(
-            q,
+            query,
             natural_join(self.m_left_entries, self.m_right_entries)
         )
 

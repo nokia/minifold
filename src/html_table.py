@@ -43,6 +43,9 @@ class HtmlTableParser(HTMLParser):
         self.value      = str()
         self.keep_entry = keep_entry
 
+    def attributes(self, object :str) -> set:
+        return set(self.columns)
+
     def handle_starttag(self, tag, attrs):
         if tag == "td":
             # Enable fetch data

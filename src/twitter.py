@@ -79,6 +79,9 @@ class TwitterConnector:
         self.api                 = None
         self.connect()
 
+    def attributes(self, object :str) -> set:
+        raise NotImplemented
+
     def connect(self):
         """
         Connect to twitter API.

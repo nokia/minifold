@@ -28,6 +28,9 @@ class LdapConnector(Connector):
         self.m_connection = Connection(self.m_server, ldap_user, ldap_password)
         self.m_connection.bind()
 
+    def attributes(self, object :str) -> set:
+        raise NotImplemented
+
     def __enter__(self):
         self.m_connection.__enter__()
         return self

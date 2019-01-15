@@ -16,8 +16,9 @@ from .query                 import Query, ACTION_READ
 def unnest(map_key_unnestedkey :dict, entries :list) -> list:
     ret = list()
     for entry in entries:
+        # NOTE: This only works if entries a single key matching map_key_unnestedkey
         for k, values in entry.items():
-            new_attribute = map_key_unnestedkey[k]
+            new_attribute = map_key_unnestedkey.get(k)
             if isinstance(values, list):
                 for value in values:
                     ret.append({new_attribute : value})
@@ -30,6 +31,9 @@ class UnnestConnector(Connector):
         super().__init__()
         self.m_child = child
         self.m_map_key_unnestedkey = map_key_unnestedkey
+
+    def attributes(self, object :str) -> set:
+        raise NotImplemented
 
     @property
     def child(self):

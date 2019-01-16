@@ -10,8 +10,46 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import os, errno, tempfile
-from .log                   import Log
+import datetime, os, errno, shutil, tempfile
+
+from .log import Log
+
+def rm(path :str, recursive :bool = False):
+    """
+    Remove a file (rm -f).
+    Args:
+        path: A string containing the path of the file to remove.
+        recursive: Pass True to remove recursively a directory (rm -rf).
+    """
+    if os.path.isdir(path):
+        if recursive:
+            shutil.remove(path)
+        else:
+            os.rmdir(path)
+    else:
+        os.remove(path)
+
+def ctime(path) -> datetime.datetime:
+    """
+    Retrieve the creation date of a file.
+    Args:
+        path: A string containing the path of the file to remove.
+    Returns:
+        The corresponding datetime.
+    """
+    posix_time = os.path.getctime(path)
+    return datetime.datetime.utcfromtimestamp(posix_time)
+
+def mtime(path) -> datetime.datetime:
+    """
+    Retrieve the modification date of a file.
+    Args:
+        path: A string containing the path of the file to remove.
+    Returns:
+        The corresponding datetime.
+    """
+    posix_time = os.path.getmtime(path)
+    return datetime.datetime.utcfromtimestamp(posix_time)
 
 def mkdir(directory):
     """

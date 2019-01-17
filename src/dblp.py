@@ -94,19 +94,18 @@ class DblpConnector(Connector):
 
     @staticmethod
     def to_dblp_name(s :str, map_dblp_name = {}) -> str:
-        ret = map_dblp_name.get(s)
-        if ret is None:
-            s = to_international_string(s)
-            words = s.lower().split()
-            try:
-                words.remove("")
-            except ValueError:
-                pass
-            # a-b means that b must follows a
-            # a_b means that both a and b must be found
-            # $ corresponds to exact match
-            # See: http://dblp.uni-trier.de/db/about/author.html
-            ret = "-".join(words) + "$"
+        ret = map_dblp_name.get(s, s)
+        s = to_international_string(s)
+        words = s.lower().split()
+        try:
+            words.remove("")
+        except ValueError:
+            pass
+        # a-b means that b must follows a
+        # a_b means that both a and b must be found
+        # $ corresponds to exact match
+        # See: http://dblp.uni-trier.de/db/about/author.html
+        ret = "-".join(words) + "$"
 
         return ret
 
@@ -263,8 +262,6 @@ class DblpConnector(Connector):
                 else: url_options.append(dblp_name)
 
             if object == "pid":
-                if query.filters or query.limit or query.offset is not None:
-                    Log.warning("DblpConnector: in query [%s]: WHERE, LIMIT, OFFSET clauses are not supported by DBLP" % query)
                 q_dblp = "%(server)s/%(object)s/%(pid)s.%(format)s" % {
                     "server" : self.api_url,
                     "object" : object,
@@ -274,8 +271,6 @@ class DblpConnector(Connector):
             else:
                 # WHERE
                 if query.filters:
-                    Log.warning("DblpConnector: WHERE clause ignored in [%s]" % query)
-
                     search = {
                         "prefix" : self.get_dblp_name(query.object),
                         "suffix" : ""

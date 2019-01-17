@@ -17,7 +17,11 @@ except ImportError:
     raise ImportError("HalConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
 
 import json
-#import urllib.parse
+
+try:
+    import urllib.parse
+except ImportError:
+    raise ImportError("HalConnector requires python3-urllib: please run: apt-get install python3-urllib")
 
 from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
@@ -121,7 +125,7 @@ class HalConnector(Connector):
         #Only non-french accent must be removed
         s = s.replace("š", "s") # Merci Ana :)
         s = s.replace("ć", "c") # La même :)
-        #s = urllib.parse.quote(s)
+        s = urllib.parse.quote(s)
         return HalConnector.quote(s)
 
     @staticmethod

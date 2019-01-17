@@ -21,7 +21,8 @@ Minifold requires `Python 3 <http://python.org/>`.
 To use all connectors, it is advised to also install the following packages:
 
 - ``python3-ldap3`` for LDAP connector;
-- ``python3-pycountry`` and ``python3-urllib3`` for HAL and DBLP connectors;
+- ``python3-pycountry``, ``python3-urllib``, ``python3-urllib3`` for HAL connector;
+- ``python3-pycountry``, ``python3-urllib3``, ``python3-xmltodict`` for DBLP connector;
 - ``python3-tweepy`` for Twitter connector.
 
 For example, under Debian-based distribution, run:
@@ -29,7 +30,7 @@ For example, under Debian-based distribution, run:
 .. code:: shell
 
   sudo apt-get update
-  sudo apt-get install python3 python3-ldap3 python3-pycountry python3-urllib3 python3-tweepy
+  sudo apt-get install python3 python3-ldap3 python3-pycountry python3-urllib python3-urllib3 python3-tweepy python3-xmltodict
 
 ==================
 Installation steps

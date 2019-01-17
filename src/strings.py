@@ -87,3 +87,6 @@ def to_canonic_fullname(s :str) -> str:
     s = " ".join(s.split())          # Remove useless spaces
     return s
 
+def unicode_to_utf8(s :str) -> str:
+    return unicodedata.normalize("NFKD", s)
+

@@ -23,7 +23,7 @@ def rm(path :str, recursive :bool = False):
     """
     if os.path.isdir(path):
         if recursive:
-            shutil.remove(path)
+            shutil.rmtree(path)
         else:
             os.rmdir(path)
     else:

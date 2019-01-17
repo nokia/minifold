@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#This file is part of newdle
+#This file is part of minifold
 #Copyright © 2018 Nokia Corporation and/or its subsidiary(-ies). All rights reserved. *
 #
 # Authors:

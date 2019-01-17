@@ -12,11 +12,12 @@ __license__    = "BSD-3"
 
 try:
     import urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    #urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError:
     raise ImportError("HalConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
 
-import json, urllib.parse
+import json
+#import urllib.parse
 
 from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
@@ -120,7 +121,7 @@ class HalConnector(Connector):
         #Only non-french accent must be removed
         s = s.replace("š", "s") # Merci Ana :)
         s = s.replace("ć", "c") # La même :)
-        s = urllib.parse.quote(s)
+        #s = urllib.parse.quote(s)
         return HalConnector.quote(s)
 
     @staticmethod

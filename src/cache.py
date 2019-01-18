@@ -164,7 +164,7 @@ class StorageCacheConnector(CacheConnector):
         cache_filename = self.make_cache_filename(query)
         if self.is_cached(query):
             with open(cache_filename, self.read_mode) as f:
-                data = callback_load(f)
+                data = self.callback_load(f)
                 success = True
         return (data, success)
 

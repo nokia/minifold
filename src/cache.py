@@ -21,13 +21,9 @@ MINIFOLD_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".minifold", "cache")
 CACHE_LIFETIME     = datetime.timedelta(days = 3)
 
 # TODO:
-# Clarify how the keys of the cache are defined.
-#
-# Those keys should depend on:
-# 1) the Connector itself (including its configuration),
-#    as well as its underlying Connectors.
-#    ==>  define Connector.__hash__ consequently.
-# 2) the Query issued to the connector
+# For the moment the cache is class-name based. It should rather
+# be identify by the connector setup and the underlying connectors
+# (if any)
 
 # TODO:
 # For the moment, the cache is only used if the exact same Query
@@ -39,10 +35,10 @@ class CacheConnector(Connector):
     def __init__(self, child):
         self.child = child
 
-    def callback_read(self, query) -> tuple:
+    def callback_read(self, query): # raises RuntimeError
         raise RuntimeError("Must be overloaded")
 
-    def callback_write(self, query, data):
+    def callback_write(self, query, data): # raises RuntimeError
         raise RuntimeError("Must be overloaded")
 
     def clear_query(self, query :Query):
@@ -55,9 +51,7 @@ class CacheConnector(Connector):
         (data, success) = (None, False)
         try:
             data = self.callback_read(query)
-            success = True
-            print(str(data))
-            print(success)
+            success = (data != None)
         except:
             Log.error(
                 "CacheConnector.read(%s): Cannot read cache:\n%s" % (
@@ -93,7 +87,8 @@ class CacheConnector(Connector):
         (data, success) = (None, False)
         if self.is_cached(query):
             (data, success) = self.read(query)
-            Log.warning("CacheConnector.query(%s): Unreadable cache" % query)
+            if not success:
+                Log.warning("CacheConnector.query(%s): Unreadable cache" % query)
         if not success:
             data = self.child.query(query)
         if query.action == ACTION_READ and self.is_cachable(query, data):
@@ -160,13 +155,12 @@ class StorageCacheConnector(CacheConnector):
         return ret
 
     def callback_read(self, query :Query) -> tuple:
-        (data, success) = (None, False)
+        data = None
         cache_filename = self.make_cache_filename(query)
         if self.is_cached(query):
             with open(cache_filename, self.read_mode) as f:
                 data = self.callback_load(f)
-                success = True
-        return (data, success)
+        return data
 
     def callback_write(self, query :Query, data):
         cache_filename = self.make_cache_filename(query)

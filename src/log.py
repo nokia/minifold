@@ -11,6 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import sys
+from pprint import pformat
 
 DEBUG   = 0
 INFO    = 1
@@ -80,7 +81,7 @@ class Log:
             print(
                 "%(start_style)s%(message)s%(end_style)s" % {
                     "start_style" : cls.start_style(fg_color = color),
-                    "message"     : " ".join([header, str(message)]),
+                    "message"     : " ".join([header, message if isinstance(message, str) else pformat(message)]),
                     "end_style"   : cls.default_style()
                 },
                 file = file

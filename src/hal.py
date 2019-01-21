@@ -283,7 +283,7 @@ class HalConnector(Connector):
                     # If not found, try to translate the string using self.map_hal_name.
                     # Else, use the provided name.
                     hal_name = HalConnector.to_hal_name(q.object, self.map_hal_name)
-                    object = "authFullName_t:(%%22%s%%22)" % HalConnector.quote(hal_name.replace(" ", "%%20"))
+                    object = "authFullName_t:(%s)" % HalConnector.quote(hal_name.replace(" ", "%%20"))
 
             if object == None:
                 raise RuntimeError("Object not supported: %s" % q.object)

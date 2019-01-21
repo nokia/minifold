@@ -83,7 +83,7 @@ class CacheConnector(Connector):
         return True
 
     def query(self, query :Query):
-        Log.debug("Connector.query(%s)" % query)
+        #Log.debug("CacheConnector.query(%s)" % query)
         (data, success) = (None, False)
         if self.is_cached(query):
             (data, success) = self.read(query)
@@ -95,13 +95,13 @@ class CacheConnector(Connector):
             self.write(query, data)
         return self.answer(query, data)
 
-def make_cache_dir(base_dir :str = MINIFOLD_CACHE_DIR, connector: Connector = None):
-    return os.path.join(base_dir, connector.__class__.__name__) if connector else base_dir
+def make_cache_dir(base_dir :str = MINIFOLD_CACHE_DIR, subdir :str = ""):
+    return os.path.join(base_dir, subdir) if subdir else base_dir
 
 class StorageCacheConnector(CacheConnector):
     def __init__(
         self,
-        child : Connector,
+        child :Connector,
         callback_load = None,
         callback_dump = None,
         lifetime :datetime.timedelta = CACHE_LIFETIME,
@@ -110,13 +110,12 @@ class StorageCacheConnector(CacheConnector):
         write_mode = "w",
         extension  = ""
     ):
-        Log.debug(StorageCacheConnector)
         super().__init__(child)
         self.callback_load = callback_load
         self.callback_dump = callback_dump
         self.lifetime   = lifetime
         self.cache_dir  = cache_dir if cache_dir else \
-                          make_cache_dir(MINIFOLD_CACHE_DIR, child)
+                          make_cache_dir(MINIFOLD_CACHE_DIR, child.__class__.__name__)
         self.read_mode  = read_mode
         self.write_mode = write_mode
         self.extension  = extension
@@ -142,9 +141,9 @@ class StorageCacheConnector(CacheConnector):
             t_now = datetime.datetime.utcnow()
             t_cache = mtime(cache_filename)
             is_fresh = (t_now - t_cache) < lifetime
-            Log.debug("t_now(%s) - t_cache(%s) = %s ?< lifetime %s" % (
-                t_now, t_cache, (t_now - t_cache), lifetime
-            ))
+            #Log.debug("t_now(%s) - t_cache(%s) = %s ?< lifetime %s" % (
+            #    t_now, t_cache, (t_now - t_cache), lifetime
+            #))
         return is_fresh
 
     def is_cached(self, query :Query) -> bool:
@@ -160,6 +159,7 @@ class StorageCacheConnector(CacheConnector):
         if self.is_cached(query):
             with open(cache_filename, self.read_mode) as f:
                 data = self.callback_load(f)
+            Log.debug("Cache hit: [%s]" % cache_filename)
         return data
 
     def callback_write(self, query :Query, data):

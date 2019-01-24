@@ -11,19 +11,19 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import io, csv
-from enum       import Enum
+from enum       import IntEnum
 
 from .connector import Connector
 from .query     import Query, ACTION_READ, action_to_str
 from .log       import Log
 
-class CsvModeEnum(Enum):
+class CsvModeEnum(IntEnum):
     FILENAME = 0 # Use text file
     STRING   = 1 # Use str
     TEXTIO   = 2 # Use any class inheriting TextIOBase
 
     def __str__(self) -> str:
-        s = Enum.__str__(self)
+        s = IntEnum.__str__(self)
         i = len(self.__class__.__name__)
         return s[i + 1:]
 

@@ -10,9 +10,9 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-from enum import Enum
+from enum import IntEnum
 
-class DocType(Enum):
+class DocType(IntEnum):
     BOOKS_AND_THESES = 0 # Books and Theses
     ARTICLE          = 1 # ART, Conference and Workshop Papers
     COMMUNICATION    = 2 # COMM
@@ -25,7 +25,7 @@ class DocType(Enum):
     UNKNOWN          = 9999 # UNDEFINED or ""
 
     def __str__(self) -> str:
-        s = Enum.__str__(self)
+        s = IntEnum.__str__(self)
         class_name = "%s" % self.__class__.__name__
         s = s[len(class_name)+1:]
         s = s.replace("_", " ")

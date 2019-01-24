@@ -9,7 +9,6 @@
 
 import datetime, functools, json, os, pickle, sys, traceback
 
-from enum   import Enum
 from pprint import pprint
 
 from minifold.connector     import Connector

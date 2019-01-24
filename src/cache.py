@@ -16,9 +16,6 @@ from minifold.filesystem    import check_writable_directory, mtime, mkdir, rm
 from minifold.query         import Query, ACTION_READ
 from minifold.log           import Log
 
-MINIFOLD_CACHE_DIR = os.path.join(os.path.expanduser("~"), ".minifold", "cache")
-CACHE_LIFETIME     = datetime.timedelta(days = 3)
-
 # TODO:
 # For the moment the cache is class-name based. It should rather
 # be identify by the connector setup and the underlying connectors
@@ -82,7 +79,6 @@ class CacheConnector(Connector):
         return True
 
     def query(self, query :Query):
-        #Log.debug("CacheConnector.query(%s)" % query)
         (data, success) = (None, False)
         if self.is_cached(query):
             (data, success) = self.read(query)
@@ -94,27 +90,34 @@ class CacheConnector(Connector):
             self.write(query, data)
         return self.answer(query, data)
 
-def make_cache_dir(base_dir :str = MINIFOLD_CACHE_DIR, subdir :str = ""):
+# Default parameters, used to initialize StorageCacheConnector class members.
+DEFAULT_CACHE_STORAGE_BASE_DIR = os.path.join(os.path.expanduser("~"), ".minifold", "cache")
+DEFAULT_CACHE_STORAGE_LIFETIME = datetime.timedelta(days = 3)
+
+def make_cache_dir(base_dir :str, subdir :str = ""):
     return os.path.join(base_dir, subdir) if subdir else base_dir
 
 class StorageCacheConnector(CacheConnector):
+    base_dir = DEFAULT_CACHE_STORAGE_BASE_DIR
+    lifetime = DEFAULT_CACHE_STORAGE_LIFETIME
+
     def __init__(
         self,
         child :Connector,
         callback_load = None,
         callback_dump = None,
-        lifetime :datetime.timedelta = CACHE_LIFETIME,
-        cache_dir  = None,
-        read_mode  = "r",
-        write_mode = "w",
-        extension  = ""
+        lifetime   :datetime.timedelta = None,
+        cache_dir  :str = None,
+        read_mode  :str = "r",
+        write_mode :str = "w",
+        extension  :str = ""
     ):
         super().__init__(child)
         self.callback_load = callback_load
         self.callback_dump = callback_dump
-        self.lifetime   = lifetime
+        self.lifetime   = lifetime if lifetime is not None else StorageCacheConnector.lifetime
         self.cache_dir  = cache_dir if cache_dir else \
-                          make_cache_dir(MINIFOLD_CACHE_DIR, child.__class__.__name__)
+                          make_cache_dir(StorageCacheConnector.base_dir, child.__class__.__name__)
         self.read_mode  = read_mode
         self.write_mode = write_mode
         self.extension  = extension
@@ -170,7 +173,12 @@ class StorageCacheConnector(CacheConnector):
             self.callback_dump(data, f)
 
 class PickleCacheConnector(StorageCacheConnector):
-    def __init__(self, child, lifetime = CACHE_LIFETIME, cache_dir = None):
+    def __init__(
+        self,
+        child     :Connector,
+        lifetime  :datetime.timedelta = StorageCacheConnector.lifetime,
+        cache_dir :str                = None
+    ):
         super().__init__(
             child,
             pickle.load, pickle.dump,
@@ -179,7 +187,12 @@ class PickleCacheConnector(StorageCacheConnector):
         )
 
 class JsonCacheConnector(StorageCacheConnector):
-    def __init__(self, child, lifetime = CACHE_LIFETIME, cache_dir = None):
+    def __init__(
+        self,
+        child     :Connector,
+        lifetime  :datetime.timedelta = StorageCacheConnector.lifetime,
+        cache_dir :str                = None
+    ):
         super().__init__(
             child,
             json.load, json.dump,

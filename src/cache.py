@@ -94,8 +94,8 @@ class CacheConnector(Connector):
 DEFAULT_CACHE_STORAGE_BASE_DIR = os.path.join(os.path.expanduser("~"), ".minifold", "cache")
 DEFAULT_CACHE_STORAGE_LIFETIME = datetime.timedelta(days = 3)
 
-def make_cache_dir(base_dir :str, subdir :str = ""):
-    return os.path.join(base_dir, subdir) if subdir else base_dir
+def make_cache_dir(base_dir :str, sub_dir :str = ""):
+    return os.path.join(base_dir, sub_dir) if sub_dir else base_dir
 
 class StorageCacheConnector(CacheConnector):
     base_dir = DEFAULT_CACHE_STORAGE_BASE_DIR

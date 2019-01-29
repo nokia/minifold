@@ -33,7 +33,7 @@ DEFAULT_MINIFOLD_CONFIG = """{
 
 # Usage:
 # from minifold.dblp import DblpConnector
-# config = MinifoldConfig()
+# config = Config()
 # config.loads(DEFAULT_MINIFOLD_CONFIG)
 # dblp1 = config.make_connector("dblp:dagstuhl")
 # dblp2 = config.make_connector("dblp:uni-trier")
@@ -47,19 +47,26 @@ class Config(dict, metaclass=Singleton):
 
     def load_file(self, filename :str):
         with open(filename, "r") as f:
-            MinifoldConfig.load(f)
+            self.load(f)
 
     def make_connector(self, name :str):
         conf = self.get(name)
         if not conf:
             raise KeyError(
-                "MinifoldConfig: Key [%s] not found. Known configuration are:\n%s\n" % (
+                "Config: Key [%s] not found. Known configuration are:\n%s\n" % (
                     name,
                     "\n\t".join([str(k) for k in self.keys()])
                 )
             )
         type = conf["type"]
-        cls = Connector.subclasses[type]
+        cls = Connector.subclasses.get(type)
+        if not cls:
+            raise KeyError(
+                "Config: Connector [%s] not found. Known connectors are:\n%s\n" % (
+                    type,
+                    "\n\t".join([str(k) for k in Connector.subclasses.keys()])
+                )
+            )
         kwargs = conf.get("args", dict())
         return cls(**kwargs)
 

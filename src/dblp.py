@@ -14,8 +14,8 @@ __license__    = "BSD-3"
 #   https://wiki.inria.fr/lincs/Dblp-api
 #
 # Examples:
-#   http://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json
-#   http://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json
+#   https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json
+#   https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json
 #
 # 2) By default DBLP only returns up to 30 records. See:
 #   https://dblp.org/faq/How+to+use+the+dblp+search+API.html

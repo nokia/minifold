@@ -80,7 +80,14 @@ class TwitterConnector:
         self.connect()
 
     def attributes(self, object :str) -> set:
-        raise NotImplemented
+        ret = {
+            "text",
+            "image",
+            "date",
+            "display_date",
+            "author_name",
+            "author_image"
+        } if object in {"self", "feed"} else set()
 
     def connect(self):
         """
@@ -98,19 +105,21 @@ class TwitterConnector:
         Returns:
             A list of dict containing the queried entries.
         """
-        assert q.action == ACTION_READ
-        assert self.api, "Not connected to twitter"
+        if not self.api:
+            raise RuntimeError("Not connected to twitter")
 
-        if q.object in ["self", "feed"]:
-            # Retrieve Tweets
-            assert q.limit > 0
-            size = q.limit
-            if q.object == "self":
-                tweets = self.api.user_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
-            elif q.object == "feed":
-                tweets = self.api.home_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
-            entries = [tweet_to_dict(tweet) for tweet in tweets]
+        if q.action == ACTION_READ:
+            if q.object in {"self", "feed"}:
+                # Retrieve Tweets
+                assert q.limit > 0
+                size = q.limit
+                if q.object == "self":
+                    tweets = self.api.user_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
+                elif q.object == "feed":
+                    tweets = self.api.home_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
+                entries = [tweet_to_dict(tweet) for tweet in tweets]
+            else:
+                raise ValueError("TwitterConnector: invalid object '%s'" % q.object)
         else:
-            raise ValueError("TwitterConnector: invalid object '%s'" % q.object)
-
+            raise RuntimeError("TwitterConnector.query(%s): action %s not implemented" % (q, q.action))
         return self.answer(q, entries)

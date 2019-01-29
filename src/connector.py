@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+import sys
 from pprint     import pformat
 from .query     import Query
 from .log       import Log
@@ -21,6 +22,27 @@ class Connector:
         Constructor.
         """
         pass
+
+    if sys.version_info >= (3, 6):
+        subclasses = dict()
+
+        #https://stackoverflow.com/questions/5189232/how-to-auto-register-a-class-when-its-defined
+        def __init_subclass__(cls, **kwargs):
+            super().__init_subclass__(**kwargs)
+            name = repr(cls).split("'")[1]
+            Connector.subclasses[name] = cls
+
+        @staticmethod
+        def get_class(name :str):
+            cls = Connector.subclasses.get(name)
+            if not cls:
+                raise RuntimeError(
+                    "Invalid connector type [%s]. Known types are:\n%s\n" % (
+                        name,
+                        "\n\t".join([str(name) for name in subclasses.keys()])
+                    )
+                )
+            return cls
 
     def query(self, query :Query) -> list:
         """

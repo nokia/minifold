@@ -13,13 +13,17 @@ __license__    = "BSD-3"
 from .connector             import Connector
 from .query                 import Query, ACTION_READ
 
-def lambdas(map_lambdas :dict, entries :list) -> list:
+def lambdas(map_lambdas :dict, entries :list, attributes :set = None) -> list:
+    attrs = set(map_lambdas.keys())
+    if attributes:
+        attrs &= set(attributes)
     for entry in entries:
         for attr, func in map_lambdas.items():
-            try:
-                entry[attr] = func(entry)
-            except KeyError:
-                entry[attr] = None
+            if attr in attrs:
+                try:
+                    entry[attr] = func(entry)
+                except KeyError:
+                    entry[attr] = None
     return entries
 
 class LambdasConnector(Connector):
@@ -33,7 +37,7 @@ class LambdasConnector(Connector):
         return self.m_child
 
     def attributes(self, object :str) -> set:
-        return self.m_child.attributes(object) | self.m_map_lambdas
+        return self.m_child.attributes(object) | set(self.m_map_lambdas.keys())
 
     def query(self, q :Query) -> list:
         #matching_lambdas_keys = set(q.attributes) & set(self.m_map_lambdas.keys())
@@ -48,6 +52,7 @@ class LambdasConnector(Connector):
             q,
             lambdas(
                 self.m_map_lambdas,
-                self.child.query(q)
+                self.child.query(q),
+                q.attributes
             )
         )

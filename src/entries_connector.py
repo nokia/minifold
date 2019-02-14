@@ -22,7 +22,7 @@ class EntriesConnector(Connector):
                 self.m_keys |= set(entry.keys())
         self.m_entries = entries
 
-    def attributes(self, object :str = None) -> set:
+    def attributes(self, obj :str = None) -> set:
         return set(self.m_keys)
 
     def query(self, query :Query) -> list:

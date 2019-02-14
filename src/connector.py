@@ -62,7 +62,7 @@ class Connector:
         """
         List available attributes related to a given object.
         Args:
-            object: A string identifying an object.
+            object: The name of the object
         Returns:
             The set of available attributes for object.
         """

@@ -24,10 +24,13 @@ def get_values(connector :Connector, attribute :str):
     q = Query(attributes = [attribute])
     return [entry[attribute] for entry in enriched_connector.query(q)]
 
-def show_some_values(connector :Connector, limit :int = 5, max_strlen :int = None):
+def show_some_values(connector :Connector, limit :int = 5, max_strlen :int = None, query :Query = None):
+    if not query:
+        query = Query()
+
     map_values = {
         attribute : get_values(connector, attribute) \
-        for attribute in connector.attributes()
+        for attribute in connector.attributes(query.object)
     }
 
     html(
@@ -54,7 +57,7 @@ def show_some_values(connector :Connector, limit :int = 5, max_strlen :int = Non
                     "values" : "<br/>".join([
                         str(x)[:max_strlen] for x in map_values[attribute][:limit]
                     ]),
-                } for attribute in connector.attributes()
+                } for attribute in connector.attributes(query.object)
             ]),
         }
     )

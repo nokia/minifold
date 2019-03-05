@@ -42,7 +42,7 @@ try:
 except ImportError:
     raise ImportError("DblpConnector requires python3-xmltodict: please run: apt-get install python3-xmltodict")
 
-import json
+import json, operator
 from pprint import pformat
 
 from .binary_predicate      import BinaryPredicate
@@ -118,7 +118,7 @@ class DblpConnector(Connector):
 
     def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
         # Recursive call only supported for && clauses
-        if p.operator == "&&":
+        if p.operator == operator.__and__:
             self.binary_predicate_to_dblp(p.left, result),
             self.binary_predicate_to_dblp(p.right, result)
             return
@@ -129,13 +129,13 @@ class DblpConnector(Connector):
 
         if p.left in ["author", "authors", "researcher", "conference"]:
             # String attribute. Only "==" is supported.
-            if p.operator == "==":
+            if p.operator == operator.__eq__:
                 result["prefix"] = self.get_dblp_name(p.right)
             else:
                 raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
         else:
-            # Other attributes. Only "==" and "~" are supported.
-            if p.operator == "==" or p.operator == "~":
+            # Other attributes. Only "==" is supported.
+            if p.operator == operator.__eq__:
                 result["suffix"] += "%20" + ("%s:%s" % (p.left, p.right))
             else:
                 raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))

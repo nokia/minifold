@@ -16,14 +16,14 @@ try:
 except ImportError:
     raise ImportError("HalConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
 
-import json
+import json, operator
 
 try:
     import urllib.parse
 except ImportError:
     raise ImportError("HalConnector requires python3-urllib: please run: apt-get install python3-urllib")
 
-from .binary_predicate      import BinaryPredicate
+from .binary_predicate      import BinaryPredicate, __includes__
 from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
@@ -146,19 +146,19 @@ class HalConnector(Connector):
         if isinstance(right, str):
             right = HalConnector.string_to_hal(right)
 
-        if   p.operator == "==":
+        if   p.operator == operator.__eq__:
             ret = "%s:(%s)" % (p.left, right)
-        elif p.operator == "~":
-            ret = "%s:\"%s\"~3" % (p.left, right)
-        elif p.operator == ">":
+        #elif p.operator == "~":
+        #    ret = "%s:\"%s\"~3" % (p.left, right)
+        elif p.operator == operator.__gt__:
             ret =  "%s:{%s TO *]" % (p.left, right)
-        elif p.operator == "<":
+        elif p.operator == operator.__lt__:
             return "%s:[* TO %s}" % (p.left, right)
-        elif p.operator == ">=":
+        elif p.operator == operator.__ge__:
             ret = "%s:[%s TO *]" % (p.left, right)
-        elif p.operator == "<=":
+        elif p.operator == operator.__le__:
             ret = "%s:[* TO %s]" % (p.left, right)
-        elif p.operator == "IN":
+        elif p.operator == __includes__:
             (start, end) = right
             ret = "%s:[%s TO %s]" % (p.left, start, end)
         else:

@@ -62,23 +62,7 @@ def print_error(x):
     """
     print(str(x), file = sys.stderr)
 
-def dict_to_html(d :dict, attributes :list, map_attribute_label :dict = dict()) -> str:
-    html = "\n<table>\n"
-    for k in attributes:
-        try:
-            value = d[k]
-            if value != None:
-                label = map_attribute_label.get(k, k).title()
-                html += "  <tr><th>%s</th><td>%s</td></tr>\n" % (
-                    label,
-                    value_to_html(value)
-                )
-        except KeyError:
-            pass
-    html += "</table>\n"
-    return html
-
-def entries_to_html(entries, attributes = None, map_attribute_label = None) -> str:
+def entries_to_html(entries :list, map_attribute_label :dict = dict(), attributes :list = None) -> str:
     if not attributes:
         attributes = entries[0].keys()
     if not map_attribute_label:
@@ -109,4 +93,25 @@ def entries_to_html(entries, attributes = None, map_attribute_label = None) -> s
             ]) for entry in entries
         ])
     )
+
+def entry_to_html(entry :dict, map_attribute_label :dict = dict(), attributes :list = None) -> str:
+    return entries_to_html([entry], map_attribute_label, attributes)
+
+def dict_to_html(d :dict, attributes :list, map_attribute_label :dict = dict()) -> str:
+    return entry_to_html(d, map_attribute_label, attributes)
+#    html = "\n<table>\n"
+#    for k in attributes:
+#        try:
+#            value = d[k]
+#            if value != None:
+#                label = map_attribute_label.get(k, k).title()
+#                html += "  <tr><th>%s</th><td>%s</td></tr>\n" % (
+#                    label,
+#                    value_to_html(value)
+#                )
+#        except KeyError:
+#            pass
+#    html += "</table>\n"
+#    return html
+
 

@@ -96,3 +96,35 @@ def print_error(x):
     """
     print(str(x), file = sys.stderr)
 
+def entries_to_html(entries, map_attribute_label = None, attributes = None) -> str:
+    if not attributes:
+        attributes = entries[0].keys()
+    if not map_attribute_label:
+        map_attribute_label = dict()
+
+    return """
+    <table>
+        <tr>
+            %s
+        </tr>
+        %s
+    </table>
+    """ % (
+        "".join([
+            """
+            <th>%s</th>
+            """ % str(map_attribute_label.get(attribute, attribute)) for attribute in attributes
+        ]),
+        "".join([
+            """
+            <tr>
+            %s
+            </tr>
+            """ % "".join([
+                """
+                <td>%s</td>
+                """ % str(entry.get(attribute)) for attribute in attributes
+            ]) for entry in entries
+        ])
+    )
+

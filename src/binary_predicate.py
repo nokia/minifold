@@ -87,7 +87,6 @@ class BinaryPredicate:
             else:
                 left = entry[self.left]
                 right = self.right
-                print("left=%s right=%s" % (left, right))
                 return self.operator(left, right)
         except KeyError:
             return (self.operator == operator.__eq__ and self.right == None)

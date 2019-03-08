@@ -90,7 +90,7 @@ class Connector:
                 break
 
             # WHERE
-            if query.filters is None or query.filters.match(entry):
+            if query.filters is None or query.filters(entry):
                 # SELECT
                 entry = {k : v for (k, v) in entry.items() if k in attributes}
                 missing_attributes = set(attributes) - set(entry.keys())

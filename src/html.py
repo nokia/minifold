@@ -25,22 +25,6 @@ def str_to_html(s :str) -> str:
     #return escape(s).rstrip(".").rstrip(",")
     return s.rstrip(".").rstrip(",")
 
-def dict_to_html(d :dict, keys :list, map_label :dict = dict()) -> str:
-    html = "\n<table>\n"
-    for k in keys:
-        try:
-            value = d[k]
-            if value != None:
-                label = map_label.get(k, k).title()
-                html += "  <tr><th>%s</th><td>%s</td></tr>\n" % (
-                    label,
-                    value_to_html(value)
-                )
-        except KeyError:
-            pass
-    html += "</table>\n"
-    return html
-
 def to_html_link(d :dict, k :str, v :str) -> str:
     try:
         return "<a href=\"%s\">%s</a>" % (d[k], escape(v))
@@ -61,24 +45,6 @@ def value_to_html(x) -> str:
         ret = escape("%s" % x)
     return ret
 
-
-def entries_to_html(entries :list) -> str:
-    if not entries: return ""
-    return "<table>\n  %(headers)s  %(data)s\n</table>" % {
-        "headers" : "<tr>\n    %(row)s\n  </tr>" % {
-            "row" : "\n    ".join([
-                "<th>%s</th>" % k for k in sorted(entries[0].keys())
-            ])
-        },
-        "data" : "\n".join([
-            "  <tr>\n    %s\n  </tr>" % (
-                "\n    ".join([
-                    "<td>%s</td>" % entry[k] for k in sorted(entry.keys())
-                ])
-            ) for entry in entries
-        ])
-    }
-
 def html(s :str):
     """
     Evaluate HTML code in a Jupyter Notebook.
@@ -96,7 +62,23 @@ def print_error(x):
     """
     print(str(x), file = sys.stderr)
 
-def entries_to_html(entries, map_attribute_label = None, attributes = None) -> str:
+def dict_to_html(d :dict, attributes :list, map_attribute_label :dict = dict()) -> str:
+    html = "\n<table>\n"
+    for k in attributes:
+        try:
+            value = d[k]
+            if value != None:
+                label = map_attribute_label.get(k, k).title()
+                html += "  <tr><th>%s</th><td>%s</td></tr>\n" % (
+                    label,
+                    value_to_html(value)
+                )
+        except KeyError:
+            pass
+    html += "</table>\n"
+    return html
+
+def entries_to_html(entries, attributes = None, map_attribute_label = None) -> str:
     if not attributes:
         attributes = entries[0].keys()
     if not map_attribute_label:
@@ -123,7 +105,7 @@ def entries_to_html(entries, map_attribute_label = None, attributes = None) -> s
             """ % "".join([
                 """
                 <td>%s</td>
-                """ % str(entry.get(attribute)) for attribute in attributes
+                """ % value_to_html(entry.get(attribute)) for attribute in attributes
             ]) for entry in entries
         ])
     )

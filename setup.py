@@ -38,7 +38,7 @@ setup(
     license          = "BSD-3",
     zip_safe         = False,
     packages         = ["minifold"],
-    package_dir      = {"minifold" : "src/"},
+    package_dir      = {"minifold" : "src"},
     requires         = ["typing"],
     test_suite       = "tests",
 )

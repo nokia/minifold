@@ -19,7 +19,7 @@ Minifold is a Python module able to interact with various data sources (e.g. CSV
 
 For more information, visit the wiki_.
 
-This framework has been used at LINCS_, including to generate:
+This framework has been in various Nokia projects. It also used at LINCS_, including to generate:
 
 - trombinoscope_;
 - homepages_;

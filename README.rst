@@ -9,6 +9,7 @@ Minifold
 .. _trombinoscope: https://www.lincs.fr/people/
 .. _graphs: https://www.lincs.fr/research/lincs-graph/
 .. _graphviz: http://graphviz.org/
+.. _Python3: http://python.org/
 
 ==================
 Overview
@@ -28,7 +29,7 @@ This framework has been used at LINCS_, including to generate:
 Dependencies
 ==================
 
-Minifold requires `Python 3 <http://python.org/>`.
+Minifold requires Python3_.
 
 To use all connectors, it is advised to also install the following packages:
 

@@ -2,7 +2,13 @@ Minifold
 ==============
 
 .. _git: https://github.com/nokia/minifold.git 
+.. _pybgl: https://github.com/nokia/pybgl.git 
 .. _wiki: https://github.com/nokia/minifold/wiki
+.. _LINCS: https://www.lincs.fr
+.. _homepages: https://www.lincs.fr/people/?more=marc_olivier_buob
+.. _trombinoscope: https://www.lincs.fr/people/
+.. _graphs: https://www.lincs.fr/research/lincs-graph/
+.. _graphviz: http://graphviz.org/
 
 ==================
 Overview
@@ -12,10 +18,11 @@ Minifold is a Python module able to interact with various data sources (e.g. CSV
 
 For more information, visit the wiki_.
 
-This framework has been used at `LINCS <https://www.lincs.fr/>`, including to generate
-* the `list of researchers <https://www.lincs.fr/people/>`
-* the `homepages <https://www.lincs.fr/people/?more=marc_olivier_buob>`
-* the `LINCS graph <https://www.lincs.fr/research/lincs-graph/>`
+This framework has been used at LINCS_, including to generate:
+
+- trombinoscope_;
+- homepages_;
+- co-author graphs_ (thanks to pybgl_ and graphviz_).
 
 ==================
 Dependencies

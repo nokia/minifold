@@ -16,7 +16,9 @@ from .query     import Query
 from .log       import Log
 
 class Connector:
-    enable_debug = False
+    trace_queries = False
+    trace_entries = False
+
     def __init__(self):
         """
         Constructor.
@@ -52,7 +54,7 @@ class Connector:
         Returns:
             The list of entries matching the input Query.
         """
-        if Connector.enable_debug:
+        if Connector.trace_queries:
             Log.debug("%r: --> %s" % (self, query))
         # This method must be overloaded by populating entries
         entries = list()
@@ -107,7 +109,7 @@ class Connector:
             query: The related Query instance.
             ret: The corresponding result.
         """
-        if Connector.enable_debug:
+        if Connector.trace_entries:
             Log.debug("%r: <-- %s\n%s" % (
                 self,
                 query,

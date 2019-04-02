@@ -12,7 +12,7 @@ __license__    = "BSD-3"
 
 from minifold.binary_predicate      import BinaryPredicate
 from minifold.entries_connector     import EntriesConnector
-from minifold.query                 import Query, ACTION_READ
+from minifold.query                 import Query
 from minifold.where                 import where, WhereConnector
 
 ENTRIES = [

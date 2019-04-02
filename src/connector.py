@@ -53,7 +53,7 @@ class Connector:
             The list of entries matching the input Query.
         """
         if Connector.enable_debug:
-            Log.debug("%r: --> %s" % (self, q))
+            Log.debug("%r: --> %s" % (self, query))
         # This method must be overloaded by populating entries
         entries = list()
         return self.answer(query, entries)

@@ -14,7 +14,6 @@ from .connector             import Connector
 from .query                 import Query
 
 def limit(entries :list, lim :int) -> list:
-    print(lim)
     return entries[:lim]
 
 class LimitConnector(Connector):

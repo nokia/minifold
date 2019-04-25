@@ -29,7 +29,7 @@ class LdapConnector(Connector):
         self.m_connection.bind()
 
     def attributes(self, object :str) -> set:
-        raise NotImplemented
+        return {str(key) for key in self.m_connection.server.schema.attribute_types.keys()}
 
     def __enter__(self):
         self.m_connection.__enter__()
@@ -116,6 +116,7 @@ class LdapConnector(Connector):
                 filter = LdapConnector.operand_to_ldap(q.filters)
 
             try:
+                attributes = set(attributes) & self.attributes(q.object)
                 Log.info("--> LDAP: dn = %s filter = %s attributes = %s" % (q.object, filter, attributes))
                 self.m_connection.search(
                     q.object,

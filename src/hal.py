@@ -18,10 +18,11 @@ except ImportError:
 
 import json, operator
 
-try:
-    import urllib.parse
-except ImportError:
-    raise ImportError("HalConnector requires python3-urllib: please run: apt-get install python3-urllib")
+#try:
+#    import urllib.parse
+#except ImportError:
+#    raise ImportError("HalConnector requires python3-urllib: please run: apt-get install python3-urllib")
+import email.utils
 
 from .binary_predicate      import BinaryPredicate, __includes__
 from .connector             import Connector
@@ -110,31 +111,33 @@ class HalConnector(Connector):
     def quote(s) -> str:
         return "%%22%s%%22" % s
 
-    @staticmethod
-    def to_hal_name(s, map_name = {}) -> str:
-        ret = map_name.get(s)
-        if ret is None:
-            s = s.lower()
-            s = s.replace(" ", "-")
-            s = s.replace("ç", "%C3%A7") # Merci aux François
-            ret = to_international_string(s)
-        return ret
+#    @staticmethod
+#    def to_hal_name(s, map_name = {}) -> str:
+#        ret = map_name.get(s)
+#        if ret is None:
+#            s = s.lower()
+#            s = s.replace(" ", "-")
+#            s = s.replace("ç", "%C3%A7") # Merci aux François
+#            ret = to_international_string(s)
+#        return ret
 
     @staticmethod
     def string_to_hal(s) -> str:
-        #Only non-french accent must be removed
-        s = s.replace("š", "s") # Merci Ana :)
-        s = s.replace("ć", "c") # La même :)
-        s = urllib.parse.quote(s)
+        # Patch for Ana Busic, anyway the following would find some publications
+        # TODO: declare HAL ID for her
+        s = s.replace("š", "s")
+        s = s.replace("ć", "c")
+        # From /usr/lib/python3/dist-packages/urllib3/fields.py, see format_header_param
+        s = email.utils.encode_rfc2231(s, 'utf-8').split("'")[2]
         return HalConnector.quote(s)
 
     @staticmethod
     def binary_predicate_to_hal(p :BinaryPredicate) -> str:
-        if p.operator == "&&":
-            return "%s&fq=%s" % (
+        if p.operator == operator.__and__:
+            return "&fq=".join([
                 HalConnector.binary_predicate_to_hal(p.left),
                 HalConnector.binary_predicate_to_hal(p.right)
-            )
+            ])
         if isinstance(p.left, BinaryPredicate):
             raise RuntimeError("binary_predicate_to_hal: Invalid left operand in %s: nested clauses not supported" % p)
         if isinstance(p.right, BinaryPredicate):
@@ -153,7 +156,7 @@ class HalConnector(Connector):
         elif p.operator == operator.__gt__:
             ret =  "%s:{%s TO *]" % (p.left, right)
         elif p.operator == operator.__lt__:
-            return "%s:[* TO %s}" % (p.left, right)
+            ret = "%s:[* TO %s}" % (p.left, right)
         elif p.operator == operator.__ge__:
             ret = "%s:[%s TO *]" % (p.left, right)
         elif p.operator == operator.__le__:
@@ -254,62 +257,88 @@ class HalConnector(Connector):
     def sanitize_entries(self, entries :list) -> list:
         return [self.sanitize_entry(entry) for entry in entries]
 
+    def query_to_hal(self, q :Query) -> str:
+        if q.action != ACTION_READ:
+            raise ValueError("query_to_hal: Unsupported action %s" % q.action)
+        attributes = None
+        if len(q.attributes) > 0:
+            attributes = ",".join(q.attributes)
+            if "doc_type" in q.attributes and "hal_doc_type" not in q.attributes:
+                attributes += ",docType_s"
+        else:
+            # Note: this avoid to pull by default every fields provided by HAL.
+            attributes = "*"
+
+        object = None
+        if q.object == "lincs":
+            # Lab query
+            object = "structId_i:(160294)"
+        elif q.object == "publication":
+            # Publication query
+            object = "*:*"
+        else:
+            # This is not a standard HAL object.
+            # By convention, we assume that the user is querying
+            # publications related to a researcher (bibliography query).
+            try:
+                # Try to consider the object as a HAL ID.
+                hal_id = self.map_hal_id[q.object]
+                object = "*:*&fq=authIdHal_s:(%s)" % HalConnector.quote(self.map_hal_id[q.object])
+            except KeyError:
+                # If not found, try to translate the string using self.map_hal_name.
+                # Else, use the provided name.
+                #hal_name = HalConnector.to_hal_name(q.object, self.map_hal_name)
+                #object = "authFullName_s:(%s)" % HalConnector.quote(hal_name.replace(" ", "%%20"))
+                fullname = q.object
+                object = "*:*&fq=authFullName_s:(%s)" % HalConnector.string_to_hal(fullname)
+
+        if object == None:
+            raise RuntimeError("Object not supported: %s" % q.object)
+
+        url_options = [object]
+
+        # SELECT
+        if attributes   != None:
+            url_options.append("fl=%s" % attributes)
+
+        # WHERE
+        if q.filters    != None:
+            url_options.append("fq=%s" % HalConnector.binary_predicate_to_hal(q.filters))
+
+        # OFFSET
+        if q.offset:
+            raise RuntimeError("%s: in query %s: OFFSET is not supported" % (self, q))
+
+        # LIMIT
+        # Hardcoded rows=2000 to guarantee that all publications are fetched.
+        url_options.append("rows=%s" % (int(q.limit) if q.limit else 2000))
+
+        # SORT
+        if q.sort_by:
+            url_options.append("sort=%s" % ",".join([
+                "%s+%s" % (
+                    attribute,
+                    "asc" if sort_asc == SORT_ASC else "desc"
+                ) for attribute, sort_asc in q.sort_by.items()
+            ]))
+        else:
+            # By default, sort by descending date.
+            url_options.append("sort=submittedDate_tdate+desc")
+
+        # HalConnector expects JSON data.
+        url_options.append("wt=%s" % self.format)
+
+        q_hal = "%(server)s/?q=%(options)s" % {
+            "server"  : self.api_url,
+            "options" : "&".join(url_options)
+        }
+        return q_hal
+
     def query(self, q :Query) -> list:
         super().query(q)
         entries = list()
         if q.action == ACTION_READ:
-            attributes = None
-            if len(q.attributes) > 0:
-                attributes = ",".join(q.attributes)
-                if "doc_type" in q.attributes and "hal_doc_type" not in q.attributes: attributes += ",docType_s"
-            else:
-                # Note: this avoid to pull by default every fields provided by HAL.
-                attributes = "*"
-
-            object = None
-            if q.object == "lincs":
-                object = "structId_i:(160294)"
-            elif q.object == "publication":
-                object = "*:*"
-            else:
-                # This is not a standard HAL object.
-                # By convention, we assume that the user is querying
-                # publications related to a researcher.
-                try:
-                    # Try to consider the object as a HAL ID.
-                    hal_id = self.map_hal_id[q.object]
-                    object = "*:*&fq=authIdHal_s:(%s)" % HalConnector.quote(self.map_hal_id[q.object])
-                except KeyError:
-                    # If not found, try to translate the string using self.map_hal_name.
-                    # Else, use the provided name.
-                    hal_name = HalConnector.to_hal_name(q.object, self.map_hal_name)
-                    object = "authFullName_t:(%s)" % HalConnector.quote(hal_name.replace(" ", "%%20"))
-
-            if object == None:
-                raise RuntimeError("Object not supported: %s" % q.object)
-
-            url_options = [object]
-            if attributes   != None:
-                url_options.append("fl=%s" % attributes)
-            if q.filters    != None:
-                url_options.append("fq=%s" % HalConnector.binary_predicate_to_hal(q.filters))
-            url_options.append("rows=%s" % (int(q.limit) if q.limit else 2000))
-            if q.sort_by    != None:
-                url_options.append("sort=%s" % ",".join([
-                    "%s+%s" % (
-                        attribute,
-                        "asc" if sort_asc == SORT_ASC else "desc"
-                    ) for attribute, sort_asc in q.sort_by.items()
-                ]))
-
-            url_options += ["sort=submittedDate_tdate+desc", "wt=%s" % self.format]
-
-            # Hardcoded rows=2000 to guarantee that all publications are fetched.
-            q_hal = "%(server)s/?q=%(options)s" % {
-                "server"  : self.api_url,
-                "options" : "&".join(url_options)
-            }
-
+            q_hal = self.query_to_hal(q)
             Log.info("--> HAL: %s" % q_hal)
             http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
             reply = http.request("GET", q_hal)

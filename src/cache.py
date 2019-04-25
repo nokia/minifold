@@ -31,6 +31,9 @@ class CacheConnector(Connector):
     def __init__(self, child):
         self.child = child
 
+    def attributes(self, object :str) -> set:
+        return self.child.attributes(object)
+
     def callback_read(self, query): # raises RuntimeError
         raise RuntimeError("Must be overloaded")
 

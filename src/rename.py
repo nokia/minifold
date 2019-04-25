@@ -81,7 +81,7 @@ class RenameConnector(Connector):
         self.m_child  = child
 
     def attributes(self, object :str) -> set:
-        return self.m_child.attributes(object) | set(self.m_map_qr.values())
+        return {self.map_rq.get(attribute, attribute) for attribute in  self.m_child.attributes(object)}
 
     def query(self, q :Query) -> list:
         super().query(q)

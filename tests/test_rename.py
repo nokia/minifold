@@ -24,25 +24,28 @@ ENTRIES = [
 
 MAP_RENAME = {
     "a" : "A",
-    "b" : "B",
     "c" : "C",
     "d" : "D",
 }
 
+RENAME_CONNECTOR = RenameConnector(
+    MAP_RENAME,
+    EntriesConnector(ENTRIES)
+)
+
 def test_rename_select_where():
-    rename_connector = RenameConnector(
-        MAP_RENAME,
-        EntriesConnector(ENTRIES)
-    )
     query = Query(
         attributes = ["A", "C", "D"],
-        filters    = BinaryPredicate(BinaryPredicate("A", "<=", 100), "&&", BinaryPredicate("B", ">", 20))
+        filters    = BinaryPredicate(BinaryPredicate("A", "<=", 100), "&&", BinaryPredicate("b", ">", 20))
     )
-    result = rename_connector.query(query)
+    obtained = RENAME_CONNECTOR.query(query)
 
-    assert result == [
+    assert obtained == [
         {"A": 100, "C": 300,  "D": None},
         {"A": 100, "C": None, "D": 400}
     ]
 
+def test_rename_attributes():
+    obtained = RENAME_CONNECTOR.attributes(None)
+    assert obtained == {"A", "b", "C", "D"}
 

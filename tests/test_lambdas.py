@@ -13,9 +13,6 @@ __license__    = "BSD-3"
 from minifold.entries_connector import EntriesConnector
 from minifold.query             import Query
 from minifold.lambdas           import LambdasConnector, find_lambda_dependencies, find_lambdas_dependencies
-from minifold.log               import Log
-
-Log.enable_print = True
 
 ENTRIES = [
     {"a" : 1,   "b" : 2,   "c" : 3},
@@ -66,8 +63,6 @@ def test_find_lambdas_dependencies():
         "c2" : {"c"},
         "c3" : {"c", "c2"},
     }
-    #Log.debug(map_required_keys)
-    #Log.debug(expected)
     assert map_required_keys == expected
 
 def test_lambdas_simple():

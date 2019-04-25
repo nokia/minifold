@@ -89,16 +89,13 @@ class LambdasConnector(Connector):
                 # thanks to the self.reshape_entries method.
                 q_child.filters = None
 
-        child_entries = self.child.query(q_child)
-        entries = self.answer(
+        entries = self.reshape_entries(
             q,
             lambdas(
                 self.m_map_lambdas,
-                child_entries,
+                self.child.query(q_child),
                 q.attributes
             )
         )
-        print("%s: entries = %s" % (self, child_entries))
-        ret = self.reshape_entries(q, entries)
-        print("%s: q = %s reshaped_entries = %s" % (self, q, ret))
-        return ret
+
+        return self.answer(q, entries)

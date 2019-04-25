@@ -116,7 +116,8 @@ class LdapConnector(Connector):
                 filter = LdapConnector.operand_to_ldap(q.filters)
 
             try:
-                attributes = set(attributes) & self.attributes(q.object)
+                if attributes != ALL_ATTRIBUTES:
+                    attributes = set(attributes) & self.attributes(q.object)
                 Log.info("--> LDAP: dn = %s filter = %s attributes = %s" % (q.object, filter, attributes))
                 self.m_connection.search(
                     q.object,

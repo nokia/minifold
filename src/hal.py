@@ -89,7 +89,7 @@ class HalConnector(Connector):
         self.m_map_rev_name = {to_canonic_fullname(hal_name) : name for (name, hal_name) in map_hal_name.items()}
 
     def attributes(self, object :str):
-        raise NotImplemented
+        return HAL_ALIASES.keys()
 
     @property
     def api_url(self) -> str:

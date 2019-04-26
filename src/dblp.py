@@ -73,8 +73,8 @@ class DblpConnector(Connector):
         self.m_map_dblp_name = map_dblp_name
         self.m_map_rev_name = {to_canonic_fullname(dblp_name) : name for (name, dblp_name) in map_dblp_name.items()}
 
-    def attributes(self, object :str):
-        raise NotImplemented
+    def attributes(self, object :str) -> set:
+        return {"title", "authors", "year", "type", "venue", "url"} # Non exhaustive
 
     @property
     def api_url(self) -> str:

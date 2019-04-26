@@ -16,6 +16,7 @@ try:
 except ImportError:
     raise ImportError("LdapConnector requires python3-ldap3: please run: apt-get install python3-ldap3")
 
+import operator
 from .connector             import Connector
 from .query                 import Query, ACTION_READ
 from .binary_predicate      import BinaryPredicate
@@ -40,11 +41,11 @@ class LdapConnector(Connector):
 
     @staticmethod
     def operator_to_ldap(op :str) -> str:
-        if   op == "==": return "="
-        elif op == "&&": return "&"
-        elif op == "||": return "|"
+        if   op == operator.__eq__:  return "="
+        elif op == operator.__and__: return "&"
+        elif op == operator.__or__:  return "|"
         #elif op == "<=" or op == ">=" or op == "<" or op == ">" or op == "~": return op
-        raise RuntimeError("LdapConnector::op2ldap: op = %s not supported" % op)
+        raise RuntimeError("LdapConnector::operator_to_ldap: op = %s not supported" % op)
 
     @staticmethod
     def binary_predicate_to_ldap(p :BinaryPredicate) -> str:

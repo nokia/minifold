@@ -23,15 +23,11 @@ class SelectConnector(Connector):
         self.m_attributes = attributes
 
     def attributes(self, object :str) -> set:
-        return set(self.m_attributes)
+        return set(self.m_attributes) & self.m_child.attributes(object)
 
     @property
     def child(self):
         return self.m_child
-
-    @property
-    def attributes(self):
-        return self.m_attributes
 
     def query(self, query :Query) -> list:
         super().query(query)

@@ -82,7 +82,7 @@ class Connector:
                 SELECT * FROM foo LIMIT n
                 where n >= query.limit
         """
-        max_attributes = self.attributes(query)
+        max_attributes = self.attributes(query.object)
         attributes = set(query.attributes) & max_attributes if query.attributes else max_attributes
 
         ret = list()

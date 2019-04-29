@@ -31,7 +31,7 @@ class EntriesConnector(Connector):
         if query.action == ACTION_READ:
             ret = self.reshape_entries(query, self.entries)
         else:
-            raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(q.action))
+            raise RuntimeError("EntriesConnector::query: %s not yet implemented" % action_to_str(query.action))
         return self.answer(query, ret)
 
     @property

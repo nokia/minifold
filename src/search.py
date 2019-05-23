@@ -10,12 +10,23 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+import re
 from .where     import where
 
-def equals(x, y):              return x == y
-def lower_case_equals(x, y):   return x.lower() == y.lower()
-def contains(x, y):            return x in y
-def lower_case_contains(x, y): return x.lower() in y.lower()
+def equals(x, y) -> bool:
+    return x == y
+def contains(x, y) -> bool:
+    return x in y
+def lower_case_equals(x :str, y :str) -> bool:
+    return x.lower() == y.lower()
+def lower_case_contains(x :str, y :str) -> bool:
+    return x.lower() in y.lower()
+
+def contains_words(words, sentence, ignore_case = True):
+    pattern = ".*\\b(%s)\\b.*" % "|".join(words)
+    flags = re.IGNORECASE if ignore_case else 0
+    regex = re.compile(pattern, flags)
+    return bool(regex.match(sentence))
 
 class SearchFilter:
     def __init__(self, search_values :list, attributes :list, match):

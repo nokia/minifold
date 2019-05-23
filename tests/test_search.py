@@ -22,11 +22,17 @@ def check_tests(match, tests):
 
 def test_contains_words():
     tests = [
+        # Basic tests
         ((["aa"], "xx aa yy", True),  True),
         ((["aa"], "xx AA yy", True),  True),
+        # Case sensitive
         ((["aa"], "xx aa yy", False), True),
         ((["aa"], "xx AA yy", False), False),
         ((["aa"], "xxaayy",   False), False),
+        # Contains one of the listed searched string
+        ((["aa", "bb"], "xx aa yy", False), True),
+        ((["aa", "bb"], "xx bb yy", False), True),
+        ((["aa bb"], "xx bb yy", False), False),
     ]
     check_tests(contains_words, tests)
 

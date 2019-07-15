@@ -20,10 +20,9 @@ def union_gen(list_entries :list):
     Args:
         list_entries: A list of lists of dicts.
     Returns:
-        The resulting list of dicts
-
+        The resulting generator.
     """
-    return (entry for entry in chain(*list_entries))
+    return chain(*list_entries)
 
 def union(list_entries :list):
     """
@@ -32,7 +31,7 @@ def union(list_entries :list):
     Args:
         list_entries: A list of lists of dicts.
     Returns:
-        The resulting list of dicts
+        The resulting list of dicts.
     """
     return [entry for entry in union_gen(list_entries)]
 

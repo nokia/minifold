@@ -340,7 +340,13 @@ class HalConnector(Connector):
         if q.action == ACTION_READ:
             q_hal = self.query_to_hal(q)
             Log.info("--> HAL: %s" % q_hal)
-            http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
+            http = urllib3.PoolManager(
+                timeout = urllib3.Timeout(
+                    connect = 1.0,
+                    read = 2.0
+                ),
+                retries = False
+            )
             reply = http.request("GET", q_hal)
             if reply.status == 200:
                 if self.m_format == "json":

@@ -9,7 +9,8 @@
 
 import datetime, functools, json, os, pickle, sys, traceback
 
-from pprint import pprint
+from functools              import partial
+from pprint                 import pprint
 
 from minifold.connector     import Connector
 from minifold.filesystem    import check_writable_directory, mtime, mkdir, rm
@@ -198,7 +199,7 @@ class JsonCacheConnector(StorageCacheConnector):
     ):
         super().__init__(
             child,
-            json.load, json.dump,
+            json.load, partial(json.dump, indent=4),
             lifetime, cache_dir,
             "r", "w", ".json"
         )

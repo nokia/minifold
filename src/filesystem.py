@@ -88,4 +88,20 @@ def check_writable_directory(directory):
     except Exception as e:
         raise RuntimeError("Cannot write into directory '%s': %s" % (directory, e))
 
-
+def find(dir_name :str) -> list:
+    """
+    List regular files in a stored in given directory or one of its subdirectories.
+    Args:
+        dir_name: A String corresponding to an existing directory.
+    Returns:
+        A list of String, each of them corresponding to a file.
+    """
+    filenames = list()
+    files = os.listdir(dir_name)
+    for base_name in files:
+        cur_path = os.path.join(dir_name, base_name)
+        if os.path.isdir(cur_path):
+            filenames += find(cur_path)
+        else:
+            filenames.append(cur_path)
+    return filenames

@@ -7,7 +7,8 @@
 # Authors:
 #   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
 
-import json, os, partial, pickle
+import json, os, pickle
+from functools                  import partial
 from minifold.cache             import DEFAULT_CACHE_STORAGE_BASE_DIR
 from minifold.entries_connector import EntriesConnector
 from minifold.filesystem        import mkdir
@@ -67,7 +68,7 @@ class JsonCachedConnector(CachedEntriesConnector):
             **kwargs
         )
 
-class PickleCachedEntriesConnector(CachedEntriesConnector):
+class PickleCachedConnector(CachedEntriesConnector):
     def __init__(self, load_entries, cache_filename :str, **kwargs):
         super().__init__(
             load_entries,

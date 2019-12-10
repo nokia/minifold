@@ -33,15 +33,15 @@ class CachedEntriesConnector(EntriesConnector):
         if with_cache:
             try:
                 with open(cache_filename, read_mode) as f:
-                    Log.info("%s: Loading cache from [%s]" % (type, cache_filename))
+                    Log.info("%s: Loading cache from [%s]" % (type(self), cache_filename))
                     entries = load_cache(f)
                     Log.info("Loaded %d entries" % len(entries))
                     loaded_from_cache = True
             except FileNotFoundError:
-                Log.debug("%s: Cache [%s] not found" % (type, cache_filename))
+                Log.debug("%s: Cache [%s] not found" % (type(self), cache_filename))
                 pass
             except Exception as e:
-                Log.debug("%s: Cache [%s] corrupted" % (type, cache_filename))
+                Log.debug("%s: Cache [%s] corrupted" % (type(self), cache_filename))
                 Log.error(e)
                 pass
 
@@ -52,7 +52,7 @@ class CachedEntriesConnector(EntriesConnector):
 
         # Save into cache (if needed)
         if with_cache and not loaded_from_cache:
-            Log.info("%s: Saving data into cache [%s]" % (type, cache_filename))
+            Log.info("%s: Saving data into cache [%s]" % (type(self), cache_filename))
             mkdir(os.path.dirname(cache_filename))
             with open(cache_filename, write_mode) as f:
                 save_cache(entries, f)

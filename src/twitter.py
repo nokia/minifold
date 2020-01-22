@@ -7,8 +7,9 @@
 #   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
 
 import datetime, tweepy
-from minifold.log               import Log
-from minifold.query             import ACTION_READ, Query
+from minifold.connector import Connector
+from minifold.log       import Log
+from minifold.query     import ACTION_READ, Query
 
 def tweet_to_dict(tweet):
     # Fetch tweet
@@ -66,7 +67,7 @@ def tweet_to_dict(tweet):
         "author_image" : author_image,
     }
 
-class TwitterConnector:
+class TwitterConnector(Connector):
     def __init__(self, twitter_id :str, consumer_key :str, consumer_secret :str, access_token :str, access_token_secret :str):
         """
         Constructor.

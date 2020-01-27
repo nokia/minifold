@@ -14,8 +14,9 @@ from minifold.log import Log
 
 try:
     import pycountry
-except ImportError:
+except ImportError as e:
     Log.warning("Please install pycountry: apt-get install python3-pycountry")
+    raise e
 
 def _country_code_to_name(country_code :str) -> str:
     # For obsolete version of pycountry

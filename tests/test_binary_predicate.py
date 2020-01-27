@@ -12,7 +12,7 @@ __license__    = "BSD-3"
 
 
 import operator
-from minifold.binary_predicate import BinaryPredicate
+from minifold.binary_predicate import BinaryPredicate, __in__
 
 ENTRY = {"a" : 1, "b" : 2}
 ENTRY2 = {"a" : {1, 2, 3}}
@@ -138,3 +138,10 @@ def test_lambda():
     t2 = lambda e: e["b"] == 2
     f2 = lambda e: e["b"] != 2
     check_clause(t1, f1, t2, f2)
+
+def test_in():
+    assert not __in__(0, {1, 2, 3})
+    assert __in__(1, {1, 2, 3})
+    assert __in__(2, {1, 2, 3})
+    assert __in__(3, {1, 2, 3})
+    assert not __in__(4, {1, 2, 3})

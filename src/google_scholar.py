@@ -26,6 +26,7 @@ except ImportError as e:
     raise e
 
 import operator, re
+from pprint             import pprint
 from .binary_predicate  import BinaryPredicate
 from .connector         import Connector
 from .download          import download
@@ -77,6 +78,9 @@ def parse_article(s_html :str) -> dict:
     # Extract url_title, title
     h3 = soup.find(name="h3", attrs={"class" : "gs_rt"})
     if h3:
+        span = h3.find(name="span", attrs={"class" : "gt_ct1"})
+        if span: # [CITATION]
+            ret["doc_type"] = span.text[1:-1]
         a = h3.find(name="a")
         if a:
             ret["url_title"] = a["href"]
@@ -86,11 +90,8 @@ def parse_article(s_html :str) -> dict:
     div = soup.find(name="div", attrs={"class" : "gs_a"})
     if div:
         s = div.text.replace("\xa0", " ")
-        Log.debug("s = %s" % s)
-        Log.debug(s.split(" - "))
         (authors, conference_year, editor) = s.split(" - ")
         ret["authors"] = [clean_string(a) for a in authors.split(",")]
-        Log.debug("conference_year = %r" % conference_year)
         conference_year = [clean_string(elt) for elt in conference_year.split(",")]
         ret["conference"] = conference_year[0] if len(conference_year) == 2 else None
         ret["year"] = int(conference_year[-1])
@@ -106,13 +107,17 @@ def parse_article(s_html :str) -> dict:
     if divs and len(divs) > 1:
         links = divs[1].findAll("a")
         if links:
-            if len(links) > 2:
-                ret["num_citations"] = extract_first_int(links[2].text)
-                ret["url_citations"] = ScholarConf.SCHOLAR_SITE + links[2]["href"]
-                ret["cluster_id"]    = extract_first_int(links[2]["href"])
-            if len(links) > 4:
-                ret["num_versions"] = extract_first_int(links[4].text)
-                ret["url_versions"] = ScholarConf.SCHOLAR_SITE + links[4]["href"]
+            # It is important to not use link index here as it may change depending on the
+            # document (e.g whether it is cited or not).
+            for link in links:
+                s =  link.text.lower()
+                key = "citations" if "cited by" in s else \
+                      "versions"  if "versions" in s else \
+                      None
+                if key:
+                    ret["num_%s" % key] = extract_first_int(s)
+                    ret["url_%s" % key] = ScholarConf.SCHOLAR_SITE + link["href"]
+                    ret["cluster_id"]    = extract_first_int(link["href"])
     return ret
 
 class MinifoldScholarQuerier(ScholarQuerier):
@@ -135,27 +140,11 @@ class MinifoldScholarQuerier(ScholarQuerier):
         # Network
         url = gs_query.get_url()
         Log.info("GoogleScholar <-- %s" % url)
+
+        # Here, we rely on minifold downloader as it can cache results.
         #s_html = self._get_http_response(url)
-
-        # <<<<<<< DEBUG
-        filename = "/tmp/google_scholar_dump.html"
-        import os
-        if not os.path.exists(filename):
-            response = download(url)
-            if isinstance(response, Exception):
-                raise response
-            s_html = response.text
-
-            with open(filename, "w") as f:
-                Log.info("[>>] Writting %s" % filename)
-                print(s_html, file=f)
-            Log.debug("s_html = %s" % s_html)
-        else:
-            Log.info("[<<] Reading %s" % filename)
-            # For debugging purpose, because you can get filtered if you query Google Scholar too much :(
-            with open(filename) as f:
-                s_html = "".join(f.readlines())
-        # >>>>>>>>>> DEBUG
+        response = download(url)
+        s_html = response.text
 
         # Parsing
         assert s_html
@@ -210,7 +199,7 @@ class GoogleScholarConnector(Connector):
             raise RuntimeError("Invalid left operand %s" % p)
 
         if attr == "author":
-            if p.operator == operator.__eq__:
+            if p.operator in {operator.__eq__, operator.__contains__}:
                 gs_query.set_author(value)
             else:
                 raise RuntimeError("Invalid operator %s" % p)
@@ -277,6 +266,10 @@ class GoogleScholarConnector(Connector):
         # Craft the query
         if query.limit is not None:
             gs_query.set_num_page_results(min(query.limit, ScholarConf.MAX_PAGE_RESULTS))
+
+        # Doc type.
+        gs_query.set_include_citations(False)
+        gs_query.set_include_patents(True)
 
         # Send the query
         self.querier.send_query(gs_query)

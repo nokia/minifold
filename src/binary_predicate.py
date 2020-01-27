@@ -11,8 +11,9 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import operator
+from .dict_util import reverse_dict
 
-def __includes__(x, y) -> bool:
+def __in__(x, y) -> bool:
     return operator.__contains__(y, x)
 
 OPERATORS = {
@@ -28,9 +29,11 @@ OPERATORS = {
     "AND" : operator.__and__,
     "^"   : operator.__xor__,
     "XOR" : operator.__xor__,
-    "IN"  : __includes__,
+    "IN"  : __in__,
     "CONTAINS" : operator.__contains__,
 }
+
+OPERATORS_TO_STR = reverse_dict(OPERATORS)
 
 class BinaryPredicate:
     def __init__(self, left, operator, right):
@@ -52,37 +55,11 @@ class BinaryPredicate:
         return self.m_right
 
     def __str__(self) -> str:
-        return "%s %s %s" % (self.left, self.operator, self.right)
+        return "%s %s %s" % (self.left, OPERATORS_TO_STR[self.operator], self.right)
 
     def match(self, entry :dict) -> bool:
-#        if self.operator == "&&" or self.operator == "AND":
-#            return self.left.match(entry) and self.right.match(entry)
-#        elif self.operator == "||" or self.operator == "OR":
-#            return self.left.match(entry) or self.right.match(entry)
-#        else:
-#            try:
-#                if self.operator == "==":
-#                    return entry[self.left] == self.right
-#                elif self.operator == "<=":
-#                    return entry[self.left] <= self.right
-#                elif self.operator == "<":
-#                    return entry[self.left] < self.right
-#                elif self.operator == ">=":
-#                    return entry[self.left] >= self.right
-#                elif self.operator == ">":
-#                    return entry[self.left] > self.right
-#                elif self.operator == "!=":
-#                    return entry[self.left] != self.right
-##                elif self.operator == "IN":
-##                    return entry[self.left] in self.right
-##                elif self.operator == "NOT IN":
-##                    return entry[self.left] not in self.right
-#                else: raise RuntimeError("Operator not supported %s" % self)
-#            except KeyError:
-#                if self.operator == "==" and self.right == None: return True
-#                return False
         try:
-            if self.operator in [operator.__or__, operator.__and__]:
+            if self.operator in [operator.__or__, operator.__and__, operator.__xor__]:
                 return self.operator(self.left(entry), self.right(entry))
             else:
                 left = entry[self.left]

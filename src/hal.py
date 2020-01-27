@@ -24,7 +24,7 @@ import json, operator
 #    raise ImportError("HalConnector requires python3-urllib: please run: apt-get install python3-urllib")
 import email.utils
 
-from .binary_predicate      import BinaryPredicate, __includes__
+from .binary_predicate      import BinaryPredicate, __in__
 from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
@@ -161,7 +161,7 @@ class HalConnector(Connector):
             ret = "%s:[%s TO *]" % (p.left, right)
         elif p.operator == operator.__le__:
             ret = "%s:[* TO %s]" % (p.left, right)
-        elif p.operator == __includes__:
+        elif p.operator == __in__:
             (start, end) = right
             ret = "%s:[%s TO %s]" % (p.left, start, end)
         else:

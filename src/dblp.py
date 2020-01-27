@@ -182,6 +182,9 @@ class DblpConnector(Connector):
                     pass
 
         if "authors" in entry.keys():
+            if isinstance(entry["authors"], str):
+                entry["authors"] = [entry["authors"]]
+
             # Fix author names having homonyms are not well-named (e.g
             # "Giovanni Pau 0001" instead of "Giovanni Pau").
             entry["authors"] = [
@@ -321,6 +324,7 @@ class DblpConnector(Connector):
                             # '@orcid' and '#text'
                             if isinstance(entry[key], str):
                                 entry[key] = [entry[key]]
+
                             entry["authors"] = [
                                 author["#text"] if isinstance(author, dict) else author \
                                 for author in entry[key]

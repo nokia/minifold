@@ -10,7 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import traceback, urllib3
+import urllib3
 
 from minifold.binary_predicate  import BinaryPredicate
 from minifold.hal               import HAL_ALIASES, HalConnector
@@ -29,10 +29,9 @@ FULLNAMES = [
 ]
 
 HAL_MAP_ID = {
-    "Salah Eddine Elayoubi" : "salah-eddine-elayoubi",
-    "François Durand"       : "fradurand",
-    "Chung Shue Chen"       : "chung-shue-chen",
-    "Dario Rossi"           : "rossi-dario",
+    "François Durand" : "fradurand",
+    "Chung Shue Chen" : "chung-shue-chen",
+    "Dario Rossi"     : "rossi-dario",
 }
 
 HAL = HalConnector(map_hal_id = HAL_MAP_ID)
@@ -99,7 +98,7 @@ def test_hal_hid():
                     object = fullname
                 )
             )
-            assert len(entries) > 0
+            assert len(entries) > 0, "Test failed for %s" % fullname
     except urllib3.exceptions.MaxRetryError:
         assert False, "Network unavailable"
 

@@ -198,7 +198,7 @@ class GoogleScholarConnector(Connector):
         if not isinstance(attr, str):
             raise RuntimeError("Invalid left operand %s" % p)
 
-        if attr == "author":
+        if attr == "authors":
             if p.operator in {operator.__eq__, operator.__contains__}:
                 gs_query.set_author(value)
             else:

@@ -12,14 +12,14 @@ SCHOLAR = GoogleScholarConnector()
 
 def test_google_scholar():
     entries = SCHOLAR.query(Query(
-        filters = BinaryPredicate("author", "CONTAINS", "Marc-Olivier Buob")
+        filters = BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob")
     ))
     assert len(entries) >= 9
 
 def test_google_scholar_where_year():
     entries = SCHOLAR.query(Query(
         filters = BinaryPredicate(
-            BinaryPredicate("author", "==", "Marc-Olivier Buob"),
+            BinaryPredicate("authors", "==", "Marc-Olivier Buob"),
             "&&",
             BinaryPredicate(
                 BinaryPredicate("year", "<=", 2018),
@@ -32,7 +32,7 @@ def test_google_scholar_where_year():
 
 def test_google_scholar_limit():
     entries = SCHOLAR.query(Query(
-        filters = BinaryPredicate("author", "CONTAINS", "Marc-Olivier Buob"),
+        filters = BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob"),
         limit = 2
     ))
     assert len(entries) == 2

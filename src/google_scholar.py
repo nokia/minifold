@@ -15,20 +15,126 @@ from .binary_predicate  import BinaryPredicate
 from .connector         import Connector
 from .log               import Log
 from .query             import ACTION_READ, Query
-from .scholar           import ScholarArticle, ScholarQuerier, ScholarSettings, SearchScholarQuery
+from .scholar           import ScholarArticle, ScholarConf, ScholarQuerier, ScholarSettings, SearchScholarQuery
+
+Log.enable_print = True
+import re
+from bs4 import BeautifulSoup
+from .scholar import SoupKitchen
+
+def parse_article(s_html :str) -> dict:
+    def clean_string(s :str) -> str:
+        return re.sub("( |\xa0|\n)+", " ", s).strip()
+
+    def extract_first_int(s :str) -> int:
+        return int(re.search("\d+", s).group())
+
+    ret = dict()
+    soup = BeautifulSoup(s_html, features = "lxml")
+
+    # Extract url_title
+    div = soup.find(name="div", attrs={"class" : "gs_or_ggsm"})
+    if div:
+        a = div.find(name="a")
+        if a:
+            ret["url_pdf"] = a["href"]
+
+    # Extract url_title, title
+    h3 = soup.find(name="h3", attrs={"class" : "gs_rt"})
+    if h3:
+        a = h3.find(name="a")
+        if a:
+            ret["url_title"] = a["href"]
+            ret["title"] = clean_string(a.text)
+
+    # Extract authors, year, editor
+    div = soup.find(name="div", attrs={"class" : "gs_a"})
+    if div:
+        print("div.text = %r" % div.text)
+        (authors, conference_year, editor) = div.text.split(" - ")
+        ret["authors"] = [clean_string(a) for a in authors.split(",")]
+        print("conference_year = %r" % conference_year)
+        conference_year = [clean_string(elt) for elt in conference_year.split(",")]
+        ret["conference"] = conference_year[0] if len(conference_year) == 2 else None
+        ret["year"] = int(conference_year[-1])
+        ret["editor"] = clean_string(editor)
+
+    # Extract exceprt
+    div = soup.find(name="div", attrs={"class" : "gs_rs"})
+    if div:
+        ret["excerpt"] = clean_string(div.text.strip())
+
+    # Extract num_citations and num_versions
+    divs = soup.findAll(name="div", attrs={"class" : "gs_fl"})
+    if divs and len(divs) > 1:
+        print(divs[1].prettify())
+        links = divs[1].findAll("a")
+        if links:
+            if len(links) > 2:
+                ret["num_citations"] = extract_first_int(links[2].text)
+                ret["url_citations"] = ScholarConf.SCHOLAR_SITE + links[2]["href"]
+                ret["cluster_id"]    = extract_first_int(links[2]["href"])
+            if len(links) > 4:
+                ret["num_versions"] = extract_first_int(links[4].text)
+                ret["url_versions"] = ScholarConf.SCHOLAR_SITE + links[4]["href"]
+    return ret
+
+class MinifoldScholarQuerier(ScholarQuerier):
+    def __init__(self):
+        super().__init__()
+        self.articles = list()
+
+    def parse(self, s_html :str):
+        soup = SoupKitchen.make_soup(s_html)
+        soup = soup.find(name="div", attrs={"id" : "gs_res_ccl_mid"})
+        print(soup.prettify())
+        for div in soup.findAll(name="div", attrs={"class" : "gs_r"}):
+            s = div.prettify()
+            print(s)
+            entry = parse_article(s)
+            Log.debug(pformat(entry))
+            self.articles.append(entry)
+
+    def send_query(self, gs_query):
+        # Network
+        url = gs_query.get_url()
+        Log.info("GoogleScholar <-- %s" % url)
+        #s_html = self._get_http_response(url)
+
+        from newdle.connectors.download import download
+        response = download(url)
+        if isinstance(response, Exception):
+            raise response
+        s_html = response.text
+
+#        # For debugging purpose, because you can get filtered if you query Google Scholar too much :(
+#        with open("/tmp/google_scholar_dump.html") as f:
+#            self.parse("".join(f.readlines()))
+
+        # Parsing
+        Log.debug("s_html = %s" % s_html)
+        assert s_html
+        self.articles = list()
+        self.parse(s_html)
 
 class GoogleScholarConnector(Connector):
     def __init__(self, citation_format :str = ScholarSettings.CITFORM_BIBTEX):
         # Prepare the querier
         settings = ScholarSettings()
         settings.set_citation_format(citation_format)
-        self.querier = ScholarQuerier()
+        #self.querier = ScholarQuerier()
+        self.querier = MinifoldScholarQuerier()
         self.querier.apply_settings(settings)
 
     def attributes(self, object :str) -> set:
         if object == "publication":
-            article = ScholarArticle()
-            return set(article.keys())
+            #article = ScholarArticle()
+            #return set(article.keys())
+            return {
+                "authors", "cluster_id", "editor", "excerpt", "num_citations",
+                "num_versions", "title", "url_citations", "url_pdf", "url_title",
+                "url_versions", "year"
+            }
         elif object == "cluster":
             raise RuntimeError("Object %s is not yet supported" % object)
         else:
@@ -90,7 +196,6 @@ class GoogleScholarConnector(Connector):
                 start = max(start, value + 1) if start else value
             else:
                 raise RuntimeError("Invalid operator %s" % p)
-            print("start = %r end = %r" % (start, end))
             if start is not None and end is not None and end < start:
                 raise RuntimeError("Invalid range of date")
             gs_query.set_timeframe(start, end)
@@ -124,5 +229,8 @@ class GoogleScholarConnector(Connector):
         self.querier.send_query(gs_query)
 
         # Extract results
-        ret = [{k : v[0] for (k, v) in article.attrs.items()} for article in self.querier.articles]
+        if isinstance(self.querier, MinifoldScholarQuerier):
+            ret = self.querier.articles
+        else:
+            ret = [{k : v[0] for (k, v) in article.attrs.items()} for article in self.querier.articles]
         return self.answer(query, ret)

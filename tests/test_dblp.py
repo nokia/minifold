@@ -73,5 +73,21 @@ def test_dblp_publication():
         assert set(entry.keys()) == set(attributes)
         assert entry["year"] == year
 
-#TODO test "researcher" object
-#TODO test operators
+def test_dblp_researcher():
+    attributes = ["title", "authors", "year"]
+    year       = 2008
+    fullname   = "Marc-Olivier Buob"
+
+    entries = DBLP.query(Query(
+        object = "publication",
+        attributes = attributes,
+        filters = BinaryPredicate(
+            BinaryPredicate("year", "==", year),
+            "&&",
+            BinaryPredicate("authors", "==", fullname)
+        )
+    ))
+    assert len(entries) == 2
+    assert len(entries[0]["authors"]) == 1
+    assert len(entries[1]["authors"]) == 3
+

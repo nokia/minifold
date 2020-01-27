@@ -149,7 +149,7 @@ class HalConnector(Connector):
         if isinstance(right, str):
             right = HalConnector.string_to_hal(right)
 
-        if   p.operator == operator.__eq__:
+        if   p.operator == operator.__eq__ or p.operator == operator.__contains__:
             ret = "%s:(%s)" % (p.left, right)
         #elif p.operator == "~":
         #    ret = "%s:\"%s\"~3" % (p.left, right)

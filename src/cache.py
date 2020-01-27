@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#This file is part of minifold
-#Copyright © 2018 Nokia Corporation and/or its subsidiary(-ies). All rights reserved. *
-#
-# Authors:
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
+
+__author__     = "Marc-Olivier Buob"
+__maintainer__ = "Marc-Olivier Buob"
+__email__      = "marc-olivier.buob@nokia-bell-labs.com"
+__copyright__  = "Copyright (C) 2018, Nokia"
+__license__    = "BSD-3"
 
 import datetime, functools, json, os, pickle, sys, traceback
 

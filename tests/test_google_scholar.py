@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
 # This file is part of the minifold project.
@@ -6,10 +6,8 @@
 
 from minifold.binary_predicate  import BinaryPredicate
 from minifold.query             import Query
-from minifold.log               import Log
 from minifold.google_scholar    import GoogleScholarConnector
 
-Log.enable_print = True
 SCHOLAR = GoogleScholarConnector()
 
 def test_google_scholar():
@@ -32,3 +30,9 @@ def test_google_scholar_where_year():
     ))
     assert len(entries) == 6
 
+def test_google_scholar_limit():
+    entries = SCHOLAR.query(Query(
+        filters = BinaryPredicate("author", "==", "Marc-Olivier Buob"),
+        limit = 2
+    ))
+    assert len(entries) == 2

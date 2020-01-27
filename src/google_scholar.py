@@ -10,19 +10,54 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import operator
+import sys
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError as e:
+    print(
+        "\n  ".join([
+            "Please install bs4",
+            "APT: sudo apt install python3-bs4",
+            "PIP: sudo pip3 install bs4",
+        ]),
+        file = sys.stderr
+    )
+    raise e
+
+import operator, re
 from .binary_predicate  import BinaryPredicate
 from .connector         import Connector
+from .download          import download
 from .log               import Log
 from .query             import ACTION_READ, Query
-from .scholar           import ScholarArticle, ScholarConf, ScholarQuerier, ScholarSettings, SearchScholarQuery
-
-Log.enable_print = True
-import re
-from bs4 import BeautifulSoup
-from .scholar import SoupKitchen
+from .scholar           import ScholarArticle, ScholarConf, ScholarQuerier, ScholarSettings, SearchScholarQuery, SoupKitchen
 
 def parse_article(s_html :str) -> dict:
+    """
+    Parse a "gs_res_ccl_mid" div (wrapping each article) returned by Google Scholar.
+    Args:
+        s_html: The HTML string containing the div.
+    Returns:
+        The dict describing the article, structured as follows:
+        {
+            "authors"       : list, # The list only contains the first authors. The last author name maybe incomplete.
+            "cluster_id"    : int,
+            "conference"    : str,  # May be incomplete
+            "editor"        : str,
+            "excerpt"       : str,  # May be incomplete.
+            "num_citations" : int,
+            "num_versions"  : int,
+            "title"         : str,
+            "url_citations" : str,
+            "url_versions"  : str,
+            "url_pdf"       : str,
+            "url_title"     : str,
+            "year"          : int,
+        }
+        An incomplete string may start by '…' and ends with '…'.
+        URLs are absolute.
+    """
     def clean_string(s :str) -> str:
         return re.sub("( |\xa0|\n)+", " ", s).strip()
 
@@ -50,10 +85,12 @@ def parse_article(s_html :str) -> dict:
     # Extract authors, year, editor
     div = soup.find(name="div", attrs={"class" : "gs_a"})
     if div:
-        print("div.text = %r" % div.text)
-        (authors, conference_year, editor) = div.text.split(" - ")
+        s = div.text.replace("\xa0", " ")
+        Log.debug("s = %s" % s)
+        Log.debug(s.split(" - "))
+        (authors, conference_year, editor) = s.split(" - ")
         ret["authors"] = [clean_string(a) for a in authors.split(",")]
-        print("conference_year = %r" % conference_year)
+        Log.debug("conference_year = %r" % conference_year)
         conference_year = [clean_string(elt) for elt in conference_year.split(",")]
         ret["conference"] = conference_year[0] if len(conference_year) == 2 else None
         ret["year"] = int(conference_year[-1])
@@ -67,7 +104,6 @@ def parse_article(s_html :str) -> dict:
     # Extract num_citations and num_versions
     divs = soup.findAll(name="div", attrs={"class" : "gs_fl"})
     if divs and len(divs) > 1:
-        print(divs[1].prettify())
         links = divs[1].findAll("a")
         if links:
             if len(links) > 2:
@@ -80,6 +116,9 @@ def parse_article(s_html :str) -> dict:
     return ret
 
 class MinifoldScholarQuerier(ScholarQuerier):
+    """
+    ScholarQuerier is overloaded to fetch more attributes.
+    """
     def __init__(self):
         super().__init__()
         self.articles = list()
@@ -87,12 +126,9 @@ class MinifoldScholarQuerier(ScholarQuerier):
     def parse(self, s_html :str):
         soup = SoupKitchen.make_soup(s_html)
         soup = soup.find(name="div", attrs={"id" : "gs_res_ccl_mid"})
-        print(soup.prettify())
         for div in soup.findAll(name="div", attrs={"class" : "gs_r"}):
             s = div.prettify()
-            print(s)
             entry = parse_article(s)
-            Log.debug(pformat(entry))
             self.articles.append(entry)
 
     def send_query(self, gs_query):
@@ -101,29 +137,37 @@ class MinifoldScholarQuerier(ScholarQuerier):
         Log.info("GoogleScholar <-- %s" % url)
         #s_html = self._get_http_response(url)
 
-        from newdle.connectors.download import download
-        response = download(url)
-        if isinstance(response, Exception):
-            raise response
-        s_html = response.text
+        # <<<<<<< DEBUG
+        filename = "/tmp/google_scholar_dump.html"
+        import os
+        if not os.path.exists(filename):
+            response = download(url)
+            if isinstance(response, Exception):
+                raise response
+            s_html = response.text
 
-#        # For debugging purpose, because you can get filtered if you query Google Scholar too much :(
-#        with open("/tmp/google_scholar_dump.html") as f:
-#            self.parse("".join(f.readlines()))
+            with open(filename, "w") as f:
+                Log.info("[>>] Writting %s" % filename)
+                print(s_html, file=f)
+            Log.debug("s_html = %s" % s_html)
+        else:
+            Log.info("[<<] Reading %s" % filename)
+            # For debugging purpose, because you can get filtered if you query Google Scholar too much :(
+            with open(filename) as f:
+                s_html = "".join(f.readlines())
+        # >>>>>>>>>> DEBUG
 
         # Parsing
-        Log.debug("s_html = %s" % s_html)
         assert s_html
+        self.parse(s_html)
         self.articles = list()
         self.parse(s_html)
 
 class GoogleScholarConnector(Connector):
     def __init__(self, citation_format :str = ScholarSettings.CITFORM_BIBTEX):
-        # Prepare the querier
         settings = ScholarSettings()
         settings.set_citation_format(citation_format)
-        #self.querier = ScholarQuerier()
-        self.querier = MinifoldScholarQuerier()
+        self.querier = MinifoldScholarQuerier() # ScholarQuerier()
         self.querier.apply_settings(settings)
 
     def attributes(self, object :str) -> set:
@@ -131,9 +175,18 @@ class GoogleScholarConnector(Connector):
             #article = ScholarArticle()
             #return set(article.keys())
             return {
-                "authors", "cluster_id", "editor", "excerpt", "num_citations",
-                "num_versions", "title", "url_citations", "url_pdf", "url_title",
-                "url_versions", "year"
+                "cluster_id",    #: int,
+                "conference",    #: str,
+                "editor",        #: str,
+                "excerpt",       #: str,
+                "num_citations", #: int,
+                "num_versions",  #: int,
+                "title",         #: str,
+                "url_citations", #: str,
+                "url_versions",  #: str,
+                "url_pdf",       #: str,
+                "url_title",     #: str,
+                "year",          #: int,
             }
         elif object == "cluster":
             raise RuntimeError("Object %s is not yet supported" % object)

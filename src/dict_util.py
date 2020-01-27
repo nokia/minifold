@@ -10,7 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-def revert_dict(d :dict) -> dict:
+def reverse_dict(d :dict) -> dict:
     return {v : k for (k, v) in d.items()}
 
 def freeze_dict(d :dict):

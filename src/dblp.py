@@ -128,8 +128,8 @@ class DblpConnector(Connector):
             raise RuntimeError("binary_predicate_to_dblp: left operand (%r) of %s must be a string" % (p.left, p))
 
         if p.left in ["author", "authors", "researcher", "conference"]:
-            # String attribute. Only "==" is supported.
-            if p.operator == operator.__eq__:
+            # String attribute. Only "CONTAINS" and "==" are supported. "==" behaves like "CONTAINS"
+            if p.operator == operator.__eq__ or p.operator == operator.__contains__:
                 result["prefix"] = self.get_dblp_name(p.right)
             else:
                 raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))

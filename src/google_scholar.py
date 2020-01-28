@@ -25,8 +25,8 @@ except ImportError as e:
     )
     raise e
 
-import operator, re
-from pprint             import pprint
+import difflib, operator, re
+from pprint             import pformat, pprint
 from .binary_predicate  import BinaryPredicate
 from .connector         import Connector
 from .download          import download
@@ -65,7 +65,7 @@ def parse_article(s_html :str) -> dict:
     def extract_first_int(s :str) -> int:
         return int(re.search("\d+", s).group())
 
-    ret = dict()
+    entry = dict()
     soup = BeautifulSoup(s_html, features = "lxml")
 
     # Extract url_title
@@ -73,34 +73,34 @@ def parse_article(s_html :str) -> dict:
     if div:
         a = div.find(name="a")
         if a:
-            ret["url_pdf"] = a["href"]
+            entry["url_pdf"] = a["href"]
 
     # Extract url_title, title
     h3 = soup.find(name="h3", attrs={"class" : "gs_rt"})
     if h3:
         span = h3.find(name="span", attrs={"class" : "gt_ct1"})
         if span: # [CITATION]
-            ret["doc_type"] = span.text[1:-1]
+            entry["doc_type"] = span.text[1:-1]
         a = h3.find(name="a")
         if a:
-            ret["url_title"] = a["href"]
-            ret["title"] = clean_string(a.text)
+            entry["url_title"] = a["href"]
+            entry["title"] = clean_string(a.text)
 
     # Extract authors, year, editor
     div = soup.find(name="div", attrs={"class" : "gs_a"})
     if div:
         s = div.text.replace("\xa0", " ")
         (authors, conference_year, editor) = s.split(" - ")
-        ret["authors"] = [clean_string(a) for a in authors.split(",")]
+        entry["authors"] = [clean_string(a) for a in authors.split(",")]
         conference_year = [clean_string(elt) for elt in conference_year.split(",")]
-        ret["conference"] = conference_year[0] if len(conference_year) == 2 else None
-        ret["year"] = int(conference_year[-1])
-        ret["editor"] = clean_string(editor)
+        entry["conference"] = conference_year[0] if len(conference_year) == 2 else None
+        entry["year"] = int(conference_year[-1])
+        entry["editor"] = clean_string(editor)
 
     # Extract exceprt
     div = soup.find(name="div", attrs={"class" : "gs_rs"})
     if div:
-        ret["excerpt"] = clean_string(div.text.strip())
+        entry["excerpt"] = clean_string(div.text.strip())
 
     # Extract num_citations and num_versions
     divs = soup.findAll(name="div", attrs={"class" : "gs_fl"})
@@ -115,10 +115,10 @@ def parse_article(s_html :str) -> dict:
                       "versions"  if "versions" in s else \
                       None
                 if key:
-                    ret["num_%s" % key] = extract_first_int(s)
-                    ret["url_%s" % key] = ScholarConf.SCHOLAR_SITE + link["href"]
-                    ret["cluster_id"]    = extract_first_int(link["href"])
-    return ret
+                    entry["num_%s" % key] = extract_first_int(s)
+                    entry["url_%s" % key] = ScholarConf.SCHOLAR_SITE + link["href"]
+                    entry["cluster_id"]    = extract_first_int(link["href"])
+    return entry
 
 class MinifoldScholarQuerier(ScholarQuerier):
     """
@@ -164,8 +164,10 @@ class GoogleScholarConnector(Connector):
             #article = ScholarArticle()
             #return set(article.keys())
             return {
+                "authors",       #: str
                 "cluster_id",    #: int,
                 "conference",    #: str,
+                "doc_type",      #: str,
                 "editor",        #: str,
                 "excerpt",       #: str,
                 "num_citations", #: int,
@@ -183,10 +185,10 @@ class GoogleScholarConnector(Connector):
             raise RuntimeError("Invalid object %s" % object)
 
     @staticmethod
-    def filter_to_scholar(p :BinaryPredicate, gs_query :SearchScholarQuery):
+    def filter_to_scholar(p :BinaryPredicate, gs_query :SearchScholarQuery, authors :list):
         if p.operator == operator.__and__:
-            GoogleScholarConnector.filter_to_scholar(p.left, gs_query)
-            GoogleScholarConnector.filter_to_scholar(p.right, gs_query)
+            GoogleScholarConnector.filter_to_scholar(p.left, gs_query, authors)
+            GoogleScholarConnector.filter_to_scholar(p.right, gs_query, authors)
             return
 
         if isinstance(p.left,  BinaryPredicate) \
@@ -200,6 +202,7 @@ class GoogleScholarConnector(Connector):
 
         if attr == "authors":
             if p.operator in {operator.__eq__, operator.__contains__}:
+                authors.append(value)
                 gs_query.set_author(value)
             else:
                 raise RuntimeError("Invalid operator %s" % p)
@@ -247,19 +250,42 @@ class GoogleScholarConnector(Connector):
             else:
                 raise RuntimeError("Invalid operator %s" % p)
 
+    @staticmethod
+    def sanitize_author(authors :list, author :str) -> str:
+        """
+        Find in an input list of strings the closest string with the input string.
+        Args:
+            authors: The list of strings.
+            author: The reference string.
+        Returns:
+            The string of `authors` closest to `author` if any, else `author`
+        """
+        # Find the best match in authors. Indeed if we search "John Doe", Google Scholar
+        # returns "J Doe" and so the self.reshape_entries will drop the records.
+        # In practice, the cutoff must be quite low, but not too low. Otherwise,
+        # co-authors may be wrongly renamed! Empirically, 0.4 is a good tradeoff).
+        l = difflib.get_close_matches(author, authors, n=1, cutoff=0.4)
+        if len(l) != 1:
+            # We are trying to rename a co-author without knowing is real name.
+            return author
+        else:
+            # We are renaming an author with his/her real name.
+            return l[0]
+
     def query(self, query :Query) -> list:
         super().query(query)
-        ret = None
+        entries = None
         if query.action != ACTION_READ:
             raise RuntimeError("Action not supported" % query.action)
         if not isinstance(query.filters, BinaryPredicate):
             raise RuntimeError("Invalid filter" % query.filters)
 
+        authors = list()
         if query.object == "cluster":
             gs_query = ClusterScholarQuery(cluster=options.cluster_id)
         elif query.object == "publication" or not query.object:
             gs_query = SearchScholarQuery()
-            GoogleScholarConnector.filter_to_scholar(query.filters, gs_query)
+            GoogleScholarConnector.filter_to_scholar(query.filters, gs_query, authors)
         else:
             raise RuntimeError("Invalid object %r" % query.object)
 
@@ -276,7 +302,19 @@ class GoogleScholarConnector(Connector):
 
         # Extract results
         if isinstance(self.querier, MinifoldScholarQuerier):
-            ret = self.querier.articles
+            entries = self.querier.articles
         else:
-            ret = [{k : v[0] for (k, v) in article.attrs.items()} for article in self.querier.articles]
-        return self.answer(query, ret)
+            entries = [
+                {k : v[0] for (k, v) in article.attrs.items()}
+                for article in self.querier.articles
+            ]
+
+        if gs_query.author:
+            # Sanitize author list.
+            for entry in entries:
+                entry["authors"] = [
+                    GoogleScholarConnector.sanitize_author(authors, author)
+                    for author in entry["authors"]
+                ]
+        entries = self.reshape_entries(query, entries)
+        return self.answer(query, entries)

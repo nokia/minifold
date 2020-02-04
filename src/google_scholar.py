@@ -160,7 +160,7 @@ class GoogleScholarConnector(Connector):
         self.querier.apply_settings(settings)
 
     def attributes(self, object :str) -> set:
-        if object == "publication":
+        if object == "publication" or not object:
             #article = ScholarArticle()
             #return set(article.keys())
             return {

@@ -31,7 +31,6 @@ def install_cache(cache_filename :str = None):
         cache_filename = os.path.join(DEFAULT_CACHE_STORAGE_BASE_DIR, "requests_cache")
     else:
         directory = os.path.dirname(cache_filename)
-    print("cache_filename = %s directory = %s" % (cache_filename, directory))
     mkdir(directory)
     check_writable_directory(directory)
     requests_cache.install_cache(

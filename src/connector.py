@@ -18,6 +18,7 @@ from .log       import Log
 class Connector:
     trace_queries = False
     trace_entries = False
+    trace_only_keys = False
 
     def __init__(self):
         """
@@ -110,9 +111,13 @@ class Connector:
             ret: The corresponding result.
         """
         if Connector.trace_entries:
-            Log.debug("%r: <-- %s\n%s" % (
-                self,
-                query,
-                pformat(ret)
-            ))
+            if isinstance(ret, list) and Connector.trace_only_keys and len(ret) > 0:
+                entry = ret[0]
+                message = "Forwarding %d entries, keys = {%s}" % (
+                    len(ret),
+                    ", ".join(entry.keys())
+                )
+            else:
+                message = pformat(ret)
+            Log.debug("%r: <-- %s\n%s" % (self, query, message))
         return ret

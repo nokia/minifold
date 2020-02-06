@@ -11,7 +11,8 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import os, sys
-from minifold.cache import DEFAULT_CACHE_STORAGE_BASE_DIR, DEFAULT_CACHE_STORAGE_LIFETIME
+from minifold.cache         import DEFAULT_CACHE_STORAGE_BASE_DIR, DEFAULT_CACHE_STORAGE_LIFETIME
+from minifold.filesystem    import check_writable_directory, mkdir
 
 try:
     import requests_cache
@@ -26,7 +27,13 @@ except ImportError as e:
 
 def install_cache(cache_filename :str = None):
     if not cache_filename:
+        directory = DEFAULT_CACHE_STORAGE_BASE_DIR
         cache_filename = os.path.join(DEFAULT_CACHE_STORAGE_BASE_DIR, "requests_cache")
+    else:
+        directory = os.path.dirname(cache_filename)
+    print("cache_filename = %s directory = %s" % (cache_filename, directory))
+    mkdir(directory)
+    check_writable_directory(directory)
     requests_cache.install_cache(
         cache_filename,
         expire_after = DEFAULT_CACHE_STORAGE_LIFETIME

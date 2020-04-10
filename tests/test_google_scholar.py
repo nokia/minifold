@@ -19,7 +19,7 @@ def test_google_scholar():
 def test_google_scholar_where_year():
     entries = SCHOLAR.query(Query(
         filters = BinaryPredicate(
-            BinaryPredicate("authors", "==", "Marc-Olivier Buob"),
+            BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob"),
             "&&",
             BinaryPredicate(
                 BinaryPredicate("year", "<=", 2018),

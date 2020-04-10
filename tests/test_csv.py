@@ -10,7 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import io
+import io, os, sys
 
 from minifold.csv       import CsvConnector, CsvModeEnum
 from minifold.query     import Query
@@ -30,7 +30,7 @@ EXPECTED = [
     {"col1" : "11,1", "col2" : "222",   "col3" : "333"},
 ]
 
-CSV_FILENAME = "data.csv"
+CSV_FILENAME = os.path.join(sys.path[0], "data.csv")
 
 def test_csv_string():
     connector = CsvConnector(CSV_STRING, delimiter=DELIMITER, quotechar=QUOTECHAR, mode=CsvModeEnum.STRING)

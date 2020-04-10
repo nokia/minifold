@@ -49,7 +49,7 @@ from .binary_predicate      import BinaryPredicate
 from .connector             import Connector
 from .doc_type              import DocType
 from .log                   import Log
-from .strings               import to_international_string, to_canonic_fullname
+from .strings               import to_international_string, to_canonic_fullname as _to_canonic_fullname
 from .query                 import Query, ACTION_READ
 
 # Default queried DBLP API.
@@ -61,6 +61,12 @@ DBLP_ALIASES = {
     "venue"   : "conference",
     "url"     : "dblp_url",
 }
+
+def to_canonic_fullname(s) -> str:
+    # DBLP may now returns {"@pid" : int, "text" : "Firstname Lastname"} instead of the author fullname.
+    if isinstance(s, dict):
+        s = s["text"]
+    return _to_canonic_fullname(s)
 
 class DblpConnector(Connector):
     def __init__(self, map_dblp_id = {}, map_dblp_name = {}, dblp_api_url = DBLP_API_URL):
@@ -165,6 +171,7 @@ class DblpConnector(Connector):
             return DocType.UNKNOWN
 
     def reshape_entry(self, query :Query, entry :dict) -> dict:
+        print("reshape_entry(%s)" % entry)
         if "type" in entry.keys():
             doc_type = DblpConnector.to_doc_type(entry["type"])
             entry["doc_type"]      = doc_type # Compatible with Hal "doc_type" values.
@@ -182,21 +189,22 @@ class DblpConnector(Connector):
                     pass
 
         if "authors" in entry.keys():
-            if isinstance(entry["authors"], str):
+            if isinstance(entry["authors"], (dict, str)):
                 entry["authors"] = [entry["authors"]]
 
             # Fix author names having homonyms are not well-named (e.g
             # "Giovanni Pau 0001" instead of "Giovanni Pau").
             entry["authors"] = [
-                author.rstrip(" 0123456789") for author in entry["authors"]
+                to_canonic_fullname(author).rstrip(" 0123456789") for author in entry["authors"]
             ]
 
             # Convert DBLP names to our names if needed.
             entry["authors"] = [
-                self.m_map_rev_name.get(to_canonic_fullname(author), author) \
+                self.m_map_rev_name.get(_to_canonic_fullname(author), author) \
                 for author in entry["authors"]
             ]
 
+        print("--> %s" % entry)
         return entry
 
     def extract_entries(self, query :Query, results :list) -> list:

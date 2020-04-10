@@ -15,9 +15,9 @@ from minifold.query             import Query
 from minifold.lambdas           import LambdasConnector, find_lambda_dependencies, find_lambdas_dependencies
 
 ENTRIES = [
-    {"a" : 1,   "b" : 2,   "c" : 3},
-    {"a" : 10,  "b" : 20,  "c" : 30},
-    {"a" : 100, "b" : 200, "c" : 300}
+    {"a" : 1,   "b" : 2,   "c" : 3,   "d" : 4},
+    {"a" : 10,  "b" : 20,  "c" : 30,  "d" : 40},
+    {"a" : 100, "b" : 200, "c" : 300, "d" : 400}
 ]
 
 class StrictEntriesConnector(EntriesConnector):
@@ -39,6 +39,7 @@ MAP_LAMBDAS = {
     "b3" : lambda e: e["b"] * e["b2"],
     "c2" : lambda e: e["c"] ** 2,
     "c3" : lambda e: e["c"] * e["c2"],
+    "d"  : lambda e: e["d"] * 10
 }
 
 LAMBDAS_CONNECTOR = LambdasConnector(MAP_LAMBDAS, STRICT_CONNECTOR)
@@ -62,6 +63,7 @@ def test_find_lambdas_dependencies():
         "b3" : {"b", "b2"},
         "c2" : {"c"},
         "c3" : {"c", "c2"},
+        "d"  : {"d"}
     }
     assert map_required_keys == expected
 
@@ -69,13 +71,20 @@ def test_lambdas_simple():
     attributes = {"a", "b", "c"}
     obtained = LAMBDAS_CONNECTOR.query(Query(attributes = attributes))
     check_keys(obtained, attributes)
-    assert obtained == ENTRIES
+    assert obtained == [
+        {"a" : 1,   "b" : 2,   "c" : 3},
+        {"a" : 10,  "b" : 20,  "c" : 30},
+        {"a" : 100, "b" : 200, "c" : 300}
+    ]
+
+
 
 def test_lambdas_all():
     attributes = {
         "a", "a2", "a3",
         "b", "b2", "b3",
         "c", "c2", "c3",
+        "d"
     }
 
     obtained = LAMBDAS_CONNECTOR.query(Query())
@@ -84,7 +93,7 @@ def test_lambdas_all():
 
     obtained = LAMBDAS_CONNECTOR.query(Query(attributes = attributes))
     check_keys(obtained, attributes)
-    assert STRICT_CONNECTOR.last_queried_attributes == {"a", "b", "c"}
+    assert STRICT_CONNECTOR.last_queried_attributes == {"a", "b", "c", "d"}
 
 def test_lambdas_x2():
     attributes = {"a2", "b2", "c2"}
@@ -102,7 +111,8 @@ def test_lambdas_where():
             "b3" : 8000,
             "c"  : 30,
             "c2" : 900,
-            "c3" : 27000
+            "c3" : 27000,
+            "d"  : 400,
         }
     ]
 
@@ -141,6 +151,7 @@ def test_lambdas_attributes():
         "a", "a2", "a3",
         "b", "b2", "b3",
         "c", "c2", "c3",
+        "d"
     }
     assert obtained == expected
 

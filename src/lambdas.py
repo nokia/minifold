@@ -32,6 +32,14 @@ def find_lambdas_dependencies(map_lambdas :dict) -> dict:
     return {attr : find_lambda_dependencies(func) for attr, func in map_lambdas.items()}
 
 def lambdas(map_lambdas :dict, entries :list, attributes :set = None) -> list:
+    # Be sure that the result is deterministic without regards each
+    # lambda is processed.
+    # Ex: map_lambdas = {"x" : lambda e: 10 + e["x"]} is OK
+    # Ex: map_lambdas = {"x" : lambda e: 10 + e["x"] + e["y"]} is OK
+    # Ex: map_lambdas = {
+    #       "x" : lambda e: 10 + e["x"] + e["y"]
+    #       "y" : lambda e: 10 + e["y"]
+    #     } is not OK because e["y"] is ambiguous when executing the lambda related to "x".
     attrs = set(map_lambdas.keys())
     if attributes:
         attrs &= set(attributes)
@@ -46,6 +54,7 @@ def lambdas(map_lambdas :dict, entries :list, attributes :set = None) -> list:
 
 class LambdasConnector(Connector):
     def __init__(self, map_lambdas :dict, child :Connector, map_dependencies :dict = None):
+        # Ensure there is no cyclic dependency (see lambdas())
         super().__init__()
         self.m_child = child
         self.m_map_lambdas = map_lambdas
@@ -77,8 +86,15 @@ class LambdasConnector(Connector):
             where_attributes = self.find_needed_attributes(find_lambda_dependencies(q.filters))
 
             if q.attributes:
+                child_attributes = self.m_child.attributes(None)
                 select_attributes  = self.find_needed_attributes(set(q.attributes))
-                lambdas_attributes = set(self.m_map_lambdas.keys())
+                # Remove lambda-specific attributes
+                lambdas_attributes = set(self.m_map_lambdas.keys()) - {
+                    dep_attr
+                    for attr in q.attributes
+                    for dep_attr in self.m_map_dependencies.get(attr, set())
+                    if dep_attr in child_attributes
+                }
                 q_child.attributes = list((select_attributes | where_attributes) - lambdas_attributes)
 
             if where_attributes:

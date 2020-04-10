@@ -12,8 +12,8 @@ Log.enable_print = True
 
 if sys.version_info >= (3, 6):
     def test_subclasses():
-        assert len(Connector.subclasses) == 0
-        from minifold.entries_connector import EntriesConnector
-        assert len(Connector.subclasses) == 1
-
-
+        assert Connector.subclasses
+        l = len(Connector.subclasses)
+        if l == 0:
+            from minifold.entries_connector import EntriesConnector
+            assert len(Connector.subclasses) == 1

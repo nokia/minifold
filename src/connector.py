@@ -57,9 +57,11 @@ class Connector:
         """
         if Connector.trace_queries:
             Log.debug("%r: --> %s" % (self, query))
-        # This method must be overloaded by populating entries
-        entries = list()
-        return self.answer(query, entries)
+        # This method must be overloaded in child classes as follows:
+        # super().query(query)
+        # entries = [ ... ]
+        # return self.answer(query, entries)
+        return list()
 
     def attributes(self, object :str) -> set:
         """
@@ -110,7 +112,7 @@ class Connector:
             query: The related Query instance.
             ret: The corresponding result.
         """
-        if Connector.trace_entries:
+        if Connector.trace_entries or Connector.trace_only_keys:
             if isinstance(ret, list) and Connector.trace_only_keys and len(ret) > 0:
                 entry = ret[0]
                 message = "Forwarding %d entries, keys = {%s}" % (

@@ -27,7 +27,10 @@ def rm(path :str, recursive :bool = False):
         else:
             os.rmdir(path)
     else:
-        os.remove(path)
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
 
 def ctime(path) -> datetime.datetime:
     """
@@ -64,6 +67,8 @@ def mkdir(directory):
         if not os.path.exists(directory):
             Log.info("Creating '%s' directory" % directory)
         os.makedirs(directory)
+    except FileExistsError:
+        pass
     except OSError as e: # Python >2.5
         if e.errno == errno.EEXIST and os.path.isdir(directory):
             pass

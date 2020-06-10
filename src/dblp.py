@@ -171,7 +171,6 @@ class DblpConnector(Connector):
             return DocType.UNKNOWN
 
     def reshape_entry(self, query :Query, entry :dict) -> dict:
-        print("reshape_entry(%s)" % entry)
         if "type" in entry.keys():
             doc_type = DblpConnector.to_doc_type(entry["type"])
             entry["doc_type"]      = doc_type # Compatible with Hal "doc_type" values.
@@ -204,7 +203,6 @@ class DblpConnector(Connector):
                 for author in entry["authors"]
             ]
 
-        print("--> %s" % entry)
         return entry
 
     def extract_entries(self, query :Query, results :list) -> list:

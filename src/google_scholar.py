@@ -277,8 +277,8 @@ class GoogleScholarConnector(Connector):
         entries = None
         if query.action != ACTION_READ:
             raise RuntimeError("Action not supported" % query.action)
-        if not isinstance(query.filters, BinaryPredicate):
-            raise RuntimeError("Invalid filter" % query.filters)
+        if query.filters and not isinstance(query.filters, BinaryPredicate):
+            raise RuntimeError("Invalid filter: %s" % query.filters)
 
         authors = list()
         if query.object == "cluster":

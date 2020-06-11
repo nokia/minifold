@@ -10,23 +10,13 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-try:
-    import urllib3
-    #urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-except ImportError:
-    raise ImportError("HalConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
-
-import json, operator
-
-#try:
-#    import urllib.parse
-#except ImportError:
-#    raise ImportError("HalConnector requires python3-urllib: please run: apt-get install python3-urllib")
 import email.utils
+import json, operator
 
 from .binary_predicate      import BinaryPredicate, __in__
 from .connector             import Connector
 from .doc_type              import DocType
+from .download              import download
 from .log                   import Log
 from .strings               import to_international_string, to_canonic_fullname
 from .query                 import Query, ACTION_READ, SORT_ASC
@@ -110,16 +100,6 @@ class HalConnector(Connector):
     @staticmethod
     def quote(s) -> str:
         return "%%22%s%%22" % s
-
-#    @staticmethod
-#    def to_hal_name(s, map_name = {}) -> str:
-#        ret = map_name.get(s)
-#        if ret is None:
-#            s = s.lower()
-#            s = s.replace(" ", "-")
-#            s = s.replace("ç", "%C3%A7") # Merci aux François
-#            ret = to_international_string(s)
-#        return ret
 
     @staticmethod
     def string_to_hal(s) -> str:
@@ -287,22 +267,21 @@ class HalConnector(Connector):
             except KeyError:
                 # If not found, try to translate the string using self.map_hal_name.
                 # Else, use the provided name.
-                #hal_name = HalConnector.to_hal_name(q.object, self.map_hal_name)
-                #object = "authFullName_s:(%s)" % HalConnector.quote(hal_name.replace(" ", "%%20"))
                 fullname = q.object
+                fullname = self.map_hal_name.get(fullname, fullname)
                 object = "*:*&fq=authFullName_s:(%s)" % HalConnector.string_to_hal(fullname)
 
-        if object == None:
+        if object is None:
             raise RuntimeError("Object not supported: %s" % q.object)
 
         url_options = [object]
 
         # SELECT
-        if attributes   != None:
+        if attributes:
             url_options.append("fl=%s" % attributes)
 
         # WHERE
-        if q.filters    != None:
+        if q.filters:
             url_options.append("fq=%s" % HalConnector.binary_predicate_to_hal(q.filters))
 
         # OFFSET
@@ -340,17 +319,11 @@ class HalConnector(Connector):
         if q.action == ACTION_READ:
             q_hal = self.query_to_hal(q)
             Log.info("--> HAL: %s" % q_hal)
-            http = urllib3.PoolManager(
-                timeout = urllib3.Timeout(
-                    connect = 1.0,
-                    read = 2.0
-                ),
-                retries = False
-            )
-            reply = http.request("GET", q_hal)
-            if reply.status == 200:
+            reply = download(q_hal, timeout = (2.0, 7.0))
+            try:
+                data = reply.text
                 if self.m_format == "json":
-                    data = json.loads(reply.data.decode("utf-8"))
+                    data = json.loads(data)
                     try:
                         entries = self.sanitize_entries(
                             data["response"]["docs"]
@@ -360,11 +333,8 @@ class HalConnector(Connector):
                         raise RuntimeError("HAL error:\n%s" % pformat(data))
                 else:
                     raise RuntimeError("Format not implemented: %s" % self.m_format)
-            else:
-                raise RuntimeError("Cannot get reply from %s (status %s)" % (
-                    self.m_api_url,
-                    reply.status
-                ))
+            except Exception as e:
+                raise RuntimeError("Cannot get reply from %s (status %s)" % (self.m_api_url, e))
 
         return self.answer(q, entries)
 

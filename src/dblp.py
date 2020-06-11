@@ -160,7 +160,7 @@ class DblpConnector(Connector):
             return DocType.JOURNAL
         elif s in {"informal publications", "reference works"}:
             return DocType.REPORT
-        elif s in {"books and theses", "parts in books or collections"}:
+        elif s in {"phdthesis", "books and theses", "parts in books or collections"}:
             return DocType.BOOKS_AND_THESES
         #elif s == "????":
         #    return DocType.HDR

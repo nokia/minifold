@@ -33,8 +33,10 @@ def _country_code_to_name(country_code :str) -> str:
     return ret
 
 def country_code_to_name(country_code :str) -> str:
-    ret = None
+    if country_code == None:
+        return None
 
+    ret = None
     try:
         country = pycountry.countries.get(alpha_2 = country_code.upper())
         ret = country.name

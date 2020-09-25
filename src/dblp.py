@@ -4,7 +4,7 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
+__author__     = "Marc-Olivier Buob and Fabien Mathieu"
 __maintainer__ = "Marc-Olivier Buob"
 __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
@@ -38,6 +38,12 @@ except ImportError:
     raise ImportError("DblpConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
 
 try:
+    import requests
+except ImportError:
+    raise ImportError("DblpConnector requires requests")
+
+
+try:
     import xmltodict
 except ImportError:
     raise ImportError("DblpConnector requires python3-xmltodict: please run: apt-get install python3-xmltodict")
@@ -53,7 +59,7 @@ from .strings               import to_international_string, to_canonic_fullname 
 from .query                 import Query, ACTION_READ
 
 # Default queried DBLP API.
-DBLP_API_URL = "http://dblp.dagstuhl.de"
+DBLP_API_URL = "https://dblp.dagstuhl.de"
 
 # Maps DBLP ontology to our ontology.
 DBLP_ALIASES = {
@@ -301,11 +307,12 @@ class DblpConnector(Connector):
                 }
 
             Log.info("--> DBLP: %s" % q_dblp)
-            http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
-            reply = http.request("GET", q_dblp, retries = 5)
+            # http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
+            # reply = http.request("GET", q_dblp, retries = 5)
+            reply = requests.get(q_dblp)
 
-            if reply.status == 200:
-                data = reply.data.decode("utf-8")
+            if reply.status_code == 200:
+                data = reply.content.decode("utf-8")
                 if format == "json":
                     result = json.loads(data)
                     entries = self.extract_entries(query, result)

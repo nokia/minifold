@@ -39,6 +39,8 @@ def country_code_to_name(country_code :str) -> str:
     ret = None
     try:
         country = pycountry.countries.get(alpha_2 = country_code.upper())
+        if country is None:
+            return None
         ret = country.name
     except KeyError as e:
         if "%s" % e == "alpha_2":

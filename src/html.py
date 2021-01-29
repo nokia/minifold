@@ -12,6 +12,8 @@ __license__    = "BSD-3"
 
 import re, sys
 from html       import escape
+from .connector import Connector
+from .query     import Query
 
 PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
@@ -71,36 +73,57 @@ def entries_to_html(entries :list, map_attribute_label :dict = dict(), attribute
             to display.
         attributes: The subset of keys to display.
     """
+
+def entries_to_html(
+    entries :list,
+    map_attribute_label :dict = None,
+    attributes :list = None,
+    keep_entry_if :callable = None
+) -> str:
     if not attributes:
-        attributes = entries[0].keys()
+        attributes = list(entries[0].keys())
+    if not keep_entry_if:
+        keep_entry_if = lambda i, entry: True
     if not map_attribute_label:
         map_attribute_label = dict()
-
     return """
-    <table>
-        <tr>
-            %s
-        </tr>
-        %s
-    </table>
-    """ % (
-        "".join([
-            """
-            <th>%s</th>
-            """ % str(map_attribute_label.get(attribute, attribute)) for attribute in attributes
-        ]),
-        "".join([
-            """
-            <tr>
-            %s
-            </tr>
-            """ % "".join([
+        <div style="width:100%%; overflow-x: auto;white-space: nowrap;">
+            <table>
+                %(header)s
+                %(rows)s
+            </table>
+        </div>
+        """ % {
+            "header" : "<tr>%s</tr>" % "".join(
+                ["<th>Index</th>"] + [
+                    "<th style='text-align: left;white-space: nowrap;'>%s</th>" % str(map_attribute_label.get(attribute, attribute))
+                    for attribute in attributes
+                ]
+            ),
+            "rows" : "".join([
                 """
-                <td>%s</td>
-                """ % value_to_html(entry.get(attribute)) for attribute in attributes
-            ]) for entry in entries
-        ])
-    )
+                <tr>
+                    <td>%(index)d</td>
+                    %(values)s
+                </tr>
+                """ % {
+                    "index" : i,
+                    "values" : "".join([
+                        "<td style='text-align: left;white-space: nowrap;'>%s</td>" % value_to_html(entry.get(attribute))
+                        for attribute in attributes
+                    ])
+                }
+                for (i, entry) in enumerate(entries)
+                if keep_entry_if(i, entries)
+            ]),
+        }
+
+def connector_to_html(connector :Connector, **kwargs) -> str:
+    attributes = kwargs.get("attributes")
+    if not attributes:
+        attributes = connector.attributes(None)
+    entries = connector.query(Query(**kwargs))
+    return entries_to_html(entries, attributes=attributes)
 
 def entry_to_html(entry :dict, map_attribute_label :dict = dict(), attributes :list = None) -> str:
     return entries_to_html([entry], map_attribute_label, attributes)

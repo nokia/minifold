@@ -7,31 +7,26 @@
 
 from setuptools import find_packages, setup
 
-__version__        = (0, 9, 2)
+__version__ = (0, 9, 2)
 
-README = ""
+README, HISTORY = "", ""
 try:
     with open("README.rst") as f_readme:
         README = f_readme.read()
 except:
     pass
 
-HISTORY = ""
 try:
     with open("HISTORY.rst") as f_history:
         HISTORY = f_history.read()
 except:
     pass
 
-LONG_DESCRIPTION = "%s\n\n%s" % (README, HISTORY)
-
-# Copy is only triggered if the file does not yet exists.
-
 setup(
     name             = "minifold",
     version          = ".".join(["%s" % x for x in __version__]),
     description      = "minifold",
-    long_description = LONG_DESCRIPTION,
+    long_description = "%s\n\n%s" % (README, HISTORY),
     author           = "Marc-Olivier Buob",
     author_email     = "marc-olivier.buob@nokia-bell-labs.com",
     url              = "http://github.com/nokia/minifold",

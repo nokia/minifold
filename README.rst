@@ -31,18 +31,23 @@ This framework has been in various Nokia projects. It also used in the LINCS_ we
 More about minifold
 ===================
 
+.. _Overview: https://github.com/nokia/minifold/wiki/Overview
 .. _Installation: https://github.com/nokia/minifold/wiki/Installation
 .. _Tests: https://github.com/nokia/minifold/wiki/Tests
-.. _Configuration: https://github.com/nokia/minifold/wiki/Configuration
+.. _Tutorial: https://github.com/nokia/minifold/wiki/Tutorial
 .. _Design: https://github.com/nokia/minifold/wiki/Design
+.. _Configuration: https://github.com/nokia/minifold/wiki/Configuration
 .. _Framework: https://github.com/nokia/minifold/wiki/Framework
 .. _Packaging: https://github.com/nokia/minifold/wiki/Packaging
 
 For more information, feel free to visit the wiki_:
 
+- Overview_
 - Installation_
-- Configuration_
+- Tests_
+- Tutorial_ 
 - Design_
+- Configuration_
 - Framework_
 - Tests_
 - Packaging_

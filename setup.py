@@ -7,7 +7,7 @@
 
 from setuptools import find_packages, setup
 
-__version__ = (0, 9, 2)
+__version__ = (0, 9, 3)
 
 README, HISTORY = "", ""
 try:
@@ -27,6 +27,7 @@ setup(
     version          = ".".join(["%s" % x for x in __version__]),
     description      = "minifold",
     long_description = "%s\n\n%s" % (README, HISTORY),
+    long_description_content_type = "text/x-rst",
     author           = "Marc-Olivier Buob",
     author_email     = "marc-olivier.buob@nokia-bell-labs.com",
     url              = "http://github.com/nokia/minifold",

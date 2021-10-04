@@ -32,10 +32,11 @@ More about minifold
 ===================
 
 .. _Installation: https://github.com/nokia/minifold/wiki/Installation
+.. _Tests: https://github.com/nokia/minifold/wiki/Tests
 .. _Configuration: https://github.com/nokia/minifold/wiki/Configuration
 .. _Design: https://github.com/nokia/minifold/wiki/Design
 .. _Framework: https://github.com/nokia/minifold/wiki/Framework
-.. _Tests: https://github.com/nokia/minifold/wiki/Test
+.. _Packaging: https://github.com/nokia/minifold/wiki/Packaging
 
 For more information, feel free to visit the wiki_:
 
@@ -44,6 +45,7 @@ For more information, feel free to visit the wiki_:
 - Design_
 - Framework_
 - Tests_
+- Packaging_
 
 =======
 License

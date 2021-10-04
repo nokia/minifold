@@ -10,3 +10,4 @@ minifold.egg-info
 *.tar.gz
 .minifoldrc
 .pytest_cache
+src

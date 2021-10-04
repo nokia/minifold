@@ -31,9 +31,9 @@ setup(
     author_email     = "marc-olivier.buob@nokia-bell-labs.com",
     url              = "http://github.com/nokia/minifold",
     license          = "BSD-3",
-    zip_safe         = False,
-    packages         = ["minifold"],
-    package_dir      = {"minifold" : "src"},
+    packages         = find_packages(),
+    package_dir      = {"minifold" : "minifold"},
+    python_requires  = ">=3",
     requires         = ["typing"],
     test_suite       = "tests",
 )

@@ -15,7 +15,7 @@ from html       import escape
 from .connector import Connector
 from .query     import Query
 
-PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
 #def str_to_html(s :str) -> str:
 #    if PATTERN_URL.match(s):
@@ -225,7 +225,7 @@ try:
         """
         Remove from an HTML string irrelevants HTML blocks and attributes.
 
-        /!\ This function is SLOW so do not use it on large corpus!
+        !!! This function is SLOW so do not use it on large corpus!
 
         Args:
             s_html: A str instance containing HTML.

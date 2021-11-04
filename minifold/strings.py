@@ -81,10 +81,10 @@ def to_canonic_string(s :str) -> str:
 def to_canonic_fullname(s :str) -> str:
     s = to_international_string(s.lower())
     s = s.replace("-", " ")
-    s = re.sub("\(.+\)", "", s)      # Remove surnames
-    s = re.sub("\&.*;", "", s)       # Remove HTML
-    s = re.sub("[a-zA-Z]+\.", "", s) # Remove sigles
-    s = " ".join(s.split())          # Remove useless spaces
+    s = re.sub("[(].+[)]", "", s)      # Remove surnames
+    s = re.sub("[&].*;", "", s)        # Remove HTML escape sequence
+    s = re.sub("[a-zA-Z]+[.]", "", s)  # Remove sigles
+    s = " ".join(s.split())            # Remove useless spaces
     return s
 
 def unicode_to_utf8(s :str) -> str:

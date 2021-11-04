@@ -18,7 +18,7 @@ from .connector             import Connector
 from .doc_type              import DocType
 from .download              import download
 from .log                   import Log
-from .strings               import to_international_string, to_canonic_fullname
+from .strings               import to_canonic_fullname
 from .query                 import Query, ACTION_READ, SORT_ASC
 
 # Default HAL API queried
@@ -103,10 +103,6 @@ class HalConnector(Connector):
 
     @staticmethod
     def string_to_hal(s) -> str:
-        # Patch for Ana Busic, anyway the following would find some publications
-        # TODO: declare HAL ID for her
-        s = s.replace("š", "s")
-        s = s.replace("ć", "c")
         # From /usr/lib/python3/dist-packages/urllib3/fields.py, see format_header_param
         s = email.utils.encode_rfc2231(s, 'utf-8').split("'")[2]
         return HalConnector.quote(s)

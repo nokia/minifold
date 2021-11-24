@@ -10,25 +10,25 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-#---------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 # Requests
-#---------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 
 import sys
 
-if sys.version_info < (3, 5): # async, await
+if sys.version_info < (3, 5):  # async, await
     raise RuntimeError("asyncio requires python>=3.5")
 
 try:
     import requests
 except ImportError as e:
-    print(
+    from .log import Log
+    Log.warning(
         "\n".join([
             "Please install requests",
             "  APT: sudo apt install python3-requests",
             "  PIP: sudo pip3 install --upgrade requests",
-        ]),
-        file = sys.stderr
+        ])
     )
     raise e
 
@@ -44,8 +44,8 @@ from .log              import Log
 from .proxy            import make_session
 from .request_cache    import install_cache
 
-DEFAULT_TIMEOUT = (1.0, 2.0) # (connect timeout, read timeout)
-#DEFAULT_TIMEOUT = (0.5, 1.0) # (connect timeout, read timeout)
+DEFAULT_TIMEOUT = (1.0, 2.0)    # (connect timeout, read timeout)
+# DEFAULT_TIMEOUT = (0.5, 1.0)  # (connect timeout, read timeout)
 
 def now() -> str:
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -70,16 +70,16 @@ def download(url :str, timeout = DEFAULT_TIMEOUT, cache_filename = None):
     """
     install_cache(cache_filename)
     try:
-        #Log.debug("download: GET %s (timeout = %s)" % (url, timeout))
+        # Log.debug("download: GET %s (timeout = %s)" % (url, timeout))
         # https://stackoverflow.com/questions/8287628/proxies-with-python-requests-module
         session = make_session()
         return session.get(
             url,
             timeout = timeout
         )
-    except Exception as e:
-        Log.warning("download: GET %s (timeout = %s): %s" % (url, timeout, e))
-        return e
+    except Exception as exc:
+        Log.warning("download: GET %s (timeout = %s): %s" % (url, timeout, exc))
+        return exc
 
 def trim_http(url :str) -> str:
     """
@@ -103,6 +103,7 @@ async def downloads_async(
         urls: An iterable over strings, each of them corresponding to an URL.
         timeout: A tuple (float, float) corresponding to the
             (connect timeout, read timeout).
+        return_exceptions: Pass True if this function is allowed to raise exceptions or must be quiet.
     Returns:
         A dict({str : ?}} mapping for each queried URL the corresponding
         contents (if successful), the corresponding Exception otherwise.
@@ -131,16 +132,16 @@ def downloads(*args) -> dict:
     """
     Log.debug("[%s] downloads: start" % now())
     # https://stackoverflow.com/questions/46727787/runtimeerror-there-is-no-current-event-loop-in-thread-in-async-apscheduler
-    #loop = asyncio.get_event_loop()
+    # loop = asyncio.get_event_loop()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     ret = loop.run_until_complete(downloads_async(*args))
     Log.debug("[%s] downloads: %d URLs fetched" % (now(), len(ret)))
     return ret
 
-#---------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 # Minifold
-#---------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 
 def extract_response(response, extract_text :bool = True):
     """
@@ -153,9 +154,9 @@ def extract_response(response, extract_text :bool = True):
         The corresponding Exception or str.
     """
     if isinstance(response, Exception):
-        return response # Forward exception
+        return response  # Forward exception
     text = response.text
-    return html_to_text(text) if extract_text else raw
+    return html_to_text(text) if extract_text else text
 
 RE_VALID_URL = re.compile("https?://.*")
 
@@ -178,9 +179,10 @@ class DownloadConnector(Connector):
             downloads: Callback(urls) -> dict(url : content) where
                     urls is an iterable of URLs and where.
                     the returned dict maps each urls and the corresponding response.
-                Note: You could pass partial(download, ...) to customize timouts.
+                Note: You could pass partial(download, ...) to customize timeouts.
             extract_response: Callback(response) -> str
         """
+        super().__init__()
         self.map_url_out = map_url_out
         self.child = child
         self.downloads = downloads
@@ -194,10 +196,9 @@ class DownloadConnector(Connector):
         Returns:
             The corresponding result.
         """
-        from pprint import pformat
         if query.action == ACTION_READ:
             # Pull child records
-            q_child = deepcopy(query) # TODO: rework q_child like in LambdasConnector
+            q_child = deepcopy(query)  # TODO: rework q_child like in LambdasConnector
             q_child.attributes = set(query.attributes) - set(self.map_url_out.values())
             entries = self.child.query(q_child)
 
@@ -210,9 +211,9 @@ class DownloadConnector(Connector):
                 urls = set()
                 for attr_url in self.map_url_out.keys():
                     urls |= {
-                        entry.get(attr_url) for entry in entries
-                        if isinstance(entry.get(attr_url), str) \
-                           and RE_VALID_URL.match(entry.get(attr_url))
+                        entry.get(attr_url)
+                        for entry in entries
+                        if isinstance(entry.get(attr_url), str) and RE_VALID_URL.match(entry.get(attr_url))
                     }
                 Log.debug("Starting fetching %d URLs" % len(urls))
                 map_url_response = self.downloads(urls)

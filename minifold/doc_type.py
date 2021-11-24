@@ -13,16 +13,16 @@ __license__    = "BSD-3"
 from enum import IntEnum
 
 class DocType(IntEnum):
-    BOOKS_AND_THESES = 0 # Books and Theses
-    ARTICLE          = 1 # ART, Conference and Workshop Papers
-    COMMUNICATION    = 2 # COMM
-    JOURNAL          = 3 # Journal Articles
-    REPORT           = 4 # Report, Informal Publications
-    POSTER           = 5 # POSTER
-    HDR              = 6 # HDR
-    CHAPTER          = 7 # COUV, Editorship
-    PATENT           = 8 # PATENT
-    UNKNOWN          = 9999 # UNDEFINED or ""
+    BOOKS_AND_THESES = 0     # Books and Theses
+    ARTICLE          = 1     # ART, Conference and Workshop Papers
+    COMMUNICATION    = 2     # COMM
+    JOURNAL          = 3     # Journal Articles
+    REPORT           = 4     # Report, Informal Publications
+    POSTER           = 5     # POSTER
+    HDR              = 6     # HDR
+    CHAPTER          = 7     # COUV, Editorship
+    PATENT           = 8     # PATENT
+    UNKNOWN          = 9999  # UNDEFINED or ""
 
     def __str__(self) -> str:
         s = IntEnum.__str__(self)
@@ -35,15 +35,16 @@ class DocType(IntEnum):
         return self.value < other.value
 
 def doc_type_to_html(t :DocType, n :int = 1) -> str:
-    # Default %s is not wonderful
-    if   t == DocType.UNKNOWN: ret = "Misc"
-    elif t == DocType.CHAPTER: ret = "Editorship"
-    elif t == DocType.JOURNAL: ret = "Journal article"
-    else: ret = "%s" % t
+    ret = (
+        "Misc"            if t == DocType.UNKNOWN else
+        "Editorship"      if t == DocType.CHAPTER else
+        "Journal article" if t == DocType.JOURNAL else
+        t
+    )
 
     # Add "s" at the end if needed
     if n > 1 and t not in [DocType.BOOKS_AND_THESES, DocType.HDR, DocType.CHAPTER, DocType.UNKNOWN]:
-        ret = "%ss" % ret
+        ret = f"{ret}s"
 
     return ret
 

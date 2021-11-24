@@ -12,7 +12,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .connector import Connector
-from .query     import Query, ACTION_READ
+from .query     import Query
 from .join_if   import merge_dict
 
 def are_naturally_joined(l :dict, r :dict) -> bool:
@@ -34,6 +34,7 @@ def natural_join(l_entries :list, r_entries :list) -> list:
 
 class NaturalJoinConnector(Connector):
     def __init__(self, left, right):
+        super().__init__()
         self.m_left = left
         self.m_right = right
         self.m_left_entries = list()
@@ -60,5 +61,3 @@ class NaturalJoinConnector(Connector):
     @property
     def right(self):
         return self.m_right
-
-

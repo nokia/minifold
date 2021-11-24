@@ -29,7 +29,7 @@ class Connector:
     if sys.version_info >= (3, 6):
         subclasses = dict()
 
-        #https://stackoverflow.com/questions/5189232/how-to-auto-register-a-class-when-its-defined
+        # https://stackoverflow.com/questions/5189232/how-to-auto-register-a-class-when-its-defined
         def __init_subclass__(cls, **kwargs):
             super().__init_subclass__(**kwargs)
             name = repr(cls).split("'")[1]

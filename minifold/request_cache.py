@@ -17,11 +17,11 @@ from minifold.filesystem    import check_writable_directory, mkdir
 try:
     import requests_cache
 except ImportError as e:
-    print(
-        "Please install requests-cache.\n" + \
-        "  APT: sudo apt install python3-requests-cache\n" + \
-        "  PIP: sudo pip3 install --upgrade requests-cache\n",
-        file = sys.stderr
+    from minifold.log import Log
+    Log.warning(
+        "Please install requests-cache.\n"
+        "  APT: sudo apt install python3-requests-cache\n"
+        "  PIP: sudo pip3 install --upgrade requests-cache\n"
     )
     raise e
 

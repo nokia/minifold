@@ -27,7 +27,6 @@ class EntriesConnector(Connector):
 
     def query(self, query :Query) -> list:
         super().query(query)
-        ret = list()
         if query.action == ACTION_READ:
             ret = self.reshape_entries(query, self.entries)
         else:
@@ -37,5 +36,3 @@ class EntriesConnector(Connector):
     @property
     def entries(self) -> list:
         return self.m_entries
-
-

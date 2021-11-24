@@ -10,17 +10,28 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com, fabien.mathieu@nokia-be
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import requests
 from .log       import Log
 from .singleton import Singleton
+try:
+    import requests
+except ImportError as e:
+    from .log import Log
+    Log.warning(
+        "Please install requests.\n"
+        "  APT: sudo apt install python3-requests\n"
+        "  PIP: sudo pip3 install --upgrade requests\n"
+    )
+    raise e
 
 class Proxy(dict, metaclass=Singleton):
     pass
 
-def proxy_enable(host :str, port :int, protocols :list = ["http", "https"]):
+def proxy_enable(host :str, port :int, protocols :list = None):
+    if not protocols:
+        protocols = ["http", "https"]
     proxy = Proxy()
     for protocol in protocols:
-        url = "%s://%s:%s" % (protocol, host, port)
+        url = f"{protocol}://{host}:{port}"
         proxy[protocol] = url
 
 def proxy_disable():
@@ -35,9 +46,9 @@ def make_session() -> requests.Session:
         session.proxies.update(proxy)
     return session
 
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
 # Example to use a local proxy
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
 
 PROXY_LOCALHOST_IP    = "127.0.0.1"
 PROXY_LOCALHOST_PORT  = 8080

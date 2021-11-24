@@ -69,7 +69,7 @@ def mkdir(directory):
         os.makedirs(directory)
     except FileExistsError:
         pass
-    except OSError as e: # Python >2.5
+    except OSError as e:  # Python >2.5
         if e.errno == errno.EEXIST and os.path.isdir(directory):
             pass
         else:

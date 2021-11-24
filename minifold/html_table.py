@@ -10,8 +10,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from html.parser                    import HTMLParser
-from html.entities                  import name2codepoint
-
+from minifold.log                   import Log
 from minifold.entries_connector     import EntriesConnector
 
 class HtmlTableParser(HTMLParser):
@@ -27,7 +26,7 @@ class HtmlTableParser(HTMLParser):
                 of a single string. This allow to store data
                 stored among several columns in a single attribute.
             output_list: reference to an output list where the
-                data will be outputed (one dict per row, one
+                data will be output (one dict per row, one
                 key/value per column).
             keep_entry: callback which determine whether an
                 must entry must be kept or discard. Pass None
@@ -46,13 +45,17 @@ class HtmlTableParser(HTMLParser):
     def attributes(self, object :str) -> set:
         return set(self.columns)
 
+    # Inherited abstract method
+    def error(self, message):
+        Log.error(message)
+
     def handle_starttag(self, tag, attrs):
         if tag == "td":
             # Enable fetch data
             self.fetch_data = True
 
     def handle_endtag(self, tag):
-        if tag == "td": # Push key/value
+        if tag == "td":  # Push key/value
             # Disable fetch data
             self.fetch_data = False
 
@@ -73,7 +76,7 @@ class HtmlTableParser(HTMLParser):
             self.index += 1
         elif tag == "tr":
             # Push entry
-            if self.keep_entry == None or self.keep_entry(self.entry):
+            if self.keep_entry is None or self.keep_entry(self.entry):
                 self.entries.append(self.entry)
 
             # Reset entry
@@ -82,12 +85,12 @@ class HtmlTableParser(HTMLParser):
 
     def handle_data(self, data):
         data = data.strip()
-        if self.fetch_data == True and data:
+        if self.fetch_data and data:
             self.value += data
 
 def html_table(filename :str, columns :list, keep_entry = None) -> list:
     entries = list()
-    parser = HtmlTableParser(columns, self.m_entries, keep_entry)
+    parser = HtmlTableParser(columns, entries, keep_entry)
     with open(filename, "r") as f:
         s = f.read()
         parser.feed(s)
@@ -106,19 +109,14 @@ class HtmlTableConnector(EntriesConnector):
                 key may store a list of string values instead
                 of a single string. This allow to store data
                 stored among several columns in a single attribute.
-            output_list: reference to an output list where the
-                data will be outputed (one dict per row, one
-                key/value per column).
             keep_entry: callback which determine whether an
                 must entry must be kept or discard. Pass None
                 to filter nothing. This is the opportunity to
                 discard a header or irrelevant row.
         """
-        self.m_entries = list()
+        super().__init__(list())
         self.m_parser = HtmlTableParser(columns, self.m_entries, keep_entry)
         with open(filename, "r") as f:
             s = f.read()
             self.m_parser.feed(s)
         super().__init__(self.m_entries)
-
-

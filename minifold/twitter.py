@@ -6,14 +6,23 @@
 #   Fabien Mathieu    <fabien.mathieu@nokia-bell-labs.com>
 #   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
 
-import datetime, tweepy
-from minifold.connector import Connector
-from minifold.log       import Log
-from minifold.query     import ACTION_READ, Query
+import datetime
+from .connector import Connector
+from .query     import ACTION_READ, Query
+
+try:
+    import tweepy
+except ImportError as e:
+    from .log import Log
+    Log.warning(
+        "Please install requests-cache.\n"
+        "  APT: sudo apt install python3-tweepy\n"
+        "  PIP: sudo pip3 install --upgrade tweepy\n"
+    )
+    raise e
 
 def tweet_to_dict(tweet):
     # Fetch tweet
-    content = None
     try:
         content = tweet._json["full_text"]
     except:
@@ -68,10 +77,18 @@ def tweet_to_dict(tweet):
     }
 
 class TwitterConnector(Connector):
-    def __init__(self, twitter_id :str, consumer_key :str, consumer_secret :str, access_token :str, access_token_secret :str):
+    def __init__(
+        self,
+        twitter_id :str,
+        consumer_key :str,
+        consumer_secret :str,
+        access_token :str,
+        access_token_secret :str
+    ):
         """
         Constructor.
         """
+        super().__init__()
         self.twitter_id          = twitter_id
         self.consumer_key        = consumer_key
         self.consumer_secret     = consumer_secret
@@ -81,7 +98,7 @@ class TwitterConnector(Connector):
         self.connect()
 
     def attributes(self, object :str) -> set:
-        ret = {
+        return {
             "text",
             "image",
             "date",
@@ -118,6 +135,8 @@ class TwitterConnector(Connector):
                     tweets = self.api.user_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
                 elif q.object == "feed":
                     tweets = self.api.home_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
+                else:
+                    tweets = list()
                 entries = [tweet_to_dict(tweet) for tweet in tweets]
             else:
                 raise ValueError("TwitterConnector: invalid object '%s'" % q.object)

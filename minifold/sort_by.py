@@ -11,7 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .connector             import Connector
-from .query                 import Query, ACTION_READ
+from .query                 import Query
 from .values_from_dict      import ValuesFromDictFonctor
 
 def sort_by_impl(fonctor : ValuesFromDictFonctor, entries :list, desc = True) -> list:
@@ -55,4 +55,3 @@ class SortByConnector(Connector):
             ", ".join(self.m_fonctor.attributes),
             "DESC" if self.desc else "ASC"
         )
-

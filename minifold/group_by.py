@@ -12,7 +12,7 @@ __license__    = "BSD-3"
 
 from .connector             import Connector
 from .hash                  import to_hashable
-from .query                 import Query, ACTION_READ
+from .query                 import Query
 from .values_from_dict      import ValuesFromDictFonctor
 
 def group_by_impl(fonctor :ValuesFromDictFonctor, entries :list) -> dict:
@@ -22,11 +22,12 @@ def group_by_impl(fonctor :ValuesFromDictFonctor, entries :list) -> dict:
         if len(key) == 1:
             (key,) = key
         key = to_hashable(key)
-        if key not in ret.keys(): ret[key] = list()
+        if key not in ret.keys():
+            ret[key] = list()
         ret[key].append(entry)
     return ret
 
-def group_by(attributes :list, entries :list) -> list:
+def group_by(attributes :list, entries :list) -> dict:
     fonctor = ValuesFromDictFonctor(attributes)
     return group_by_impl(fonctor, entries)
 
@@ -55,4 +56,3 @@ class GroupByConnector(Connector):
 
     def __str__(self) -> str:
         return "GROUP BY %s" % ", ".join(self.m_fonctor.attributes)
-

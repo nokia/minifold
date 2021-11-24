@@ -11,3 +11,4 @@ minifold.egg-info
 .minifoldrc
 .pytest_cache
 src
+.idea

@@ -18,9 +18,9 @@ from .query     import Query, ACTION_READ, action_to_str
 from .log       import Log
 
 class CsvModeEnum(IntEnum):
-    FILENAME = 0 # Use text file
-    STRING   = 1 # Use str
-    TEXTIO   = 2 # Use any class inheriting TextIOBase
+    FILENAME = 0  # Use text file
+    STRING   = 1  # Use str
+    TEXTIO   = 2  # Use any class inheriting TextIOBase
 
     def __str__(self) -> str:
         s = IntEnum.__str__(self)
@@ -36,10 +36,12 @@ class CsvConnector(Connector):
         mode      :CsvModeEnum = CsvModeEnum.FILENAME
     ):
         super().__init__()
-        stream = open(data, "rt")  if mode == CsvModeEnum.FILENAME else \
-                 io.StringIO(data) if mode == CsvModeEnum.STRING   else \
-                 data              if mode == CsvModeEnum.TEXTIO   else \
-                 None
+        stream = (
+            open(data, "rt")  if mode == CsvModeEnum.FILENAME else
+            io.StringIO(data) if mode == CsvModeEnum.STRING   else
+            data              if mode == CsvModeEnum.TEXTIO   else
+            None
+        )
         if not stream:
             raise RuntimeError("CsvConnector: Invalid input stream (data = %r, mode = %s)" % (data, mode))
 
@@ -63,10 +65,8 @@ class CsvConnector(Connector):
 
     def query(self, query :Query) -> list:
         super().query(query)
-        ret = list()
         if query.action == ACTION_READ:
             ret = self.reshape_entries(query, self.entries)
         else:
             raise RuntimeError("CsvConnector.query: %s not yet implemented" % action_to_str(query.action))
         return self.answer(query, ret)
-

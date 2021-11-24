@@ -59,7 +59,7 @@ def lexical_cast(s :str, cast):
     """
     return cast(s)
 
-def lexical_casts(s :str, cast_operators = [cast_none, cast_bool, int, float]):
+def lexical_casts(s :str, cast_operators = None):
     """
     Cast a string according to several cast operators.
     Args:
@@ -70,6 +70,8 @@ def lexical_casts(s :str, cast_operators = [cast_none, cast_bool, int, float]):
         The original string if no cast worked, the corresponding casted value
         otherwise.
     """
+    if cast_operators is None:
+        cast_operators = [cast_none, cast_bool, int, float]
     for cast in cast_operators:
         try:
             ret = lexical_cast(s, cast)

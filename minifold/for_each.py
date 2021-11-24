@@ -17,9 +17,9 @@ class ForEachFilter():
         self.map_filter = map_filter
 
     def match_filters(self, sub_entry):
-        for attribute, filt in self.map_filter.items():
+        for attribute, keep in self.map_filter.items():
             if attribute in sub_entry.keys():
-                if not filt(sub_entry[attribute]):
+                if not keep(sub_entry[attribute]):
                     return False
         return True
 
@@ -30,8 +30,8 @@ class ForEachFilter():
             return True
 
         entry[self.attribute_name] = [
-            sub_entry \
-            for sub_entry in sub_entries \
+            sub_entry
+            for sub_entry in sub_entries
             if self.match_filters(sub_entry)
         ]
 
@@ -44,4 +44,3 @@ def for_each_sub_entry(entry, attribute :str, map_lambda :dict) -> dict:
         } for sub_entry in entry[attribute]
     ]
     return entry
-

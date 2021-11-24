@@ -10,7 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-import codecs, json, os, traceback
+import codecs, json
 from minifold.entries_connector import EntriesConnector
 
 def identity(json_py) -> list:
@@ -26,7 +26,6 @@ def load_json_from_str(json_data :str, extract_json = identity) -> list:
     return entries
 
 def load_json_from_file(json_filename :str, extract_json = identity) -> list:
-    entries = None
     with codecs.open(json_filename, encoding = "utf8") as f_json:
         entries = load_json_from_str(f_json.read(), extract_json)
     return entries

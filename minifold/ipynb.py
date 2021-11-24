@@ -18,6 +18,9 @@ def in_ipynb() -> bool:
         True iff the code is running inside a Jupyter Notebook.
     """
     try:
+        from IPython import get_ipython
         return str(type(get_ipython())) == "<class 'ipykernel.zmqshell.ZMQInteractiveShell'>"
     except NameError:
+        return False
+    except ImportError:
         return False

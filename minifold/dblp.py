@@ -35,18 +35,41 @@ try:
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 except ImportError:
-    raise ImportError("DblpConnector requires python3-urllib3: please run: apt-get install python3-urllib3")
+    from .log import Log
+    Log.warning(
+        "\n".join([
+            "Please install requests",
+            "  APT: sudo apt install python3-urllib3",
+            "  PIP: sudo pip3 install --upgrade urllib3",
+        ])
+    )
+    raise e
 
 try:
     import requests
-except ImportError:
-    raise ImportError("DblpConnector requires requests")
-
+except ImportError as e:
+    from .log import Log
+    Log.warning(
+        "\n".join([
+            "Please install requests",
+            "  APT: sudo apt install python3-requests",
+            "  PIP: sudo pip3 install --upgrade requests",
+        ])
+    )
+    raise e
 
 try:
     import xmltodict
-except ImportError:
-    raise ImportError("DblpConnector requires python3-xmltodict: please run: apt-get install python3-xmltodict")
+except ImportError as e:
+    from .log import Log
+    Log.warning(
+        "\n".join([
+            "Please install requests",
+            "  APT: sudo apt install python3-xmltodict",
+            "  PIP: sudo pip3 install --upgrade xmltodict",
+        ])
+    )
+    raise e
 
 import json, operator
 from pprint import pformat
@@ -75,18 +98,21 @@ def to_canonic_fullname(s) -> str:
     return _to_canonic_fullname(s)
 
 class DblpConnector(Connector):
-    def __init__(self, map_dblp_id = {}, map_dblp_name = {}, dblp_api_url = DBLP_API_URL):
+    def __init__(self, map_dblp_id :dict = None, map_dblp_name :dict = None, dblp_api_url :str = DBLP_API_URL):
         super().__init__()
         self.m_api_url = dblp_api_url
         assert not dblp_api_url.endswith("/search") and not dblp_api_url.endswith("/search/"), \
             "Invalid API URL [%s], remove '/search/' suffix" % dblp_api_url
-        self.m_format  = "json" # valid values are: "xml", "json", and "jsonp".
-        self.m_map_dblp_id = map_dblp_id
-        self.m_map_dblp_name = map_dblp_name
-        self.m_map_rev_name = {to_canonic_fullname(dblp_name) : name for (name, dblp_name) in map_dblp_name.items()}
+        self.m_format  = "json"  # valid values are: "xml", "json", and "jsonp".
+        self.m_map_dblp_id = map_dblp_id if map_dblp_id else dict()
+        self.m_map_dblp_name = map_dblp_name if map_dblp_name else dict()
+        self.m_map_rev_name = {
+            to_canonic_fullname(dblp_name) : name
+            for (name, dblp_name) in self.m_map_dblp_name.items()
+        }
 
     def attributes(self, object :str) -> set:
-        return {"authors", "doc_type", "title", "type", "venue", "url", "year"} # Non exhaustive
+        return {"authors", "doc_type", "title", "type", "venue", "url", "year"}  # Non exhaustive
 
     @property
     def api_url(self) -> str:
@@ -97,16 +123,17 @@ class DblpConnector(Connector):
         return self.m_format
 
     @property
-    def map_dblp_name(self) -> str:
+    def map_dblp_name(self) -> dict:
         return self.m_map_dblp_name
 
     @property
-    def map_dblp_id(self) -> str:
+    def map_dblp_id(self) -> dict:
         return self.m_map_dblp_id
 
     @staticmethod
-    def to_dblp_name(s :str, map_dblp_name = {}) -> str:
-        ret = map_dblp_name.get(s, s)
+    def to_dblp_name(s :str, map_dblp_name :dict = None) -> str:
+        if map_dblp_name:
+            s = map_dblp_name.get(s, s)
         s = to_international_string(s)
         words = s.lower().split()
         try:
@@ -118,7 +145,6 @@ class DblpConnector(Connector):
         # $ corresponds to exact match
         # See: http://dblp.uni-trier.de/db/about/author.html
         ret = "-".join(words) + "$"
-
         return ret
 
     def get_dblp_name(self, s :str) -> str:
@@ -155,21 +181,21 @@ class DblpConnector(Connector):
     @staticmethod
     def to_doc_type(s :str) -> DocType:
         s = s.lower()
-        if   s in {
+        if s in {
             "article", "conference and workshop papers", "conference or workshop",
             "incollection", "inproceedings", "proceedings"
         }:
             return DocType.ARTICLE
-        #elif s == "????":
-        #    return DocType.COMM
+        # elif s == "????":
+        #     return DocType.COMM
         elif s == "journal articles":
             return DocType.JOURNAL
         elif s in {"informal publications", "reference works"}:
             return DocType.REPORT
         elif s in {"phdthesis", "books and theses", "parts in books or collections"}:
             return DocType.BOOKS_AND_THESES
-        #elif s == "????":
-        #    return DocType.HDR
+        # elif s == "????":
+        #     return DocType.HDR
         elif s == "editorship":
             return DocType.CHAPTER
         else:
@@ -179,8 +205,8 @@ class DblpConnector(Connector):
     def reshape_entry(self, query :Query, entry :dict) -> dict:
         if "type" in entry.keys():
             doc_type = DblpConnector.to_doc_type(entry["type"])
-            entry["doc_type"]      = doc_type # Compatible with Hal "doc_type" values.
-            entry["dblp_doc_type"] = doc_type # To compare Hal and DBLP doc_types.
+            entry["doc_type"]      = doc_type  # Compatible with Hal "doc_type" values.
+            entry["dblp_doc_type"] = doc_type  # To compare Hal and DBLP doc_types.
 
         if len(query.attributes) > 0:
             keys = set(entry.keys()) & set(query.attributes)
@@ -205,7 +231,7 @@ class DblpConnector(Connector):
 
             # Convert DBLP names to our names if needed.
             entry["authors"] = [
-                self.m_map_rev_name.get(_to_canonic_fullname(author), author) \
+                self.m_map_rev_name.get(_to_canonic_fullname(author), author)
                 for author in entry["authors"]
             ]
 
@@ -240,11 +266,11 @@ class DblpConnector(Connector):
                     if canonic_fullname not in [
                         to_canonic_fullname(author) for author in entry["authors"]
                     ]:
-                        #Log.warning("Ignoring %(title)s %(authors)s (homonym)" % entry)
+                        # Log.warning("Ignoring %(title)s %(authors)s (homonym)" % entry)
                         continue
 
                 entries.append(entry)
-        except KeyError: # occurs if 0 DBLP publication found
+        except KeyError:  # Occurs if 0 DBLP publication found
             pass
         return entries
 
@@ -260,7 +286,7 @@ class DblpConnector(Connector):
             format = self.format
             object = ""
             url_options = list()
-            if   query.object == "publication":
+            if query.object == "publication":
                 object = "search/publ"
             elif query.object == "researcher":
                 object = "search/author"
@@ -273,8 +299,10 @@ class DblpConnector(Connector):
                 object = "pid" if pid else "search/publ"
                 # For the moment, DBLP only supports XML for pid-based queries.
                 # https://dblp.org/pid/30/1446.xml
-                if pid: format = "xml"
-                else: url_options.append(dblp_name)
+                if pid:
+                    format = "xml"
+                else:
+                    url_options.append(dblp_name)
 
             if object == "pid":
                 q_dblp = "%(server)s/%(object)s/%(pid)s.%(format)s" % {
@@ -339,13 +367,11 @@ class DblpConnector(Connector):
                                 entry[key] = [entry[key]]
 
                             entry["authors"] = [
-                                author["#text"] if isinstance(author, dict) else author \
+                                author["#text"] if isinstance(author, dict) else author
                                 for author in entry[key]
                             ]
                         else:
-                            Log.warning("No author found for this DBLP publication:\n%s" % \
-                                pformat(entry)
-                            )
+                            Log.warning(f"No author found for this DBLP publication:\n{pformat(entry)}")
                         return entry
 
                     entries = [xml_to_entry(d) for d in result["dblpperson"]["r"]]

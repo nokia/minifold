@@ -14,7 +14,13 @@ try:
     from ldap3                  import Server, Connection, SUBTREE, ALL_ATTRIBUTES, ALL
     from ldap3.core.exceptions  import LDAPInvalidFilterError
 except ImportError:
-    raise ImportError("LdapConnector requires python3-ldap3: please run: apt-get install python3-ldap3")
+    from .log import Log
+    Log.warning(
+        "Please install ldap3.\n"
+        "  APT: sudo apt install python3-ldap3
+        "  PIP: sudo pip3 install --upgrade ldap3\n"
+    )
+    raise e
 
 import operator
 from .connector             import Connector
@@ -41,20 +47,24 @@ class LdapConnector(Connector):
 
     @staticmethod
     def operator_to_ldap(op :str) -> str:
-        if   op == operator.__eq__:  return "="
-        elif op == operator.__and__: return "&"
-        elif op == operator.__or__:  return "|"
-        #elif op == "<=" or op == ">=" or op == "<" or op == ">" or op == "~": return op
-        raise RuntimeError("LdapConnector::operator_to_ldap: op = %s not supported" % op)
+        if op == operator.__eq__:
+            return "="
+        elif op == operator.__and__:
+            return "&"
+        elif op == operator.__or__:
+            return "|"
+        # elif op == "<=" or op == ">=" or op == "<" or op == ">" or op == "~": return op
+        else:
+            raise RuntimeError("LdapConnector::operator_to_ldap: op = %s not supported" % op)
 
     @staticmethod
     def binary_predicate_to_ldap(p :BinaryPredicate) -> str:
         if p.operator in ["&&", "||"]:
             # See http://ldap3.readthedocs.io/searches.html
-            format = "(%(operator)s%(left)s%(right)s)"
+            fmt = "(%(operator)s%(left)s%(right)s)"
         else:
-            format = "%(left)s%(operator)s%(right)s"
-        return format % {
+            fmt = "%(left)s%(operator)s%(right)s"
+        return fmt % {
             "left"     : LdapConnector.operand_to_ldap(p.left),
             "operator" : LdapConnector.operator_to_ldap(p.operator),
             "right"    : LdapConnector.operand_to_ldap(p.right)
@@ -95,11 +105,11 @@ class LdapConnector(Connector):
                 d[k] = LdapConnector.literal_from_ldap(v[0])
             else:
                 d[k] = [LdapConnector.literal_from_ldap(x) for x in v]
-            if d[k] == []:
+            if not d[k]:
                 d[k] = None
             else:
                 sane = True
-        return d if sane == True else dict()
+        return d if sane else dict()
 
     def query(self, q :Query):
         super().query(q)
@@ -111,23 +121,23 @@ class LdapConnector(Connector):
             else:
                 attributes = q.attributes
 
-            if q.filters == None:
-                filter = "(objectClass=*)"
+            if q.filters is None:
+                keep_if = "(objectClass=*)"
             else:
-                filter = LdapConnector.operand_to_ldap(q.filters)
+                keep_if = LdapConnector.operand_to_ldap(q.filters)
 
             try:
                 if attributes != ALL_ATTRIBUTES:
                     attributes = set(attributes) & self.attributes(q.object)
-                Log.info("--> LDAP: dn = %s filter = %s attributes = %s" % (q.object, filter, attributes))
+                Log.info("--> LDAP: dn = %s filter = %s attributes = %s" % (q.object, keep_if, attributes))
                 self.m_connection.search(
                     q.object,
-                    filter,
+                    keep_if,
                     search_scope = SUBTREE,
                     attributes = attributes
                 )
             except LDAPInvalidFilterError as e:
-                Log.error("LdapConnector::query: Invalid filter: %s" % filter)
+                Log.error("LdapConnector::query: Invalid filter: %s" % keep_if)
                 raise e
 
             for entry in self.m_connection.response:
@@ -141,5 +151,3 @@ class LdapConnector(Connector):
         else:
             raise RuntimeError("Not implemented")
         return self.answer(q, entries)
-
-

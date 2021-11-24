@@ -12,7 +12,7 @@ __license__    = "BSD-3"
 
 from .connector             import Connector
 from .hash                  import to_hashable
-from .query                 import Query, ACTION_READ
+from .query                 import Query
 from .values_from_dict      import ValuesFromDictFonctor
 
 def unique_impl(fonctor :ValuesFromDictFonctor, entries :list) -> list:
@@ -57,4 +57,3 @@ class UniqueConnector(Connector):
 
     def __str__(self) -> str:
         return "DUP %s" % ", ".join(self.m_fonctor.attributes)
-

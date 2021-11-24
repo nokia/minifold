@@ -57,36 +57,44 @@ MAP_TO_INTERNATIONAL = {
     "ß": "ss",
 }
 
-def to_international_chr(c :chr) -> chr:
+def to_international_chr(c: chr) -> chr:
     return MAP_TO_INTERNATIONAL.get(c, c)
 
-def to_international_string(s :str) -> str:
+def to_international_string(s: str) -> str:
     translator = str.maketrans(MAP_TO_INTERNATIONAL)
     return s.translate(translator)
 
-def remove_ponctuation(s :str) -> str:
-    translator = str.maketrans({key: None for key in string.punctuation})
+def remove_punctuation(s: str) -> str:
+    translator = str.maketrans({key: " " for key in string.punctuation})
     return s.translate(translator)
 
-def to_canonic_string(s :str) -> str:
+def remove_html_tags(s: str) -> str:
+    return re.sub("<[^>]+>", "", s)
+
+def remove_html_escape_sequences(s: str) -> str:
+    return re.sub("[&].*;", "", s)
+
+def remove_latex_escape_sequence(s: str) -> str:
+    return re.sub("\\\\[a-zA-Z0-9]+ ", "", s)
+
+def to_canonic_string(s: str) -> str:
     s = s.lower()
     s = to_international_string(s)
-    s = remove_ponctuation(s)
-    s = re.sub("[$^,?!.:]", "", s)
-    s = re.sub("\\[a-zA-Z0-9]+ ", "", s) # Remove LateX macros
-    s = re.sub(" +", " ", s)
-    s = s.replace(" ", "")               # Remove extra spaces
+    s = remove_punctuation(s)  # This includes '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+    s = remove_latex_escape_sequence(s)
+    s = s.replace(" ", "")  # Remove  spaces
     return s
 
-def to_canonic_fullname(s :str) -> str:
+def to_canonic_fullname(s: str) -> str:
     s = to_international_string(s.lower())
     s = s.replace("-", " ")
     s = re.sub("[(].+[)]", "", s)      # Remove surnames
-    s = re.sub("[&].*;", "", s)        # Remove HTML escape sequence
+    s = remove_latex_escape_sequence(s)
+    s = remove_html_tags(s)
+    s = remove_html_escape_sequences(s)
     s = re.sub("[a-zA-Z]+[.]", "", s)  # Remove sigles
     s = " ".join(s.split())            # Remove useless spaces
     return s
 
-def unicode_to_utf8(s :str) -> str:
+def unicode_to_utf8(s: str) -> str:
     return unicodedata.normalize("NFKD", s)
-

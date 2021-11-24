@@ -36,12 +36,13 @@ def union(list_entries :list):
     return [entry for entry in union_gen(list_entries)]
 
 class UnionConnector(Connector):
-    def __init__(self, childs :list):
-        self.m_childs = childs
+    def __init__(self, children :list):
+        super().__init__()
+        self.children = children
 
     def attributes(self, object :str) -> set:
         attrs = set()
-        for child in self.m_childs:
+        for child in self.children:
             try:
                 attrs |= child.attributes(object)
             except:
@@ -52,5 +53,4 @@ class UnionConnector(Connector):
         super().query(query)
         if query.action != ACTION_READ:
             raise ValueError("Invalid action in query %s" % query)
-        return union([child.query(query) for child in self.m_childs])
-
+        return union([child.query(query) for child in self.children])

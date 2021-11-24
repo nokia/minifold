@@ -70,13 +70,16 @@ HAL_ALIASES = {
 }
 
 class HalConnector(Connector):
-    def __init__(self, map_hal_id = {}, map_hal_name = {}, hal_api_url = HAL_API_URL):
+    def __init__(self, map_hal_id :dict = None, map_hal_name :dict = None, hal_api_url = HAL_API_URL):
         super().__init__()
         self.m_api_url      = hal_api_url
         self.m_format       = "json"
-        self.m_map_hal_id   = map_hal_id
-        self.m_map_hal_name = map_hal_name
-        self.m_map_rev_name = {to_canonic_fullname(hal_name) : name for (name, hal_name) in map_hal_name.items()}
+        self.m_map_hal_id   = map_hal_id   if map_hal_id   else dict()
+        self.m_map_hal_name = map_hal_name if map_hal_name else dict()
+        self.m_map_rev_name = {
+            to_canonic_fullname(hal_name) : name
+            for (name, hal_name) in self.m_map_hal_name.items()
+        }
 
     def attributes(self, object :str):
         return HAL_ALIASES.keys() | {"doc_type"}
@@ -125,12 +128,12 @@ class HalConnector(Connector):
         if isinstance(right, str):
             right = HalConnector.string_to_hal(right)
 
-        if   p.operator == operator.__eq__ or p.operator == operator.__contains__:
+        if p.operator == operator.__eq__ or p.operator == operator.__contains__:
             ret = "%s:(%s)" % (p.left, right)
-        #elif p.operator == "~":
+        # elif p.operator == "~":
         #    ret = "%s:\"%s\"~3" % (p.left, right)
         elif p.operator == operator.__gt__:
-            ret =  "%s:{%s TO *]" % (p.left, right)
+            ret = "%s:{%s TO *]" % (p.left, right)
         elif p.operator == operator.__lt__:
             ret = "%s:[* TO %s}" % (p.left, right)
         elif p.operator == operator.__ge__:
@@ -162,7 +165,7 @@ class HalConnector(Connector):
 
         # TODO: use dict()
         s = s.lower()
-        if   s in ["these", "ouv"]:
+        if s in ["these", "ouv"]:
             ret = DocType.BOOKS_AND_THESES
         elif s in ["comm"]:
             ret = DocType.ARTICLE
@@ -185,10 +188,10 @@ class HalConnector(Connector):
             ret = DocType.PATENT
         elif s in ["undefined", "other"]:
             ret = DocType.UNKNOWN
-        elif s == None:
+        elif s is None:
             pass
         else:
-            raise ValueError("HalConnector: unknown document type %r" %s)
+            raise ValueError(f"HalConnector: unknown document type {s}")
 
         return ret
 
@@ -224,7 +227,7 @@ class HalConnector(Connector):
 
             # Convert HAL names to our names if needed.
             entry["authFullName_s"] = [
-                self.m_map_rev_name.get(to_canonic_fullname(author), author) \
+                self.m_map_rev_name.get(to_canonic_fullname(author), author)
                 for author in entry["authFullName_s"]
             ]
 
@@ -236,7 +239,6 @@ class HalConnector(Connector):
     def query_to_hal(self, q :Query) -> str:
         if q.action != ACTION_READ:
             raise ValueError("query_to_hal: Unsupported action %s" % q.action)
-        attributes = None
         if len(q.attributes) > 0:
             attributes = ",".join(q.attributes)
             if "doc_type" in q.attributes and "hal_doc_type" not in q.attributes:
@@ -245,7 +247,6 @@ class HalConnector(Connector):
             # Note: this avoid to pull by default every fields provided by HAL.
             attributes = "*"
 
-        object = None
         if q.object == "lincs":
             # Lab query
             object = "structId_i:(160294)"
@@ -324,7 +325,7 @@ class HalConnector(Connector):
                         entries = self.sanitize_entries(
                             data["response"]["docs"]
                         )
-                    except KeyError: # if "response" is not found, an error has occurred
+                    except KeyError:  # if "response" is not found, an error has occurred
                         from pprint import pformat
                         raise RuntimeError("HAL error:\n%s" % pformat(data))
                 else:
@@ -333,4 +334,3 @@ class HalConnector(Connector):
                 raise RuntimeError("Cannot get reply from %s (status %s)" % (self.m_api_url, e))
 
         return self.answer(q, entries)
-

@@ -17,14 +17,7 @@ from .query     import Query
 
 PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
 
-#def str_to_html(s :str) -> str:
-#    if PATTERN_URL.match(s):
-#        return "<a href=%s>%s</a>" % (s, s)
-#    else:
-#        return s.rstrip(".").rstrip(",")
-
 def str_to_html(s :str) -> str:
-    #return escape(s).rstrip(".").rstrip(",")
     return s.rstrip(".").rstrip(",")
 
 def to_html_link(d :dict, k :str, v :str) -> str:
@@ -64,15 +57,6 @@ def print_error(x):
     """
     print(str(x), file = sys.stderr)
 
-def entries_to_html(entries :list, map_attribute_label :dict = dict(), attributes :list = None) -> str:
-    """
-    Export to HTML a list of dict.
-    Args:
-        entries: A list of dicts
-        map_attribute_label: A dict {str : str} which maps each entry key with the column header
-            to display.
-        attributes: The subset of keys to display.
-    """
 
 def entries_to_html(
     entries :list,
@@ -80,10 +64,20 @@ def entries_to_html(
     attributes :list = None,
     keep_entry_if :callable = None
 ) -> str:
+    """
+    Export to HTML a list of dict.
+    Args:
+        entries: A list of dicts
+        map_attribute_label: A dict {str : str} which maps each entry key with the column header
+            to display.
+        attributes: The subset of keys to display.
+        keep_entry_if: Callback allowing to filter some entries
+    """
     if not attributes:
         attributes = list(entries[0].keys())
-    if not keep_entry_if:
-        keep_entry_if = lambda i, entry: True
+    if keep_entry_if is None:
+        def keep_entry_if(i, entry):
+            return True
     if not map_attribute_label:
         map_attribute_label = dict()
     return """
@@ -96,7 +90,8 @@ def entries_to_html(
         """ % {
             "header" : "<tr>%s</tr>" % "".join(
                 ["<th>Index</th>"] + [
-                    "<th style='text-align: left;white-space: nowrap;'>%s</th>" % str(map_attribute_label.get(attribute, attribute))
+                    "<th style='text-align: left;white-space: nowrap;'>%s</th>"
+                    % str(map_attribute_label.get(attribute, attribute))
                     for attribute in attributes
                 ]
             ),
@@ -109,7 +104,8 @@ def entries_to_html(
                 """ % {
                     "index" : i,
                     "values" : "".join([
-                        "<td style='text-align: left;white-space: nowrap;'>%s</td>" % value_to_html(entry.get(attribute))
+                        "<td style='text-align: left;white-space: nowrap;'>%s</td>"
+                        % value_to_html(entry.get(attribute))
                         for attribute in attributes
                     ])
                 }
@@ -125,16 +121,16 @@ def connector_to_html(connector :Connector, **kwargs) -> str:
     entries = connector.query(Query(**kwargs))
     return entries_to_html(entries, attributes=attributes)
 
-def entry_to_html(entry :dict, map_attribute_label :dict = dict(), attributes :list = None) -> str:
+def entry_to_html(entry :dict, map_attribute_label :dict = None, attributes :list = None) -> str:
     return entries_to_html([entry], map_attribute_label, attributes)
 
 # OBSOLETE
-def dict_to_html(d :dict, attributes :list, map_attribute_label :dict = dict()) -> str:
+def dict_to_html(d :dict, attributes :list, map_attribute_label :dict = None) -> str:
     return entry_to_html(d, map_attribute_label, attributes)
 
-#----------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
 # Extensions depending on BeautifulSoup
-#----------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
 
 try:
     # See https://matix.io/extract-text-from-webpage-using-beautifulsoup-and-python/
@@ -153,7 +149,7 @@ try:
         "style"
     }
 
-    def html_to_text(s_html :str, blacklist :set = HTML_BLACKLIST_TAGS) -> str:
+    def html_to_text(s_html :str, blacklist :set = None) -> str:
         """
         Convert an HTML page to text, by discarding javascript and css related
         to the site.
@@ -162,6 +158,8 @@ try:
             blacklist: A set of str (lowercase) corresponding to HTML tags
                 that must be ignored.
         """
+        if blacklist is None:
+            blacklist = HTML_BLACKLIST_TAGS
         soup = BeautifulSoup(s_html, features = "lxml")
         soup.find_all(s_html, "html.parser")
         text = soup.find_all(text = True)
@@ -169,7 +167,7 @@ try:
         for t in text:
             s = t.strip()
             if s and t.parent.name not in blacklist:
-                #print("<%s>: %r" % (t.parent.name, s))
+                # print("<%s>: %r" % (t.parent.name, s))
                 s = re.sub("<[^>]*>", "", s)
                 l += [s]
         s = " ".join(l)
@@ -181,7 +179,7 @@ try:
     }
 
     # Based on https://gist.github.com/revotu/21d52bd20a073546983985ba3bf55deb
-    def remove_all_attrs_except_saving(soup, whitelist = HTML_MAP_WHITELIST_ATTRS):
+    def remove_all_attrs_except_saving(soup, whitelist = None):
         """
         Remove all attributes except some.
         Args:
@@ -189,6 +187,8 @@ try:
             whitelist: A dict {tag : list(attr)} where tag is an HTML tag and attr
                 an HTML attribute.
         """
+        if whitelist is None:
+            whitelist = HTML_MAP_WHITELIST_ATTRS
         for tag in soup.find_all(True):
             if tag.name not in whitelist.keys():
                 tag.attrs = {}
@@ -202,13 +202,15 @@ try:
                         tag.attrs[attr] = "#"
         return soup
 
-    def remove_tags(soup, blacklist :set = HTML_BLACKLIST_TAGS):
+    def remove_tags(soup, blacklist :set = None):
         """
         Remove some HTML tags.
         Args:
             soup: A BeautifulSoup instance, modified in place.
             blacklist: A list of str, where each str is an HTML tag.
         """
+        if blacklist is None:
+            blacklist = HTML_BLACKLIST_TAGS
         for tag in blacklist:
             while True:
                 attr = getattr(soup, tag)
@@ -219,20 +221,23 @@ try:
 
     def sanitize_html(
         s_html       :str,
-        blacklist    :set  = HTML_BLACKLIST_TAGS,
+        blacklist    :set  = None,
         remove_attrs :bool = True
     ) -> str:
         """
-        Remove from an HTML string irrelevants HTML blocks and attributes.
+        Remove from an HTML string irrelevant HTML blocks and attributes.
 
         !!! This function is SLOW so do not use it on large corpus!
 
         Args:
             s_html: A str instance containing HTML.
             blacklist: List of blacklisted HTML tags.
+            remove_attrs:
         Returns:
             The sanitized string.
         """
+        if blacklist is None:
+            blacklist = HTML_BLACKLIST_TAGS
         soup = BeautifulSoup(s_html, features = "lxml")
         if remove_attrs:
             remove_all_attrs_except_saving(soup)
@@ -243,13 +248,11 @@ try:
         return str(body.prettify())
 
 except ImportError as e:
-    #print(
-    #    "\n  ".join([
-    #        "Please install bs4",
-    #        "APT: sudo apt install python3-bs4",
-    #        "PIP: sudo pip3 install bs4",
-    #    ]),
-    #    file = sys.stderr
-    #)
-    pass
+    from .log import Log
+    Log.warning(
+        "Please install pymongo.\n"
+        "  APT: sudo apt install python3-bs4\n"
+        "  PIP: sudo pip3 install --upgrade bs4\n"
+    )
+    raise e
 

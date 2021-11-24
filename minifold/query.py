@@ -11,7 +11,6 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from copy import deepcopy
-from typing import List
 
 ACTION_CREATE = 0
 ACTION_READ   = 1
@@ -21,24 +20,38 @@ ACTION_DELETE = 3
 SORT_ASC  = True
 SORT_DESC = False
 
-def action_to_str(action) -> str:
-    if   action == ACTION_CREATE: return "INSERT"
-    elif action == ACTION_READ  : return "SELECT"
-    elif action == ACTION_UPDATE: return "UPDATE"
-    elif action == ACTION_DELETE: return "DELETE"
-    else: raise RuntimeError("action_to_str: invalid action %s" % action)
+def action_to_str(action :int) -> str:
+    if action == ACTION_CREATE:
+        return "INSERT"
+    elif action == ACTION_READ:
+        return "SELECT"
+    elif action == ACTION_UPDATE:
+        return "UPDATE"
+    elif action == ACTION_DELETE:
+        return "DELETE"
+    else:
+        raise RuntimeError("action_to_str: invalid action %s" % action)
 
 class Query:
-    def __init__(self, action = ACTION_READ, object = "", attributes :List = list(), filters :List = None, offset = None, limit = None, sort_by = dict()):
+    def __init__(
+        self,
+        action = ACTION_READ,
+        object :str = "",
+        attributes :list = None,
+        filters :list = None,
+        offset :int = None,
+        limit :int = None,
+        sort_by :dict = None
+    ):
         self.m_action = action
         self.m_object = object
-        self.m_attributes = list(attributes)
+        self.m_attributes = list(attributes) if attributes else list()
         self.m_filters = filters
 
         # NOTE/TODO: the following specifiers are not supported by all the connectors
         self.m_offset = offset
         self.m_limit = limit
-        self.m_sort_by = sort_by
+        self.m_sort_by = sort_by if sort_by else dict()
 
     def copy(self):
         return deepcopy(self)
@@ -84,7 +97,7 @@ class Query:
         self.m_offset = value
 
     @property
-    def sort_by(self) -> dict:
+    def sort_by(self) -> list:
         return self.m_sort_by
 
     @sort_by.setter
@@ -110,4 +123,3 @@ class Query:
                     ) for attribute, sort_asc in self.sort_by.items()
                 ]) if self.sort_by else "",
         }
-

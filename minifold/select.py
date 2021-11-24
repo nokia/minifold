@@ -11,7 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .connector             import Connector
-from .query                 import Query, ACTION_READ
+from .query                 import Query
 
 def select(entries :list, attributes :list) -> list:
     return [{k : entry[k] for k in attributes} for entry in entries]

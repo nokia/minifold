@@ -11,15 +11,15 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .connector             import Connector
-from .query                 import Query, ACTION_READ
+from .query                 import Query
 
 # The following schema summarizes the different joins
 # http://4.bp.blogspot.com/-_HsHikmChBI/VmQGJjLKgyI/AAAAAAAAEPw/JaLnV0bsbEo/s1600/sql%2Bjoins%2Bguide%2Band%2Bsyntax.jpg
 
-INNER_JOIN      = 1 # Returns matching records
-LEFT_JOIN       = 2 # Returns left entries + matching right entries (=> right attributes may be None)
-RIGHT_JOIN      = 3 # Returns right entries + matching left entries (=> left attributes may be None)
-FULL_OUTER_JOIN = 4 # Returns left and right entries while merging matching entries
+INNER_JOIN      = 1  # Returns matching records
+LEFT_JOIN       = 2  # Returns left entries + matching right entries (=> right attributes may be None)
+RIGHT_JOIN      = 3  # Returns right entries + matching left entries (=> left attributes may be None)
+FULL_OUTER_JOIN = 4  # Returns left and right entries while merging matching entries
 
 def merge_dict(l :dict, r :dict) -> dict:
     ret = l.copy()
@@ -27,10 +27,14 @@ def merge_dict(l :dict, r :dict) -> dict:
     return ret
 
 def join_mode_to_string(mode :int) -> str:
-    if   mode == INNER_JOIN:      return "INNER JOIN"
-    elif mode == LEFT_JOIN:       return "LEFT JOIN"
-    elif mode == RIGHT_JOIN:      return "RIGHT JOIN"
-    elif mode == FULL_OUTER_JOIN: return "FULL OUTER JOIN"
+    if mode == INNER_JOIN:
+        return "INNER JOIN"
+    elif mode == LEFT_JOIN:
+        return "LEFT JOIN"
+    elif mode == RIGHT_JOIN:
+        return "RIGHT JOIN"
+    elif mode == FULL_OUTER_JOIN:
+        return "FULL OUTER JOIN"
     return "?"
 
 def are_joined_if(l :dict, r :dict, f) -> bool:
@@ -45,7 +49,8 @@ def inner_join_if(l_entries :list, r_entries :list, f, match_once = True, merge 
         for r in r_entries:
             if are_joined_if(l, r, f):
                 ret.append(merge(l, r))
-                if match_once: break
+                if match_once:
+                    break
     return ret
 
 def left_join_if(l_entries :list, r_entries :list, f, match_once = True, merge = merge_dict) -> list:
@@ -53,12 +58,14 @@ def left_join_if(l_entries :list, r_entries :list, f, match_once = True, merge =
     if len(r_entries) > 0:
         for l in l_entries:
             joined = False
+            r = None
             for r in r_entries:
                 if are_joined_if(l, r, f):
                     joined = True
                     ret.append(merge(l, r))
-                    if match_once: break
-            if joined == False:
+                    if match_once:
+                        break
+            if joined is False:
                 entry = l
                 missing_keys = set(r.keys()) - set(l.keys())
                 for k in missing_keys:
@@ -72,7 +79,7 @@ def right_join_if(l_entries :list, r_entries :list, f, match_once = True) -> lis
     return left_join_if(r_entries, l_entries, lambda l,r: f(r,l), match_once)
 
 def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -> list:
-    # Get every left entries (joinable or not)
+    # Get every left entries (join-able or not)
     ret = left_join_if(l_entries, r_entries, f, match_once)
 
     # Retrieve left keys
@@ -88,7 +95,7 @@ def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -
                 joined = True
                 break
 
-        if joined == False:
+        if not joined:
             entry = r
             missing_keys = set(l_keys) - set(r.keys())
             for k in missing_keys:
@@ -117,7 +124,7 @@ class JoinIfConnector(Connector):
         self.m_right_entries.clear()
         self.m_left_entries = self.left.query(query)
         self.m_right_entries = self.right.query(query)
-        if   self.m_mode == INNER_JOIN:
+        if self.m_mode == INNER_JOIN:
             entries = inner_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
         elif self.m_mode == LEFT_JOIN:
             entries = left_join_if(self.m_left_entries, self.m_right_entries, self.m_join_if)
@@ -144,4 +151,3 @@ class JoinIfConnector(Connector):
     @property
     def join_if(self):
         return self.m_join_if
-

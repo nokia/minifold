@@ -22,7 +22,8 @@ def count_gen(gen) -> int:
         The number of elements listed by a generator.
     """
     n = 0
-    for x in gen: n += 1
+    for _ in gen:
+        n += 1
     return n
 
 def count(entries :list) -> int:

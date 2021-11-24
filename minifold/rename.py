@@ -21,8 +21,7 @@ def rename_list(l :list, mapping :dict) -> list:
         try:
             l[i] = mapping[value]
         except KeyError as e:
-            #l[i] = None
-            pass # see test_dblp.py
+            pass  # see test_dblp.py
     return l
 
 def rename_key(d :dict, old_key :str, new_key :str) -> dict:
@@ -43,7 +42,7 @@ def rename(mapping :dict, entries :list) -> list:
     return entries
 
 def rename_filters(filters, mapping :dict):
-    if filters == None or isinstance(filters, int) or isinstance(filters, tuple):
+    if filters is None or isinstance(filters, int) or isinstance(filters, tuple):
         pass
     elif isinstance(filters, str):
         try:

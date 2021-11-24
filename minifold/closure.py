@@ -19,7 +19,7 @@ def closure(key, fds) -> set:
     changed = True
 
     i = 0
-    while changed == True:
+    while changed:
         changed = False
         i += 1
         for (key, column) in fds:
@@ -32,8 +32,7 @@ def closure(key, fds) -> set:
 
     return ret
 
-
-def minimal_cover(fds :set) -> list:
+def minimal_cover(fds :set) -> set:
     min_fds = fds.copy()
 
     for (key, column) in fds:
@@ -61,4 +60,3 @@ try:
         return minimal_cover({edge_to_pair(e, g) for e in edges(g)})
 except ImportError:
     pass
-

@@ -11,7 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 from .connector             import Connector
-from .query                 import Query, ACTION_READ
+from .query                 import Query
 
 def unnest(map_key_unnestedkey :dict, entries :list) -> list:
     ret = list()
@@ -51,5 +51,3 @@ class UnnestConnector(Connector):
                 self.child.query(q)
             )
         )
-
-

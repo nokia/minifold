@@ -29,7 +29,6 @@ CYAN    = 6
 GRAY    = 7
 
 # Shell style
-DEFAULT     = 0
 BOLD        = 1
 UNDERLINED  = 4
 BLINKING    = 5
@@ -37,9 +36,6 @@ HIGHLIGHTED = 7
 
 class Log:
     enable_print = False
-
-    # TODO: The following static paramaters should be load from ~/.minifoldrc
-    # TODO: dark / light colors
     with_color   = True
     log_level    = 0
 
@@ -61,12 +57,15 @@ class Log:
     def start_style(
         fg_color :int = None,
         bg_color :int = None,
-        styles :list = list()
+        styles :list = None
     ) -> str:
         styling = list()
-        if fg_color != None: styling.append("3%d" % fg_color)
-        if bg_color != None: styling.append("4%d" % bg_color)
-        if styles: styling += styles
+        if fg_color:
+            styling.append("3%d" % fg_color)
+        if bg_color:
+            styling.append("4%d" % bg_color)
+        if styles:
+            styling += styles
         return "\033[%sm" % ";".join(styling) if styling else ""
 
     @staticmethod
@@ -98,4 +97,3 @@ class Log:
 
     @classmethod
     def error(cls, s): cls.print(ERROR, s)
-

@@ -14,7 +14,17 @@ from minifold.binary_predicate    import BinaryPredicate
 from minifold.connector           import Connector
 from minifold.query               import Query, ACTION_READ
 from minifold.where               import where
-from pymongo                      import MongoClient
+
+try:
+    from pymongo import MongoClient
+except ImportError as e:
+    from .log import Log
+    Log.warning(
+        "Please install pymongo.\n"
+        "  APT: sudo apt install python3-pymongo\n"
+        "  PIP: sudo pip3 install --upgrade pymongo\n"
+    )
+    raise e
 
 class MongoConnector(Connector):
     def __init__(self, mongo_url :str, db_name :str):
@@ -39,7 +49,7 @@ class MongoConnector(Connector):
             ret = list(
                 self.db[query.object].find(
                     {},
-                    {k : 1 for attr in query.attributes} if query.attributes else None
+                    {attr : 1 for attr in query.attributes} if query.attributes else None
                 )
                     .limit(query.limit if query.limit else 0)
                     .skip(query.offset if query.offset else 0)

@@ -20,4 +20,3 @@ class ValuesFromDictFonctor:
 
     def __call__(self, entry :dict) -> tuple:
         return tuple(entry.get(k) for k in self.attributes)
-

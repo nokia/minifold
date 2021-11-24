@@ -15,7 +15,14 @@ from minifold.log import Log
 try:
     import pycountry
 except ImportError as e:
-    Log.warning("Please install pycountry: apt-get install python3-pycountry")
+    from .log import Log
+    Log.warning(
+        "\n".join([
+            "Please install requests",
+            "  APT: sudo apt install python3-pycountry",
+            "  PIP: sudo pip3 install --upgrade pycountry",
+        ])
+    )
     raise e
 
 def _country_code_to_name(country_code :str) -> str:
@@ -33,7 +40,7 @@ def _country_code_to_name(country_code :str) -> str:
     return ret
 
 def country_code_to_name(country_code :str) -> str:
-    if country_code == None:
+    if country_code is None:
         return None
 
     ret = None

@@ -42,4 +42,3 @@ class WhereConnector(Connector):
                 self.m_keep_if
             )
         )
-

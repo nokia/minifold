@@ -18,12 +18,12 @@ def find_lambda_dependencies(func) -> set:
     entry = dict()
     while True:
         try:
-            val = func(entry)
+            _ = func(entry)
         except KeyError as e:
             needed_key = e.args[0]
             entry[needed_key] = None
             continue
-        except Exception as e:
+        except Exception:
             pass
         break
     return set(entry.keys())
@@ -74,7 +74,7 @@ class LambdasConnector(Connector):
     def find_needed_attributes(self, attributes :set) -> set:
         ret = set()
         for attribute in attributes:
-            needed_attributes = self.m_map_dependencies.get(attribute, set([attribute]))
+            needed_attributes = self.m_map_dependencies.get(attribute, {attribute})
             ret |= needed_attributes
         return ret
 

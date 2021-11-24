@@ -42,4 +42,3 @@ class LimitConnector(Connector):
                 self.m_lim
             )
         )
-

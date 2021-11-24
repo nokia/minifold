@@ -13,14 +13,13 @@ __license__    = "BSD-3"
 from .connector import Connector
 from .html      import html
 from .query     import Query
-from .sort_by   import SortByConnector
 from .unique    import UniqueConnector
 
 def get_values(connector :Connector, attribute :str):
     enriched_connector = UniqueConnector(
-            [attribute],
-            connector
-        )
+        [attribute],
+        connector
+    )
     q = Query(attributes = [attribute])
     return [entry[attribute] for entry in enriched_connector.query(q)]
 
@@ -29,7 +28,7 @@ def show_some_values(connector :Connector, limit :int = 5, max_strlen :int = Non
         query = Query()
 
     map_values = {
-        attribute : get_values(connector, attribute) \
+        attribute : get_values(connector, attribute)
         for attribute in connector.attributes(query.object)
     }
 

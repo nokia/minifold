@@ -17,7 +17,7 @@ except ImportError:
     from .log import Log
     Log.warning(
         "Please install ldap3.\n"
-        "  APT: sudo apt install python3-ldap3
+        "  APT: sudo apt install python3-ldap3\n"
         "  PIP: sudo pip3 install --upgrade ldap3\n"
     )
     raise e

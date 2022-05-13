@@ -44,7 +44,6 @@ For more information, feel free to visit the wiki_:
 
 - Overview_
 - Installation_
-- Tests_
 - Tutorial_ 
 - Design_
 - Configuration_

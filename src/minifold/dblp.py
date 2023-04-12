@@ -34,7 +34,7 @@ __license__    = "BSD-3"
 try:
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-except ImportError:
+except ImportError as e:
     from .log import Log
     Log.warning(
         "\n".join([

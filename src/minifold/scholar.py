@@ -43,7 +43,7 @@ if sys.version_info[0] == 3:
     encode = lambda s: unicode(s) # pylint: disable-msg=C0103
 else:
     def encode(s):
-        if isinstance(s, basestring):
+        if isinstance(s, str):
             return s.encode('utf-8') # pylint: disable-msg=C0103
         else:
             return str(s)

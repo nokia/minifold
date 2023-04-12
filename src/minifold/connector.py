@@ -59,7 +59,7 @@ class Connector:
                 raise RuntimeError(
                     "Invalid connector type [%s]. Known types are:\n%s\n" % (
                         name,
-                        "\n\t".join([str(name) for name in subclasses.keys()])
+                        "\n\t".join([str(name) for name in Connector.subclasses.keys()])
                     )
                 )
             return cls
@@ -97,7 +97,7 @@ class Connector:
             The set of available attributes for ``object``.
         """
         # Must be overwritten in child class if reshape_entries is needed
-        raise NotImplemented
+        raise NotImplementedError
 
     def reshape_entries(self, query :Query, entries :list) -> list:
         """

@@ -13,7 +13,7 @@ __license__    = "BSD-3"
 try:
     from ldap3                  import Server, Connection, SUBTREE, ALL_ATTRIBUTES, ALL
     from ldap3.core.exceptions  import LDAPInvalidFilterError
-except ImportError:
+except ImportError as e:
     from .log import Log
     Log.warning(
         "Please install ldap3.\n"

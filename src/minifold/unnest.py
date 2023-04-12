@@ -33,7 +33,7 @@ class UnnestConnector(Connector):
         self.m_map_key_unnestedkey = map_key_unnestedkey
 
     def attributes(self, object :str) -> set:
-        raise NotImplemented
+        raise NotImplementedError
 
     @property
     def child(self):

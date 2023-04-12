@@ -1,5 +1,11 @@
 # Minifold
 
+[![PyPI](https://img.shields.io/pypi/v/minifold.svg)](https://pypi.python.org/pypi/minifold/)
+[![Build](https://github.com/nokia/minifold/workflows/build/badge.svg)](https://github.com/nokia/minifold/actions/workflows/build.yml)
+[![Documentation](https://github.com/nokia/minifold/workflows/docs/badge.svg)](https://github.com/nokia/minifold/actions/workflows/docs.yml)
+[![ReadTheDocs](https://readthedocs.org/projects/minifold/badge/?version=latest)](https://minifold.readthedocs.io/en/latest/?badge=latest)
+[![codecov](https://codecov.io/gh/nokia/minifold/branch/master/graph/badge.svg?token=OZM4J0Y2VL)](https://codecov.io/gh/nokia/minifold)
+
 ## Overview
 
 [Minifold](https://github.com/nokia/minifold.git) is a [Python](http://python.org/) module able to interact with various data sources (e.g. CSV, LDAP, SQL, twitter, etc.) and to query/combine/aggregate them with database-like operators.

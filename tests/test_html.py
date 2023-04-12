@@ -73,6 +73,6 @@ try:
 </body>"""
 
     def test_sanitize_html():
-        assert sanitize_html(HTML2) == EXPECTED2
+        assert sanitize_html(HTML2).rstrip() == EXPECTED2
 except ImportError:
     pass

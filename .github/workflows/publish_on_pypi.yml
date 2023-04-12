@@ -1,0 +1,53 @@
+# This workflow will upload a Python Package using Twine when a release is created
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+name: publish on PyPI
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy:
+    strategy:
+      matrix:
+        # Only use python version matching libboost_python*.so lib
+        # 3.8 for ubuntu 20.04
+        # 3.10 for ubuntu 22.04
+        # ...
+        # Unfortunately, 3.x does not work for ubuntu-latest
+        python-version: ["3.11"]
+        # poetry-version >= 1.2 is required to support groups
+        poetry-version: ["1.3.2"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # https://github.com/marketplace/actions/python-poetry-action
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # https://github.com/actions/setup-python/issues/529
+      # https://github.com/actions/setup-python#caching-packages-dependencies
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@main
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Run image
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+
+      - name: Install Python dependencies
+        run: |
+          poetry install --with dev
+
+      - name: Build and publish on PyPI
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_PASSWORD }}
+          poetry build
+          poetry publish

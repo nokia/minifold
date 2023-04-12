@@ -43,6 +43,7 @@ def value_to_html(x) -> str:
 def html(s :str):
     """
     Evaluate HTML code in a Jupyter Notebook.
+
     Args:
         s: A str containing HTML code.
     """
@@ -51,9 +52,12 @@ def html(s :str):
     # or chart = charts.plot(...)
     display(chart)
 
-def print_error(x):
+def print_error(x: object):
     """
     Print an error in a Jupyter Notebook.
+
+    Args:
+        x: An expection.
     """
     print(str(x), file = sys.stderr)
 
@@ -66,12 +70,16 @@ def entries_to_html(
 ) -> str:
     """
     Export to HTML a list of dict.
+
     Args:
         entries: A list of dicts
         map_attribute_label: A dict {str : str} which maps each entry key with the column header
             to display.
         attributes: The subset of keys to display.
         keep_entry_if: Callback allowing to filter some entries
+
+    Returns:
+        The corresponding HTML string.
     """
     if not attributes:
         attributes = list(entries[0].keys())
@@ -149,20 +157,24 @@ try:
         "style"
     }
 
-    def html_to_text(s_html :str, blacklist :set = None) -> str:
+    def html_to_text(s_html: str, blacklist: set = None) -> str:
         """
         Convert an HTML page to text, by discarding javascript and css related
         to the site.
+
         Args:
-            s_html: A str containing HTML.
-            blacklist: A set of str (lowercase) corresponding to HTML tags
+            s_html (str): A str containing HTML.
+            blacklist (set): A set of string (lowercase) corresponding to HTML tags
                 that must be ignored.
+
+        Returns:
+            The corresponding text.
         """
         if blacklist is None:
             blacklist = HTML_BLACKLIST_TAGS
         soup = BeautifulSoup(s_html, features = "lxml")
         soup.find_all(s_html, "html.parser")
-        text = soup.find_all(text = True)
+        text = soup.find_all(string = True)
         l = list()
         for t in text:
             s = t.strip()
@@ -182,6 +194,7 @@ try:
     def remove_all_attrs_except_saving(soup, whitelist = None):
         """
         Remove all attributes except some.
+
         Args:
             soup: A BeautifulSoup instance, modified in place.
             whitelist: A dict {tag : list(attr)} where tag is an HTML tag and attr
@@ -205,6 +218,7 @@ try:
     def remove_tags(soup, blacklist :set = None):
         """
         Remove some HTML tags.
+
         Args:
             soup: A BeautifulSoup instance, modified in place.
             blacklist: A list of str, where each str is an HTML tag.
@@ -233,6 +247,7 @@ try:
             s_html: A str instance containing HTML.
             blacklist: List of blacklisted HTML tags.
             remove_attrs:
+
         Returns:
             The sanitized string.
         """

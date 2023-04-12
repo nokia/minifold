@@ -11,7 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 
-class ForEachFilter():
+class ForEachFilter:
     def __init__(self, attribute_name: str, map_filter: dict):
         self.attribute_name = attribute_name
         self.map_filter = map_filter

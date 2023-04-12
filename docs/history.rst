@@ -1,0 +1,4 @@
+History
+=======
+
+.. mdinclude:: ../HISTORY.md

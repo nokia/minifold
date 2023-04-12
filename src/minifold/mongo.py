@@ -10,10 +10,10 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-from minifold.binary_predicate    import BinaryPredicate
-from minifold.connector           import Connector
-from minifold.query               import Query, ACTION_READ
-from minifold.where               import where
+from .binary_predicate    import BinaryPredicate
+from .connector           import Connector
+from .query               import Query, ACTION_READ
+from .where               import where
 
 try:
     from pymongo import MongoClient

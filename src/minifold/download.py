@@ -48,23 +48,33 @@ DEFAULT_TIMEOUT = (1.0, 2.0)    # (connect timeout, read timeout)
 # DEFAULT_TIMEOUT = (0.5, 1.0)  # (connect timeout, read timeout)
 
 def now() -> str:
+    """
+    Crafts a string storing the current timestamp.
+
+    Returns:
+        A string containing current timestamp.
+    """
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def download(url :str, timeout = DEFAULT_TIMEOUT, cache_filename = None):
+def download(url: str, timeout: tuple = DEFAULT_TIMEOUT, cache_filename: str = None):
     """
-    Download the content related to a given URL.
+    Downloads the content related to a given URL.
+    See also :py:func:`request_cache` to enable caching.
+
     Args:
-        url: A str containing the target URL.
-        timeout: A tuple (float, float) corresponding to the
+        url (str): A string containing the target URL.
+        timeout (tuple): A ``(float, float)`` tuple corresponding to the
             (connect timeout, read timeout).
-        cache_filename: A str containing path to the cache to use.
-            Pass None to use the default cache.
+        cache_filename (str): A string containing path to the cache to use.
+            Pass ``None`` to use the default cache.
+
     Raises:
         requests.exceptions.ConnectionError
         requests.exceptions.ConnectTimeout
         requests.exceptions.ContentDecodingError
         requests.exceptions.ReadTimeout
         requests.exceptions.SSLError
+
     Returns:
         The corresponding response.
     """
@@ -81,11 +91,13 @@ def download(url :str, timeout = DEFAULT_TIMEOUT, cache_filename = None):
         Log.warning("download: GET %s (timeout = %s): %s" % (url, timeout, exc))
         return exc
 
-def trim_http(url :str) -> str:
+def trim_http(url: str) -> str:
     """
-    Discard the "http://" or "https://" prefix from an url.
+    Discards the ``"http://"`` or `` "https://"`` prefix from an url.
+
     Args:
-        url: A str containing an URL.
+        url (str): A str containing an URL.
+
     Returns:
         The str corresponding to the trimmed URL.
     """
@@ -99,15 +111,20 @@ async def downloads_async(
 ):
     """
     Asynchronous download procedure.
+
     Args:
         urls: An iterable over strings, each of them corresponding to an URL.
-        timeout: A tuple (float, float) corresponding to the
+        timeout: A tuple ``(float, float)`` corresponding to the
             (connect timeout, read timeout).
-        return_exceptions: Pass True if this function is allowed to raise exceptions or must be quiet.
+        return_exceptions: Pass ``True`` if this function is allowed to raise
+            exceptions or must be quiet, ``False`` otherwise. Defaults to ``True``.
+
+    Raises:
+        See the :py:func:`download` function for the list of possible exceptions.
+
     Returns:
-        A dict({str : ?}} mapping for each queried URL the corresponding
-        contents (if successful), the corresponding Exception otherwise.
-        See download() documentation for possible exceptions.
+        A ``dict({str : ?}}`` mapping for each queried URL the corresponding
+        contents (if successful), the corresponding :py:class:`Exception` otherwise.
     """
     with concurrent.futures.ThreadPoolExecutor(max_workers=500) as executor:
         loop = asyncio.get_event_loop()
@@ -128,7 +145,19 @@ async def downloads_async(
 
 def downloads(*args) -> dict:
     """
-    Perform multiple downloads in parallel. See downloads_async for further details.
+    Performs multiple downloads in parallel. See downloads_async for further details.
+    See also :py:func:`request_cache` to enable caching.
+
+    Args:
+        urls: An iterable over strings, each of them corresponding to an URL.
+        timeout: A tuple ``(float, float)`` corresponding to the
+            (connect timeout, read timeout).
+        return_exceptions: Pass ``True`` if this function is allowed to raise
+            exceptions or must be quiet, ``False`` otherwise. Defaults to ``True``.
+
+    Returns:
+        A ``dict({str : ?}}`` mapping for each queried URL the corresponding
+        contents (if successful), the corresponding :py:class:`Exception` otherwise.
     """
     Log.debug("[%s] downloads: start" % now())
     # https://stackoverflow.com/questions/46727787/runtimeerror-there-is-no-current-event-loop-in-thread-in-async-apscheduler
@@ -145,11 +174,13 @@ def downloads(*args) -> dict:
 
 def extract_response(response, extract_text :bool = True):
     """
-    Extract from a response the corresponding contents or Exception.
+    Extracts from a response the corresponding contents or Exception.
+
     Args:
         response: A requests.Response or an Exception instance.
         extract_text: A bool indicating if text must be extracted
             from HTML.
+
     Returns:
         The corresponding Exception or str.
     """
@@ -161,6 +192,9 @@ def extract_response(response, extract_text :bool = True):
 RE_VALID_URL = re.compile("https?://.*")
 
 class DownloadConnector(Connector):
+    """
+    The :py:class:`DownloadConnector` allows to fetch data over HTTP.
+    """
     def __init__(
         self,
         map_url_out :dict,
@@ -171,16 +205,18 @@ class DownloadConnector(Connector):
     ):
         """
         Constructor.
+
         Args:
             map_url_out: dict(str : str) entry attribute containing an URL to another
                 entry attribute that will store the contents provided by this URL.
-                Example: {"url" : "html_content"}
+                Example: ``{"url" : "html_content"}``
             child: A child Connector.
-            downloads: Callback(urls) -> dict(url : content) where
-                    urls is an iterable of URLs and where.
-                    the returned dict maps each urls and the corresponding response.
-                Note: You could pass partial(download, ...) to customize timeouts.
-            extract_response: Callback(response) -> str
+            downloads: ``Callback(urls) -> dict(url : content)`` where
+                urls is an iterable of URLs and where.
+                the returned dict maps each urls and the corresponding response.
+                Note: You could pass ``partial(download, ...)`` to customize the timeouts.
+            extract_response: ``Callback(response) -> str`` callback used to extract
+                data from an HTTP query.
         """
         super().__init__()
         self.map_url_out = map_url_out
@@ -190,11 +226,13 @@ class DownloadConnector(Connector):
 
     def query(self, query :Query) -> list:
         """
-        Handle an input Query.
+        Handles an input :py:class:`Query` instance..
+
         Args:
-            query: The input Query.
+            query: The input minifold query.
+
         Returns:
-            The corresponding result.
+            The corresponding results.
         """
         if query.action == ACTION_READ:
             # Pull child records
@@ -213,7 +251,10 @@ class DownloadConnector(Connector):
                     urls |= {
                         entry.get(attr_url)
                         for entry in entries
-                        if isinstance(entry.get(attr_url), str) and RE_VALID_URL.match(entry.get(attr_url))
+                        if (
+                            isinstance(entry.get(attr_url), str)
+                            and RE_VALID_URL.match(entry.get(attr_url))
+                        )
                     }
                 Log.debug("Starting fetching %d URLs" % len(urls))
                 map_url_response = self.downloads(urls)
@@ -236,5 +277,16 @@ class DownloadConnector(Connector):
         else:
             raise RuntimeError("Action not implemented: %s" % query.action)
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
+        """
+        Lists available attributes related to a given collection of object
+        stored in this :py:class:`DownloadConnector` instance.
+
+        Args:
+            object: The name of the collection of entries.
+
+        Returns:
+            The set of available attributes for ``object``.
+        """
+
         return set(self.child.attributes(object)) | set(self.map_url_out.values())

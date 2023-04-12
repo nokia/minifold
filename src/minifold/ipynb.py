@@ -14,8 +14,9 @@ __license__    = "BSD-3"
 def in_ipynb() -> bool:
     """
     Tests whether the code is running inside a Jupyter Notebook.
+
     Returns:
-        True iff the code is running inside a Jupyter Notebook.
+        ``True`` iff the code is running inside a Jupyter Notebook.
     """
     try:
         from IPython import get_ipython

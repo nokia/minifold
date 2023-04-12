@@ -37,26 +37,28 @@ from .scholar import *
 def parse_article(s_html: str) -> dict:
     """
     Parse a "gs_res_ccl_mid" div (wrapping each article) returned by Google Scholar.
+
     Args:
-        s_html: The HTML string containing the div.
+        s_html (str): The HTML string containing the div.
+
     Returns:
         The dict describing the article, structured as follows:
-        {
-            "authors"       : list, # The list only contains the first authors. The last author name maybe incomplete.
-            "cluster_id"    : int,
-            "conference"    : str,  # May be incomplete
-            "editor"        : str,
-            "excerpt"       : str,  # May be incomplete.
-            "num_citations" : int,
-            "num_versions"  : int,
-            "title"         : str,
-            "url_citations" : str,
-            "url_versions"  : str,
-            "url_pdf"       : str,
-            "url_title"     : str,
-            "year"          : int,
-        }
-        An incomplete string may start by '…' and ends with '…'.
+
+        - "authors"       : list, The list only contains the first authors. The last author name maybe incomplete.
+        - "cluster_id"    : int,
+        - "conference"    : str,  # May be unset
+        - "editor"        : str,
+        - "excerpt"       : str,  # May be unset
+        - "num_citations" : int,
+        - "num_versions"  : int,
+        - "title"         : str,
+        - "url_citations" : str,
+        - "url_versions"  : str,
+        - "url_pdf"       : str,
+        - "url_title"     : str,
+        - "year"          : int,
+
+        An incomplete string may start by ``'…'`` and ends with ``'…'``.
         URLs are absolute.
     """
 
@@ -126,7 +128,8 @@ def parse_article(s_html: str) -> dict:
 
 class MinifoldScholarQuerier(ScholarQuerier):
     """
-    ScholarQuerier is overloaded to fetch more attributes.
+    :py:class`MinifoldScholarQuerier` overloads :py:class:`ScholarQuerier`
+    to fetch more attributes.
     """
 
     def __init__(self):
@@ -256,10 +259,12 @@ class GoogleScholarConnector(Connector):
     @staticmethod
     def sanitize_author(authors: list, author: str) -> str:
         """
-        Find in an input list of strings the closest string with the input string.
+        Finds in an input list of strings the closest string with the input string.
+
         Args:
-            authors: The list of strings.
-            author: The reference string.
+            authors (list): The list of strings.
+            author (str): The reference string.
+
         Returns:
             The string of `authors` closest to `author` if any, else `author`
         """

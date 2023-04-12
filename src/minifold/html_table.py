@@ -9,14 +9,15 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-from html.parser                    import HTMLParser
-from minifold.log                   import Log
-from minifold.entries_connector     import EntriesConnector
+from html.parser            import HTMLParser
+from .log                   import Log
+from .entries_connector     import EntriesConnector
 
 class HtmlTableParser(HTMLParser):
     def __init__(self, columns :list, output_list :list, keep_entry = None):
         """
         Constructor.
+
         Args:
             columns: list of string mapping the attribute name
                 corresponding with the index. If data is fetch
@@ -100,6 +101,7 @@ class HtmlTableConnector(EntriesConnector):
     def __init__(self, filename :str, columns :list, keep_entry = None):
         """
         Constructor.
+
         Args:
             filename: Input HTML filename.
             columns: list of string mapping the attribute name

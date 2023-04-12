@@ -11,7 +11,7 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import codecs, json
-from minifold.entries_connector import EntriesConnector
+from .entries_connector import EntriesConnector
 
 def identity(json_py) -> list:
     # Minifold expects a list of dict, so if you are looking

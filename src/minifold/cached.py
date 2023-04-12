@@ -11,24 +11,54 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import json, os, pickle
-from functools                  import partial
-from minifold.cache             import DEFAULT_CACHE_STORAGE_BASE_DIR
-from minifold.entries_connector import EntriesConnector
-from minifold.filesystem        import mkdir
-from minifold.cache             import JsonCacheConnector
-from minifold.log               import Log
+from functools          import partial
+from .cache             import DEFAULT_CACHE_STORAGE_BASE_DIR
+from .entries_connector import EntriesConnector
+from .filesystem        import mkdir
+from .cache             import JsonCacheConnector
+from .log               import Log
 
 class CachedEntriesConnector(EntriesConnector):
+    """
+    :py:class:`CachedEntriesConnector` is a :py:class:`Connector` is an
+    abstract class used to fetch data from a cache saved on the local storage.
+
+    See specializations:
+
+    - :py:class:`JsonCachedConnector` (caching using a JSON file)
+    - :py:class:`PickleCachedConnector` (caching using pickles)
+    """
     def __init__(
         self,
-        load_entries,
-        cache_filename :str,
-        load_cache,
-        save_cache,
-        read_mode,
-        write_mode,
-        with_cache :bool = True
+        load_entries: callable,
+        cache_filename: str,
+        load_cache: callable,
+        save_cache: callable,
+        read_mode: str,
+        write_mode: str,
+        with_cache: bool = True
     ):
+        """
+        Constructor.
+
+        Args:
+            load_entries (callable): A function called to populate this
+                :py:class:`CachedEntriesConnector`.
+            cache_filename (str): The path to the file used to save the
+                cache on the local storage.
+            load_cache (callable): A function `entries = load_cache(f)` where:
+                `entries` is a list of dictionnaries;
+                `f` is the (read) file descriptor of the cache.
+            save_cache (callable): A function `save_cache(cache_filename, f)` where:
+                `entries` is a list of dictionnaries;
+                `f` is the (write) file descriptor of the cache.
+            read_mode (str): A string specifying how the read file decriptor of the
+                cache must be created. Possible values are ``"r"`` (text-based cache)
+                and ``"rb"`` (binary cache).
+            write_mode (str): A string specifying how the write file decriptor of the
+                cache must be created. Possible values are ``"w"`` (text-based cache)
+                and ``"wb"`` (binary cache).
+        """
         loaded_from_cache = False
         if with_cache:
             try:
@@ -59,8 +89,23 @@ class CachedEntriesConnector(EntriesConnector):
 
         super().__init__(entries)
 
+
 class JsonCachedConnector(CachedEntriesConnector):
+    """
+    The :py:class:`JsonCachedConnector` class implements the
+    :py:class:`CachedEntriesConnector` using a tierce JSON file.
+    """
     def __init__(self, load_entries, cache_filename :str, **kwargs):
+        """
+        Constructor.
+        See also :py:class:`CachedEntriesConnector.__init__`
+
+        Args:
+            load_entries (callable): A function called to populate this
+                :py:class:`CachedEntriesConnector`.
+            cache_filename (str): The path to the file used to save the
+                cache on the local storage.
+        """
         super().__init__(
             load_entries,
             cache_filename,
@@ -71,8 +116,23 @@ class JsonCachedConnector(CachedEntriesConnector):
             **kwargs
         )
 
+
 class PickleCachedConnector(CachedEntriesConnector):
+    """
+    The :py:class:`PickleCachedConnector` class implements the
+    :py:class:`CachedEntriesConnector` using a tierce pickle file.
+    """
     def __init__(self, load_entries, cache_filename :str, **kwargs):
+        """
+        Constructor.
+        See also :py:class:`CachedEntriesConnector.__init__`
+
+        Args:
+            load_entries (callable): A function called to populate this
+                :py:class:`CachedEntriesConnector`.
+            cache_filename (str): The path to the file used to save the
+                cache on the local storage.
+        """
         super().__init__(
             load_entries,
             cache_filename,

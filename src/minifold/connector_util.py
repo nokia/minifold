@@ -10,12 +10,31 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+"""
+This file gathers some useful function to get and display
+some entries from an abitrary :py:class:`Connector` instance.
+"""
+
 from .connector import Connector
 from .html      import html
 from .query     import Query
 from .unique    import UniqueConnector
 
-def get_values(connector :Connector, attribute :str):
+def get_values(connector: Connector, attribute: str) -> list:
+    """
+    Retrieves distinct values mapped with a given attribute stored
+    in the entries of a given :py:class:`Connector` instance.
+
+    Args:
+        connector (Connector): The queried :py:class:`Connector` instance.
+        attribute (str): The queried attribute.
+
+    Raises:
+        KeyError: if ``attribute`` is not a valid attribute.
+
+    Returns:
+        The corresponding values.
+    """
     enriched_connector = UniqueConnector(
         [attribute],
         connector
@@ -23,7 +42,24 @@ def get_values(connector :Connector, attribute :str):
     q = Query(attributes = [attribute])
     return [entry[attribute] for entry in enriched_connector.query(q)]
 
-def show_some_values(connector :Connector, limit :int = 5, max_strlen :int = None, query :Query = None):
+def show_some_values(
+    connector :Connector,
+    limit :int = 5,
+    max_strlen :int = None,
+    query :Query = None
+):
+    """
+    Display in Jupyter notebook some values for each attribute of the entries
+    served by a given :py:class:`Connector` instance.
+    This is useful to discover a dataset.
+
+    Args:
+        connector (Connector): The queried :py:class:`Connector` instance.
+        limit (int): A positive integer or ``None`` (no limit) that upper bounds
+            the number of values to be fetched for each attribute.
+        query (Query): The :py:class:`Query` instance used to probe ``connector``.
+            You may pass ``None`` to issue to default query.
+    """
     if not query:
         query = Query()
 

@@ -11,13 +11,13 @@ __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
 import os, sys
-from minifold.cache         import DEFAULT_CACHE_STORAGE_BASE_DIR, DEFAULT_CACHE_STORAGE_LIFETIME
-from minifold.filesystem    import check_writable_directory, mkdir
+from .cache         import DEFAULT_CACHE_STORAGE_BASE_DIR, DEFAULT_CACHE_STORAGE_LIFETIME
+from .filesystem    import check_writable_directory, mkdir
 
 try:
     import requests_cache
 except ImportError as e:
-    from minifold.log import Log
+    from .log import Log
     Log.warning(
         "Please install requests-cache.\n"
         "  APT: sudo apt install python3-requests-cache\n"

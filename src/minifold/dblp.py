@@ -92,18 +92,41 @@ DBLP_ALIASES = {
 }
 
 def to_canonic_fullname(s) -> str:
-    # DBLP may now returns {"@pid" : int, "text" : "Firstname Lastname"} instead of the author fullname.
+    # DBLP may now returns {"@pid" : int, "text" : "Firstname Lastname"}
+    # instead of the author fullname.
     if isinstance(s, dict):
         s = s["text"]
     return _to_canonic_fullname(s)
 
 class DblpConnector(Connector):
-    def __init__(self, map_dblp_id :dict = None, map_dblp_name :dict = None, dblp_api_url :str = DBLP_API_URL):
+    """
+    :py:class:`DblpConnector` is a gateway to the DBLP website (repository of scientific
+    articles).
+    See also :py:class:`HalConnector`.
+    """
+    def __init__(
+        self,
+        map_dblp_id: dict = None,
+        map_dblp_name: dict = None,
+        dblp_api_url: str = DBLP_API_URL
+    ):
+        """
+        Constructor.
+
+        Args:
+            map_dblp_id (dict): Maps an author full name with his/her DBLP ID.
+            map_dblp_name (dict): Maps an author obsolete full name with his/her
+                current full name.
+            dblp_api_url (str): The URL of the DBLP server.
+                Defaults to :py:data:`DBLP_API_URL`.
+        """
         super().__init__()
         self.m_api_url = dblp_api_url
-        assert not dblp_api_url.endswith("/search") and not dblp_api_url.endswith("/search/"), \
-            "Invalid API URL [%s], remove '/search/' suffix" % dblp_api_url
-        self.m_format  = "json"  # valid values are: "xml", "json", and "jsonp".
+        assert (
+            not dblp_api_url.endswith("/search") and
+            not dblp_api_url.endswith("/search/")
+        ), f"Invalid API URL [{dblp_api_url}], remove '/search/' suffix"
+        self.m_format  = "json"  # valid values are in {"xml", "json", "jsonp"}.
         self.m_map_dblp_id = map_dblp_id if map_dblp_id else dict()
         self.m_map_dblp_name = map_dblp_name if map_dblp_name else dict()
         self.m_map_rev_name = {
@@ -111,27 +134,77 @@ class DblpConnector(Connector):
             for (name, dblp_name) in self.m_map_dblp_name.items()
         }
 
-    def attributes(self, object :str) -> set:
-        return {"authors", "doc_type", "title", "type", "venue", "url", "year"}  # Non exhaustive
+    def attributes(self, object: str) -> set:
+        """
+        Lists the attributes of the collection of objects stored
+        in this :py:class:`DblpConnector` instance.
+
+        Args:
+            object: The name of the minifold object.
+                As a :py:class:`DblpConnector` instance stores a single
+                collection, ``object`` is no relevant and you may pass ``None``.
+
+        Returns:
+            The set of available ``object``'s attributes
+        """
+
+        return {
+            "authors", "doc_type", "title", "type", "venue", "url", "year"
+        }  # Non exhaustive
 
     @property
     def api_url(self) -> str:
+        """
+        Retrieves the URL of the remote DBLP server. managed by
+        this :py:class:`DblpConnector` instance.
+
+        Returns:
+            The URL of the remote DBLP server.
+        """
         return self.m_api_url
 
     @property
     def format(self) -> str:
+        """
+        Retrieves the format of data retrieved from the DBLP server.
+
+        Returns:
+            A value in ``{"xml", "json", "jsonp"}``.
+        """
         return self.m_format
 
     @property
     def map_dblp_name(self) -> dict:
+        """
+        Retrieves the dictionary that maps an author obsolete full name with his/her
+        current full name.
+
+        Returns:
+            The queried dictionary.
+        """
         return self.m_map_dblp_name
 
     @property
     def map_dblp_id(self) -> dict:
+        """
+        Retrieves the dictionary that maps an author full name with his/her DBLP ID.
+
+        Returns:
+            The queried dictionary.
+        """
         return self.m_map_dblp_id
 
     @staticmethod
-    def to_dblp_name(s :str, map_dblp_name :dict = None) -> str:
+    def to_dblp_name(s: str, map_dblp_name: dict = None) -> str:
+        """
+        Converts a fullname to the corresponding current DBLP name.
+
+        Args:
+            s (str): The input fullname.
+
+        Returns:
+            The (possibly updated) fullname.
+        """
         if map_dblp_name:
             s = map_dblp_name.get(s, s)
         s = to_international_string(s)
@@ -147,14 +220,39 @@ class DblpConnector(Connector):
         ret = "-".join(words) + "$"
         return ret
 
-    def get_dblp_name(self, s :str) -> str:
+    def get_dblp_name(self, s: str) -> str:
+        """
+        Retrieves the current DBLP fullname of an author.
+
+        Args:
+            s (str): The input fullname.
+
+        Returns:
+            The (possibly updated) fullname.
+        """
         return DblpConnector.to_dblp_name(s, self.map_dblp_name)
 
-    def get_dblp_id(self, s :str) -> str:
+    def get_dblp_id(self, s: str) -> str:
+        """
+        Retrieves the current DBLP ID of an author.
+
+        Args:
+            s (str): The input fullname.
+
+        Returns:
+            The corresponding DBLP ID or ``s``.
+        """
         pid = self.m_map_dblp_id.get(s)
         return pid if pid else self.get_dblp_name(s)
 
     def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
+        """
+        Converts a minifold predicate to a DBLP predicate.
+
+        Args:
+            p (BinaryPredicate): A :py:class:`BinaryPredicate` instance.
+            result (dict): The output dictionary.
+        """
         # Recursive call only supported for && clauses
         if p.operator == operator.__and__:
             self.binary_predicate_to_dblp(p.left, result),
@@ -163,23 +261,39 @@ class DblpConnector(Connector):
 
         # Simple predicate. The left member must be a attribute name of the entry.
         if not isinstance(p.left, str):
-            raise RuntimeError("binary_predicate_to_dblp: left operand (%r) of %s must be a string" % (p.left, p))
+            raise RuntimeError(
+                f"binary_predicate_to_dblp: the left operand of {p} must be a string"
+            )
 
         if p.left in ["author", "authors", "researcher", "conference"]:
-            # String attribute. Only "CONTAINS" and "==" are supported. "==" behaves like "CONTAINS"
+            # String attribute. Only "CONTAINS" and "==" are supported.
+            # "==" behaves like "CONTAINS"
             if p.operator == operator.__eq__ or p.operator == operator.__contains__:
                 result["prefix"] = self.get_dblp_name(p.right)
             else:
-                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
+                raise RuntimeError(
+                    f"binary_predicate_to_dblp: unsupported operator ({p.operator}): {p}"
+                )
         else:
             # Other attributes. Only "==" is supported.
             if p.operator == operator.__eq__:
                 result["suffix"] += "%20" + ("%s:%s" % (p.left, p.right))
             else:
-                raise RuntimeError("binary_predicate_to_dblp: unsupported operator (%s): %s" % (p.operator, p))
+                raise RuntimeError(
+                    f"binary_predicate_to_dblp: unsupported operator ({p.operator}): {p}"
+                )
 
     @staticmethod
-    def to_doc_type(s :str) -> DocType:
+    def to_doc_type(s: str) -> DocType:
+        """
+        Converts a DBLP doc type to the corresponding :py:class:`DocType` instance.
+
+        Args:
+            s (str): The DBLP doc type.
+
+        Returns:
+            The corresponding :py:class:`DocType` instance.
+        """
         s = s.lower()
         if s in {
             "article", "conference and workshop papers", "conference or workshop",
@@ -202,7 +316,18 @@ class DblpConnector(Connector):
             Log.warning("DblpConnector.to_doc_type: unknown type: %s" % s)
             return DocType.UNKNOWN
 
-    def reshape_entry(self, query :Query, entry :dict) -> dict:
+    def reshape_entry(self, query: Query, entry: dict) -> dict:
+        """
+        Reshape a DBLP entry to make it compliant with a given
+        :py:class:`Query` instance.
+
+        Args:
+            query (Query): The minifold query.
+            entry (dict): The entry to reshape.
+
+        Returns:
+            The reshaped entry.
+        """
         if "type" in entry.keys():
             doc_type = DblpConnector.to_doc_type(entry["type"])
             entry["doc_type"]      = doc_type  # Compatible with Hal "doc_type" values.
@@ -237,7 +362,17 @@ class DblpConnector(Connector):
 
         return entry
 
-    def extract_entries(self, query :Query, results :list) -> list:
+    def extract_entries(self, query: Query, results: list) -> list:
+        """
+        Extracts the minifold entries for a DBLP query result.
+
+        Args:
+            query (Query): The minifold query.
+            results: The DBLP results.
+
+        Returns:
+            A ``list`` of ``dict`` instances (the minifold entres).
+        """
         entries = list()
         # If the query is not a standard Dblp object, we are pulling a bibliography
         # of a researcher who is identified by query.object (PID or fullname)
@@ -274,10 +409,29 @@ class DblpConnector(Connector):
             pass
         return entries
 
-    def reshape_entries(self, query :Query, entries :list) -> list:
+    def reshape_entries(self, query: Query, entries: list) -> list:
+        """
+        Apply :py:meth:`DblpConnector.reshape_entry` to a list of entries.
+
+        Args:
+            query (Query): The minifold query.
+            entries (list): A list of minifold entries.
+
+        Returns:
+            The reshaped entries.
+        """
         return [self.reshape_entry(query, entry) for entry in entries]
 
-    def query(self, query :Query) -> list:
+    def query(self, query: Query) -> list:
+        """
+        Handles an input :py:class:`Query` instance.
+
+        Args:
+            query (Query): The handled query.
+
+        Returns:
+            The list of entries matching ``query``.
+        """
         super().query(query)
         entries = list()
         if query.action == ACTION_READ:

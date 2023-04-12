@@ -10,7 +10,11 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
-from minifold.log import Log
+"""
+This file provides utilities to wrap the ``pycountry`` python module.
+"""
+
+from .log import Log
 
 try:
     import pycountry
@@ -26,6 +30,15 @@ except ImportError as e:
     raise e
 
 def _country_code_to_name(country_code :str) -> str:
+    """
+    Fixes an obsolete country code.
+
+    Args:
+        country_code (str): The input country code.
+
+    Returns:
+        The fixed country code.
+    """
     # For obsolete version of pycountry
     Log.warning("Please update python3-pycountry; apt-get update && apt-get upgrade")
 
@@ -40,6 +53,16 @@ def _country_code_to_name(country_code :str) -> str:
     return ret
 
 def country_code_to_name(country_code :str) -> str:
+    """
+    Retrieves the name of a country given its code.
+
+    Args:
+        country_code (str): The input country code.
+
+    Returns:
+        The corresponding country name.
+    """
+
     if country_code is None:
         return None
 

@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "minifold"
+version = "0.9.3"
+description = "Minifold is a Python module able to interact with various data sources (e.g. CSV, LDAP, SQL, twitter, etc.) and to query/combine/aggregate them with database-like operators."
+authors = ["Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>"]
+license = "BSD-3 license"
+readme = "README.md"
+packages = [{include = "minifold", from = "src"}]
+
+# https://docs.pytest.org/en/7.1.x/reference/customize.html
+[tool.pytest.ini_options]
+pythonpath = "src"
+minversion = "7.2.1"
+addopts = "--doctest-modules --showlocals --capture=no --exitfirst --failed-first"
+testpaths = [
+    "tests"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+pycountry = "*"
+pymongo = "*"
+ldap3 = "*"
+requests = "*"
+requests-cache = "*"
+tweepy = "*"
+urllib3 = "*"
+xmltodict = "*"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = ">=7.2.1"
+pytest-runner = "*"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pip = "*"
+bump2version = "*"
+flake8 = "*"
+tox = "*"
+coverage = "*"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+nbsphinx = "*"
+Sphinx = ">=1.4"
+sphinx-rtd-theme = "*"
+sphinx_mdinclude = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

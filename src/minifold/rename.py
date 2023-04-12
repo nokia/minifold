@@ -13,6 +13,7 @@ __license__    = "BSD-3"
 from copy                   import deepcopy
 
 from .binary_predicate      import BinaryPredicate
+from .dict_util             import reverse_dict
 from .connector             import Connector
 from .query                 import Query
 
@@ -66,12 +67,6 @@ def rename_query(q :Query, mapping :dict) -> Query:
     q.sort_by = rename_sort_by(q_renamed.sort_by, mapping)
     return q_renamed
 
-def reverse_dict(d :dict) -> dict:
-    ret = dict()
-    for k,v in d.items():
-        ret[v] = k
-    return ret
-
 class RenameConnector(Connector):
     def __init__(self, mapping :dict = {}, child = None):
         super().__init__()
@@ -105,5 +100,3 @@ class RenameConnector(Connector):
     @property
     def map_rq(self):
         return self.m_map_rq
-
-

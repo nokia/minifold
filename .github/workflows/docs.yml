@@ -1,0 +1,54 @@
+# This workflow will generate the docs on each push, and publish them on GitHub Pages if the branch is "main".
+
+name: docs
+
+on: [push]
+
+jobs:
+  build-and-deploy:
+    strategy:
+      matrix:
+        # Only use python version matching libboost_python*.so lib
+        # 3.8 for ubuntu 20.04
+        # 3.10 for ubuntu 22.04
+        # ...
+        # Unfortunately, 3.x does not work for ubuntu-latest
+        python-version: ["3.11"]
+        # poetry-version >= 1.2 is required to support groups
+        poetry-version: ["1.3.2"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }} 
+    steps:
+    # https://github.com/marketplace/actions/python-poetry-action
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # https://github.com/actions/setup-python/issues/529
+    # https://github.com/actions/setup-python#caching-packages-dependencies
+    - name: Set up Python
+      uses: actions/setup-python@main
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'  # Caching dependencies
+
+    - name: Run image
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: ${{ matrix.poetry-version }}
+
+    - name: Install package
+      run: |
+         poetry install --with docs
+
+    - name: Build Sphinx documentation
+      run: |
+        #sphinx-build -a -E -b html docs build
+        poetry run sphinx-build -a -E -b html docs build
+
+    - name: Deploy Sphinx documentation on Github Pages
+      uses: JamesIves/github-pages-deploy-action@3.7.1
+      if: github.ref == 'refs/heads/main'
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: build/

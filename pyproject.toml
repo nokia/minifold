@@ -17,6 +17,7 @@ testpaths = [
 ]
 
 [tool.poetry.dependencies]
+beautifulsoup4 = "*"
 python = ">=3.8"
 pycountry = "*"
 pymongo = "*"

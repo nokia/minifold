@@ -50,7 +50,7 @@ pytz = {version = ">=2015.7", markers = "python_version < \"3.9\""}
 name = "beautifulsoup4"
 version = "4.12.2"
 description = "Screen-scraping library"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6.0"
 files = [
@@ -1369,7 +1369,7 @@ files = [
 name = "soupsieve"
 version = "2.4"
 description = "A modern CSS selector implementation for Beautiful Soup."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1757,4 +1757,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8"
-content-hash = "39367afc07f3292620225ad671e68b16d4ed36987da0603955dfc5dd4e8aa30e"
+content-hash = "d00c9c08f48f759380960fec8ce5aae42305f9f8a430739da9696f4bed0f1765"

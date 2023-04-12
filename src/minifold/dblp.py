@@ -491,7 +491,7 @@ class DblpConnector(Connector):
             Log.info("--> DBLP: %s" % q_dblp)
             # http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
             # reply = http.request("GET", q_dblp, retries = 5)
-            reply = requests.get(q_dblp)
+            reply = requests.get(q_dblp, timeout=(5, 5))
 
             if reply.status_code == 200:
                 data = reply.content.decode("utf-8")

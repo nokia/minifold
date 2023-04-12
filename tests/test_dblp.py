@@ -10,6 +10,7 @@ __email__      = "marc-olivier.buob@nokia-bell-labs.com"
 __copyright__  = "Copyright (C) 2018, Nokia"
 __license__    = "BSD-3"
 
+import requests
 from minifold.binary_predicate  import BinaryPredicate
 from minifold.dblp              import DblpConnector
 from minifold.query             import Query
@@ -39,55 +40,69 @@ DBLP = DblpConnector(map_dblp_id = DBLP_MAP_PID)
 
 def test_conference():
     for conference in CONFERENCES:
-        entries = DBLP.query(Query(
-            object  = "conference",
-            filters = BinaryPredicate("conference", "==", conference)
-        ))
+        try:
+            entries = DBLP.query(Query(
+                object  = "conference",
+                filters = BinaryPredicate("conference", "==", conference)
+            ))
+        except requests.exceptions.ReadTimeout:
+            pass
 
 def test_dblp_bibliography_without_pid():
     for fullname in FULLNAMES:
-        entries = DBLP.query(Query(object = fullname))
-        assert len(entries) > 0
+        try:
+            entries = DBLP.query(Query(object = fullname))
+            assert len(entries) > 0
+        except requests.exceptions.ReadTimeout:
+            pass
 
 def test_dblp_bibliography_with_pid():
     for fullname in DBLP_MAP_PID.keys():
-        entries = DBLP.query(Query(object = fullname))
-        assert len(entries) > 0
+        try:
+            entries = DBLP.query(Query(object = fullname))
+            assert len(entries) > 0
+        except requests.exceptions.ReadTimeout:
+            pass
 
 def test_dblp_publication():
     attributes = ["title", "authors", "year"]
     year       = 2016
     fullname   = "Marc-Olivier Buob"
 
-    entries = DBLP.query(Query(
-        object = "publication",
-        attributes = attributes,
-        filters = BinaryPredicate(
-            BinaryPredicate("year", "==", year),
-            "&&",
-            BinaryPredicate("authors", "==", fullname)
-        )
-    ))
-    assert len(entries) > 0
-    for entry in entries:
-        assert set(entry.keys()) == set(attributes)
-        assert entry["year"] == year
+    try:
+        entries = DBLP.query(Query(
+            object = "publication",
+            attributes = attributes,
+            filters = BinaryPredicate(
+                BinaryPredicate("year", "==", year),
+                "&&",
+                BinaryPredicate("authors", "==", fullname)
+            )
+        ))
+        assert len(entries) > 0
+        for entry in entries:
+            assert set(entry.keys()) == set(attributes)
+            assert entry["year"] == year
+    except requests.exceptions.ReadTimeout:
+        pass
 
 def test_dblp_researcher():
     attributes = ["title", "authors", "year"]
     year       = 2008
     fullname   = "Marc-Olivier Buob"
 
-    entries = DBLP.query(Query(
-        object = "publication",
-        attributes = attributes,
-        filters = BinaryPredicate(
-            BinaryPredicate("year", "==", year),
-            "&&",
-            BinaryPredicate("authors", "==", fullname)
-        )
-    ))
-    assert len(entries) == 2
-    assert len(entries[0]["authors"]) == 1
-    assert len(entries[1]["authors"]) == 3
-
+    try:
+        entries = DBLP.query(Query(
+            object = "publication",
+            attributes = attributes,
+            filters = BinaryPredicate(
+                BinaryPredicate("year", "==", year),
+                "&&",
+                BinaryPredicate("authors", "==", fullname)
+            )
+        ))
+        assert len(entries) == 2
+        assert len(entries[0]["authors"]) == 1
+        assert len(entries[1]["authors"]) == 3
+    except requests.exceptions.ReadTimeout:
+        pass

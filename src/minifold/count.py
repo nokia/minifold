@@ -4,14 +4,8 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
-from .connector             import Connector
-from .query                 import Query, ACTION_READ
+from .connector import Connector
+from .query import Query, ACTION_READ
 
 def count_gen(gen: iter) -> int:
     """
@@ -33,10 +27,10 @@ def count(entries: list) -> int:
     Count the number of entries.
 
     Args:
-        entries: A list of entries
+        entries (list): A list of entries.
 
     Returns:
-        The number of element in entries
+        The number of element in entries.
     """
     return len(entries)
 

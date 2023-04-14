@@ -29,12 +29,10 @@ from .doc_type import DocType, doc_type_to_html
 from .download import DownloadConnector, download, downloads, now, trim_http
 from .entries_connector import EntriesConnector
 from .filesystem import check_writable_directory, ctime, find, mkdir, mtime, rm
-# << TODO documentation
 from .for_each import ForEachFilter, for_each_sub_entry
 from .google_scholar import GoogleScholarConnector
 from .group_by import GroupByConnector, group_by
 from .hal import HAL_API_URL, HAL_ALIASES, HalConnector
-# from .hash import to_hashable
 from .html import (
     connector_to_html, entry_to_html, entries_to_html, html, print_error, value_to_html
 )
@@ -44,6 +42,7 @@ from .join_if import (
     INNER_JOIN, LEFT_JOIN, RIGHT_JOIN, FULL_OUTER_JOIN, merge_dict,
     JoinIfConnector, inner_join_if, left_join_if, right_join_if, full_outer_join_if
 )
+# << TODO documentation
 from .json import JsonConnector, JsonFileConnector
 from .lambdas import LambdasConnector, lambdas
 from .ldap import LdapConnector
@@ -73,6 +72,5 @@ from .twitter import TwitterConnector, tweet_to_dict
 from .union import UnionConnector, union
 from .unique import UniqueConnector, unique
 from .unnest import UnnestConnector, unnest
-from .values_from_dict import ValuesFromDictFonctor
-from .where import WhereConnector, where
 # >>
+from .where import WhereConnector, where

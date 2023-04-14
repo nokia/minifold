@@ -4,11 +4,10 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__ = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__ = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__ = "Copyright (C) 2018, Nokia"
-__license__ = "BSD-3"
+"""
+This file integrates the classes provided in ``scholar.py`` to minifold.
+It allows to query `Google scholar <https://scholar.google.com/>`__.
+"""
 
 import sys
 
@@ -63,9 +62,28 @@ def parse_article(s_html: str) -> dict:
     """
 
     def clean_string(s: str) -> str:
+        """
+        Cleans a string (title, author, etc.) returned by Google Scholar.
+
+        Args:
+            s (str): The input string.
+
+        Returns:
+            The cleaned string.
+        """
         return re.sub("( |\\xa0|\\n)+", " ", s).strip()
 
     def extract_first_int(s: str) -> int:
+        """
+        Extracts the first int involved in a string.
+
+        Args:
+            s (str): The input string.
+
+        Raises:
+            ``AttributeError`` if ``s`` does not contain at least
+            one integer.
+        """
         return int(re.search("\\d+", s).group())
 
     entry = dict()
@@ -131,12 +149,20 @@ class MinifoldScholarQuerier(ScholarQuerier):
     :py:class`MinifoldScholarQuerier` overloads :py:class:`ScholarQuerier`
     to fetch more attributes.
     """
-
     def __init__(self):
+        """
+        Constructor.
+        """
         super().__init__()
         self.articles = list()
 
     def parse(self, s_html: str):
+        """
+        Populates :py:attr:`self.articles` using the HTML Google Scholar page.
+
+        Args:
+            s_html (str): An HTML Google Scholar page content.
+        """
         soup = SoupKitchen.make_soup(s_html)
         soup = soup.find(name="div", attrs={"id": "gs_res_ccl_mid"})
         for div in soup.findAll(name="div", attrs={"class": "gs_r"}):
@@ -144,7 +170,13 @@ class MinifoldScholarQuerier(ScholarQuerier):
             entry = parse_article(s)
             self.articles.append(entry)
 
-    def send_query(self, gs_query):
+    def send_query(self, gs_query: ScholarQuery):
+        """
+        Sends a query to Google scholar.
+
+        Args:
+            gs_query (ScholarQuery): A Google scholar query.
+        """
         # Network
         url = gs_query.get_url()
         Log.info("GoogleScholar <-- %s" % url)
@@ -162,13 +194,39 @@ class MinifoldScholarQuerier(ScholarQuerier):
 
 
 class GoogleScholarConnector(Connector):
+    """
+    The :py:class:`GoogleScholarConnector` class is a minifold gateway
+    allowing to query `Google scholar <https://scholar.google.com/>`.
+
+    See also:
+    - :py:class:`DblpConnector`.
+    - :py:class:`GoogleScholarConnector`.
+
+    """
     def __init__(self, citation_format: str = ScholarSettings.CITFORM_BIBTEX):
+        """
+        Constructor.
+
+        Args:
+            citation_format (str): The citation format.
+        """
         settings = ScholarSettings()
         settings.set_citation_format(citation_format)
         self.querier = MinifoldScholarQuerier()  # ScholarQuerier()
         self.querier.apply_settings(settings)
 
     def attributes(self, object: str) -> set:
+        """
+        Lists available attributes related to a given collection of object
+        stored in this :py:class:`GoogleScholarConnector` instance.
+
+        Args:
+            object (str): The name of the collection of entries.
+                The only supported object is: ``"publication"`` and ``"cluster"``.
+
+        Returns:
+            The set of available attributes for ``object``.
+        """
         if object == "publication" or not object:
             return {
                 "authors",  # str
@@ -193,6 +251,15 @@ class GoogleScholarConnector(Connector):
 
     @staticmethod
     def filter_to_scholar(p: BinaryPredicate, gs_query: SearchScholarQuery, authors: list):
+        """
+        Converts a minifold predicate (applying to authors) to the corresponding
+        scholar filter (recursive function).
+
+        Args:
+            p (BinaryPredicate): The minifold filter.
+            gs_query (ScholarQuery): The Google Scholar query.
+            authors (list): Pass an empty list.
+        """
         if p.operator == operator.__and__:
             GoogleScholarConnector.filter_to_scholar(p.left, gs_query, authors)
             GoogleScholarConnector.filter_to_scholar(p.right, gs_query, authors)
@@ -259,7 +326,8 @@ class GoogleScholarConnector(Connector):
     @staticmethod
     def sanitize_author(authors: list, author: str) -> str:
         """
-        Finds in an input list of strings the closest string with the input string.
+        Fixes author names, by finding in an input list of strings the
+        closest string with the input string.
 
         Args:
             authors (list): The list of strings.
@@ -281,6 +349,16 @@ class GoogleScholarConnector(Connector):
             return l[0]
 
     def query(self, query: Query) -> list:
+        """
+        Handles an input :py:class:`Query` instance.
+
+        Args:
+            query (Query): The handled query.
+
+        Returns:
+            The list of entries matching the input Query.
+        """
+
         super().query(query)
         if query.action != ACTION_READ:
             raise RuntimeError("Action not supported" % query.action)

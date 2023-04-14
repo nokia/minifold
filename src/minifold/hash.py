@@ -4,13 +4,22 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
+"""
+Internals to make hashable object that are not hashable.
+
+This is useful, e.g, in the :py:class:`UniqueConnector` class.
+"""
 
 def to_hashable(x):
+    """
+    Converts an object to an hashable ``tuple``.
+
+    Args:
+        x (object): The input object.
+
+    Returns:
+        The corresponding hashable object.
+    """
     return tuple(to_hashable(elt) for elt in x) if isinstance(x, (set, list)) \
       else tuple((to_hashable(k), to_hashable(v)) for k, v in x.items()) if isinstance(x, dict) \
       else x

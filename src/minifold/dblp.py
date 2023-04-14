@@ -4,33 +4,34 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob and Fabien Mathieu"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
+"""
+The DBLP Computer science bibliography provides open bibliographic information
+on major computer science journals and proceedings.
 
-# 1) API specs:
-#   https://wiki.inria.fr/lincs/Dblp-api
-#
-# Examples:
-#   https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json
-#   https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json
-#
-# 2) By default DBLP only returns up to 30 records. See:
-#   https://dblp.org/faq/How+to+use+the+dblp+search+API.html
-# The default limit in DblpConnector is set to 9999.
-#
-# 3) It is possible to query a specific researcher using its DBLP-ID.
-# The ID can be found by browsing the page related to a researcher.
-#
-# Example:
-#   https://dblp.uni-trier.de/pers/hd/c/Chen:Chung_Shue
-#   The DBLP ID can be obtained by clicking on the export bibliography icon.
-#
-# For the moment, only XML is supported by DBLP.
-#   https://dblp.org/pid/30/1446.xml
-#
+- `DBLP website <https://dblp.org/>`__
+- `API specs <https://wiki.inria.fr/lincs/Dblp-api>`__
+
+Some query examples:
+
+- ``https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json``
+- ``https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json``
+
+By default DBLP only returns up to 30 records (see
+`this link <https://dblp.org/faq/How+to+use+the+dblp+search+API.html>`__).
+
+The default limit in :py:class:`DblpConnector` is set to ``9999``.
+
+It is possible to query a specific researcher using its DBLP-ID.
+The ID can be found by browsing the page related to a researcher.
+
+Example:
+- https://dblp.uni-trier.de/pers/hd/c/Chen:Chung_Shue
+- The DBLP ID can be obtained by clicking on the export bibliography icon.
+
+For the moment, the only result format supported by DBLP is XML
+(see `this link <https://dblp.org/pid/30/1446.xml`__).
+"""
+
 try:
     import urllib3
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -91,7 +92,16 @@ DBLP_ALIASES = {
     "url"     : "dblp_url",
 }
 
-def to_canonic_fullname(s) -> str:
+def to_canonic_fullname(s: str) -> str:
+    """
+    Canonizes an author full name.
+
+    Args:
+        s (str): The input fullname.
+
+    Returns:
+        The canonizes fullname.
+    """
     # DBLP may now returns {"@pid" : int, "text" : "Firstname Lastname"}
     # instead of the author fullname.
     if isinstance(s, dict):
@@ -100,9 +110,12 @@ def to_canonic_fullname(s) -> str:
 
 class DblpConnector(Connector):
     """
-    :py:class:`DblpConnector` is a gateway to the DBLP website (repository of scientific
-    articles).
-    See also :py:class:`HalConnector`.
+    The :py:class:`DblpConnector` class is a minifold gateway allowing to
+    fetch data from DBLP (repository of scientific articles).
+
+    See also:
+    - :py:class:`HalConnector`.
+    - :py:class:`GoogleScholarConnector`.
     """
     def __init__(
         self,
@@ -140,7 +153,7 @@ class DblpConnector(Connector):
         in this :py:class:`DblpConnector` instance.
 
         Args:
-            object: The name of the minifold object.
+            object (str): The name of the minifold object.
                 As a :py:class:`DblpConnector` instance stores a single
                 collection, ``object`` is no relevant and you may pass ``None``.
 
@@ -322,7 +335,7 @@ class DblpConnector(Connector):
         :py:class:`Query` instance.
 
         Args:
-            query (Query): The minifold query.
+            query (Query): A :py:class:`Query` instance.
             entry (dict): The entry to reshape.
 
         Returns:
@@ -367,7 +380,7 @@ class DblpConnector(Connector):
         Extracts the minifold entries for a DBLP query result.
 
         Args:
-            query (Query): The minifold query.
+            query (Query): A :py:class:`Query` instance.
             results: The DBLP results.
 
         Returns:
@@ -414,7 +427,7 @@ class DblpConnector(Connector):
         Apply :py:meth:`DblpConnector.reshape_entry` to a list of entries.
 
         Args:
-            query (Query): The minifold query.
+            query (Query): A :py:class:`Query` instance.
             entries (list): A list of minifold entries.
 
         Returns:
@@ -506,7 +519,17 @@ class DblpConnector(Connector):
                     # - "co" : coauthors
                     # - "person" : information about the researcher
 
-                    def xml_to_entry(d :dict) -> dict:
+                    def xml_to_entry(d: dict) -> dict:
+                        """
+                        Converts a dictionary obtained from XML result returned
+                        by DBLP to a flat dictionary.
+
+                        Args:
+                            d: The DBLP dictionary.
+
+                        Returns:
+                            The corresponding flat dictionary.
+                        """
                         publication_type = next(iter(d.keys()))
                         entry = d[publication_type]
                         entry["type"] = publication_type

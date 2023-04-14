@@ -4,12 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 # ---------------------------------------------------------------------------------
 # Requests
 # ---------------------------------------------------------------------------------
@@ -105,18 +99,18 @@ def trim_http(url: str) -> str:
 
 # https://skipperkongen.dk/2016/09/09/easy-parallel-http-requests-with-python-and-asyncio/
 async def downloads_async(
-    urls :list,
-    timeout = DEFAULT_TIMEOUT,
-    return_exceptions :bool = True
+    urls: list,
+    timeout: tuple = DEFAULT_TIMEOUT,
+    return_exceptions: bool = True
 ):
     """
     Asynchronous download procedure.
 
     Args:
-        urls: An iterable over strings, each of them corresponding to an URL.
-        timeout: A tuple ``(float, float)`` corresponding to the
+        urls (list): An iterable over strings, each of them corresponding to an URL.
+        timeout (tuple): A tuple ``(float, float)`` corresponding to the
             (connect timeout, read timeout).
-        return_exceptions: Pass ``True`` if this function is allowed to raise
+        return_exceptions (bool): Pass ``True`` if this function is allowed to raise
             exceptions or must be quiet, ``False`` otherwise. Defaults to ``True``.
 
     Raises:
@@ -149,10 +143,10 @@ def downloads(*args) -> dict:
     See also :py:func:`request_cache` to enable caching.
 
     Args:
-        urls: An iterable over strings, each of them corresponding to an URL.
-        timeout: A tuple ``(float, float)`` corresponding to the
+        urls (list): An iterable over strings, each of them corresponding to an URL.
+        timeout (tuple): A tuple ``(float, float)`` corresponding to the
             (connect timeout, read timeout).
-        return_exceptions: Pass ``True`` if this function is allowed to raise
+        return_exceptions (bool): Pass ``True`` if this function is allowed to raise
             exceptions or must be quiet, ``False`` otherwise. Defaults to ``True``.
 
     Returns:
@@ -172,13 +166,14 @@ def downloads(*args) -> dict:
 # Minifold
 # ---------------------------------------------------------------------------------
 
-def extract_response(response, extract_text :bool = True):
+def extract_response(response: object, extract_text: bool = True) -> object:
     """
     Extracts from a response the corresponding contents or Exception.
 
     Args:
-        response: A requests.Response or an Exception instance.
-        extract_text: A bool indicating if text must be extracted
+        response (object): A :py:class:`requests.Response` or an
+            :py:class:`Exception` instance.
+        extract_text (bool): A bool indicating if text must be extracted
             from HTML.
 
     Returns:
@@ -197,25 +192,25 @@ class DownloadConnector(Connector):
     """
     def __init__(
         self,
-        map_url_out :dict,
-        child :Connector,
-        downloads = downloads,
-        extract_response = extract_response
+        map_url_out: dict,
+        child: Connector,
+        downloads :callable = downloads,
+        extract_response: callable = extract_response
         # TODO Pass downloads() parameters
     ):
         """
         Constructor.
 
         Args:
-            map_url_out: dict(str : str) entry attribute containing an URL to another
+            map_url_out (dict): dict(str : str) entry attribute containing an URL to another
                 entry attribute that will store the contents provided by this URL.
                 Example: ``{"url" : "html_content"}``
-            child: A child Connector.
-            downloads: ``Callback(urls) -> dict(url : content)`` where
+            child (Connector): The child Connector.
+            downloads (callable): ``Callback(urls) -> dict(url : content)`` where
                 urls is an iterable of URLs and where.
                 the returned dict maps each urls and the corresponding response.
                 Note: You could pass ``partial(download, ...)`` to customize the timeouts.
-            extract_response: ``Callback(response) -> str`` callback used to extract
+            extract_response (callable): ``Callback(response) -> str`` callback used to extract
                 data from an HTTP query.
         """
         super().__init__()
@@ -229,7 +224,7 @@ class DownloadConnector(Connector):
         Handles an input :py:class:`Query` instance..
 
         Args:
-            query: The input minifold query.
+            query: A :py:class:`Query` instance.
 
         Returns:
             The corresponding results.
@@ -283,10 +278,9 @@ class DownloadConnector(Connector):
         stored in this :py:class:`DownloadConnector` instance.
 
         Args:
-            object: The name of the collection of entries.
+            object (str): The name of the collection of entries.
 
         Returns:
             The set of available attributes for ``object``.
         """
-
         return set(self.child.attributes(object)) | set(self.map_url_out.values())

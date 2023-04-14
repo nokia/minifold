@@ -4,16 +4,10 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import sys
-from pprint     import pformat
-from .query     import Query
-from .log       import Log
+from pprint import pformat
+from .query import Query
+from .log import Log
 
 class Connector:
     """
@@ -21,6 +15,10 @@ class Connector:
     minifold.
 
     A minifold query plan is a hierarchy of :py:class:`Connector` instances.
+    This hierarchy forms a pipeline, where leaves corresponds to gateways to
+    some data sources and internal nodes to SQL-like operators or intermediate
+    caches.
+
     Running a query consists in sending a :py:class:`Query` instance to the root
     :py:class:`Connector` instance of the query plan.
     Then, each :py:class:`Connector` (possibly alters) and forwards
@@ -53,7 +51,7 @@ class Connector:
             Connector.subclasses[name] = cls
 
         @staticmethod
-        def get_class(name :str):
+        def get_class(name: str):
             cls = Connector.subclasses.get(name)
             if not cls:
                 raise RuntimeError(
@@ -64,7 +62,7 @@ class Connector:
                 )
             return cls
 
-    def query(self, query :Query) -> list:
+    def query(self, query: Query) -> list:
         """
         Handles an input :py:class:`Query` instance.
 
@@ -72,7 +70,7 @@ class Connector:
             query (Query): The handled query.
 
         Returns:
-            The list of entries matching the input Query.
+            The list of entries matching the input query.
         """
         if Connector.trace_queries:
             Log.debug("%r: --> %s" % (self, query))
@@ -82,24 +80,21 @@ class Connector:
         # return self.answer(query, entries)
         return list()
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
         """
-        Lists available attributes related to a given collection of object
-        stored in this :py:class:`Connector` instance.
+        Lists the available attributes related to a given collection of
+        minifold entries exposed by this :py:class:`Connector` instance.
 
         Args:
-            object: The name of the collection of entries. The supported objects
-                (if any) are specified in the specialized connector. If the
-                connector only manages a single object collection, you may
-                pass ``None``.
+            object (str): The name of the collection.
 
         Returns:
-            The set of available attributes for ``object``.
+            The set of corresponding attributes.
         """
         # Must be overwritten in child class if reshape_entries is needed
         raise NotImplementedError
 
-    def reshape_entries(self, query :Query, entries :list) -> list:
+    def reshape_entries(self, query: Query, entries: list) -> list:
         """
         Reshapes entries returned by :py:meth:`self.query` before calling
         :py:meth:`self.answer`.
@@ -108,8 +103,8 @@ class Connector:
         of query operators among ``{SELECT, WHERE, LIMIT, OFFSET}`` in SQL.
 
         Args:
-            query: The handled Query instance.
-            entries: The list of raw entries fetched so far, corresponding to
+            query (Query): The handled :py:class:`Query` instance.
+            entries (list): The list of raw entries fetched so far, corresponding to
                 ``SELECT * FROM foo LIMIT n WHERE n >= query.limit``.
 
         Returns:
@@ -138,7 +133,7 @@ class Connector:
                 ret.append(entry)
         return ret
 
-    def answer(self, query: Query, ret):
+    def answer(self, query: Query, ret: list):
         """
         Method traversed when this :py:class:`Connector` is ready to
         answer to a given :py:class:`Query`.
@@ -147,8 +142,8 @@ class Connector:
         the (complex) query plans.
 
         Args:
-            query: The related :py:class:`Query` instance.
-            ret: The corresponding results.
+            query (Query): The related :py:class:`Query` instance.
+            ret (list): The corresponding results.
         """
         if Connector.trace_entries or Connector.trace_only_keys:
             if isinstance(ret, list) and Connector.trace_only_keys and len(ret) > 0:

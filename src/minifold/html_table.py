@@ -14,25 +14,25 @@ from .log                   import Log
 from .entries_connector     import EntriesConnector
 
 class HtmlTableParser(HTMLParser):
-    def __init__(self, columns :list, output_list :list, keep_entry = None):
+    def __init__(self, columns: list, output_list: list, keep_entry: callable = None):
         """
         Constructor.
 
         Args:
-            columns: list of string mapping the attribute name
+            columns (list): A list of string mapping the attribute name
                 corresponding with the index. If data is fetch
                 for columns having a greater index than
                 len(columns), columns[-1] is used, and this
                 key may store a list of string values instead
                 of a single string. This allow to store data
                 stored among several columns in a single attribute.
-            output_list: reference to an output list where the
+            output_list (list): A reference to an output list where the
                 data will be output (one dict per row, one
                 key/value per column).
-            keep_entry: callback which determine whether an
-                must entry must be kept or discard. Pass None
+            keep_entry (callable): A callback which determines whether an
+                must entry must be kept or discarded. Pass ``None``
                 to filter nothing. This is the opportunity to
-                discard a header or irrelevant row.
+                discard a header or irrelevant rows.
         """
         HTMLParser.__init__(self)
         self.fetch_data = False
@@ -43,19 +43,35 @@ class HtmlTableParser(HTMLParser):
         self.value      = str()
         self.keep_entry = keep_entry
 
-    def attributes(self, object :str) -> set:
-        return set(self.columns)
-
     # Inherited abstract method
-    def error(self, message):
+    def error(self, message: str):
+        """
+        Logs an error message.
+
+        Args:
+            message (str): The error message.
+        """
         Log.error(message)
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag: str, attrs: str):
+        """
+        Callback that handles an opening HTML tag (e.g., ``"<td>"``).
+
+        Args:
+            tag (str): The HTML tag. _Example:_ ``"td"``.
+            attrs (str): The HTML tag attributes.
+        """
         if tag == "td":
             # Enable fetch data
             self.fetch_data = True
 
     def handle_endtag(self, tag):
+        """
+        Callback that handles an opening HTML tag (e.g., ``"</td>"``).
+
+        Args:
+            tag (str): The HTML tag. _Example:_ ``"td"``.
+        """
         if tag == "td":  # Push key/value
             # Disable fetch data
             self.fetch_data = False
@@ -84,12 +100,38 @@ class HtmlTableParser(HTMLParser):
             self.index = 0
             self.entry = dict()
 
-    def handle_data(self, data):
+    def handle_data(self, data: str):
+        """
+        Callback that handles an opening HTML data.
+
+        Args:
+            data (str): The HTML data (here, stored in a table cell).
+        """
         data = data.strip()
         if self.fetch_data and data:
             self.value += data
 
-def html_table(filename :str, columns :list, keep_entry = None) -> list:
+def html_table(filename: str, columns: list, keep_entry: bool = None) -> list:
+    """
+    Loads an HTML table from an input file
+
+    Args:
+        filename (str): The path to the input HTML file.
+        columns (list): A list of string mapping the attribute name
+            corresponding with the index. If data is fetch
+            for columns having a greater index than
+            len(columns), columns[-1] is used, and this
+            key may store a list of string values instead
+            of a single string. This allow to store data
+            stored among several columns in a single attribute.
+        keep_entry (callable): A callback which determines whether an
+            must entry must be kept or discarded. Pass ``None``
+            to filter nothing. This is the opportunity to
+            discard a header or irrelevant rows.
+
+    Returns:
+        The corresponding list of minifold entries.
+    """
     entries = list()
     parser = HtmlTableParser(columns, entries, keep_entry)
     with open(filename, "r") as f:
@@ -98,6 +140,10 @@ def html_table(filename :str, columns :list, keep_entry = None) -> list:
     return entries
 
 class HtmlTableConnector(EntriesConnector):
+    """
+    The :py:class:`HtmlTableConnector` class is a minifold gateway allowing
+    to fetch data stored in an HTML table.
+    """
     def __init__(self, filename :str, columns :list, keep_entry = None):
         """
         Constructor.
@@ -122,3 +168,18 @@ class HtmlTableConnector(EntriesConnector):
             s = f.read()
             self.m_parser.feed(s)
         super().__init__(self.m_entries)
+
+    def attributes(self, object: str = None) -> set:
+        """
+        Lists available attributes related to a given collection of
+        minifold entries exposed by this :py:class:`Connector` instance.
+
+        Args:
+            object (str): The name of the collection.
+                As this connector stores a single collection, you may pass ``None``.
+                Defaults to ``None``.
+
+        Returns:
+            The set of corresponding attributes.
+        """
+        return set(self.m_parser.columns)

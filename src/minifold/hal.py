@@ -4,11 +4,21 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
+"""
+The HAL Computer science bibliography provides open bibliographic information
+on major computer science journals and proceedings.
+
+- `HAL website <https://hal.archives-ouvertes.fr/>`__
+- `API specs <https://wiki.inria.fr/lincs/Hal-api>`__
+
+Some query examples:
+
+- ``https://api.archives-ouvertes.fr/search/?q=structId_i:(160294)&fq=producedDateY_i:[2012%20TO%20*]``
+- ``https://api.archives-ouvertes.fr/search/?q=*:*&fq=authFullName_s:(%22Fabien%20Mathieu%22)&fq=producedDateY_i:[2012%20TO%20*]&&fl=title_s&sort=submittedDate_tdate+desc&wt=json``
+- ``https://api.archives-ouvertes.fr/search/?q=structId_i:(160294)&fq=&rows=999&fl=keyword_s,producedDateY_i,authFullName_s,*itle_s,abstract_s,docType_s&sort=submittedDate_tdate+desc&wt=json``
+
+It is possible to query a specific researcher using its HAL-ID.
+"""
 
 import email.utils
 import json, operator
@@ -70,7 +80,29 @@ HAL_ALIASES = {
 }
 
 class HalConnector(Connector):
-    def __init__(self, map_hal_id :dict = None, map_hal_name :dict = None, hal_api_url = HAL_API_URL):
+    """
+    The :py:class:`DblpConnector` class is a minifold gateway allowing to
+    fetch data from DBLP (repository of scientific articles).
+
+    See also:
+    - :py:class:`DblpConnector`.
+    - :py:class:`GoogleScholarConnector`.
+    """
+    def __init__(
+        self,
+        map_hal_id: dict = None,
+        map_hal_name: dict = None,
+        hal_api_url: str = HAL_API_URL
+    ):
+        """
+        Constructor.
+
+        Args:
+            map_hal_id (dict): A dictionary that maps some
+                researcher names to their corresponding HAL-ID.
+            map_hal_name (dict): A dictionary that maps some
+                researcher names to their name in HAL.
+        """
         super().__init__()
         self.m_api_url      = hal_api_url
         self.m_format       = "json"
@@ -81,48 +113,119 @@ class HalConnector(Connector):
             for (name, hal_name) in self.m_map_hal_name.items()
         }
 
-    def attributes(self, object :str):
+    def attributes(self, object: str) -> set:
+        """
+        Lists available attributes related to a given collection of
+        minifold entries exposed by this :py:class:`Connector` instance.
+
+        Args:
+            object (str): The name of the collection.
+
+        Returns:
+            The set of corresponding attributes.
+        """
         return HAL_ALIASES.keys() | {"doc_type"}
 
     @property
     def api_url(self) -> str:
+        """
+        Retrieves the HAL repository URL
+        of this :py:class:`HalConnector` instance.
+
+        Returns:
+            The HAL repository URL.
+        """
         return self.m_api_url
 
     @property
     def format(self) -> str:
+        """
+        Retrieves the format of the HAL results
+        of this :py:class:`HalConnector` instance.
+
+        Returns:
+            The format of the HAL results (e.g., ``"json"``).
+        """
         return self.m_format
 
     @property
     def map_hal_id(self) -> dict:
+        """
+        Retrieves the dictionary mapping researcher names to
+        the corresponding HAL ID
+        of this :py:class:`HalConnector` instance.
+
+        Returns:
+            The dictionary mapping researcher names to
+            the corresponding HAL ID
+            of this :py:class:`HalConnector` instance.
+        """
         return self.m_map_hal_id
 
     @property
     def map_hal_name(self) -> dict:
+        """
+        Retrieves the dictionary mapping researcher names to
+        the corresponding HAL name
+        of this :py:class:`HalConnector` instance.
+
+        Returns:
+            The dictionary mapping researcher names to
+            the corresponding HAL name
+            of this :py:class:`HalConnector` instance.
+        """
         return self.m_map_hal_name
 
     @staticmethod
-    def quote(s) -> str:
+    def quote(s: str) -> str:
+        """
+        Quotes a string to encode it in an HAL URL.
+
+        Args:
+            s (str): The string to be quoted.
+
+        Returns:
+            The quoted string.
+        """
         return "%%22%s%%22" % s
 
     @staticmethod
-    def string_to_hal(s) -> str:
+    def string_to_hal(s: str) -> str:
+        """
+        Converts an abritary string to its corresponding HAL URL string.
+
+        Args:
+            s (str): The input string.
+
+        Returns:
+            The converted string.
+        """
         # From /usr/lib/python3/dist-packages/urllib3/fields.py, see format_header_param
         s = email.utils.encode_rfc2231(s, 'utf-8').split("'")[2]
         return HalConnector.quote(s)
 
     @staticmethod
     def binary_predicate_to_hal(p :BinaryPredicate) -> str:
+        """
+        Converts a minifold predicate to the corresponding HAL URL predicate.
+
+        Args:
+            p (BinaryPredicate): The minifold predicate.
+
+        Returns:
+            The corresponding HAL URL predicate.
+        """
         if p.operator == operator.__and__:
             return "&fq=".join([
                 HalConnector.binary_predicate_to_hal(p.left),
                 HalConnector.binary_predicate_to_hal(p.right)
             ])
         if isinstance(p.left, BinaryPredicate):
-            raise RuntimeError("binary_predicate_to_hal: Invalid left operand in %s: nested clauses not supported" % p)
+            raise RuntimeError(f"Invalid left operand in {p}: nested clauses not supported")
         if isinstance(p.right, BinaryPredicate):
-            raise RuntimeError("binary_predicate_to_hal: Invalid right operand in %s: nested clauses not supported" % p)
+            raise RuntimeError(f"Invalid right operand in {p}: nested clauses not supported")
         if not isinstance(p.left, str):
-            raise RuntimeError("binary_predicate_to_hal: left operand of %s must be a string" % p)
+            raise RuntimeError(f"Left operand of {p} must be a string")
 
         right = p.right
         if isinstance(right, str):
@@ -144,13 +247,22 @@ class HalConnector(Connector):
             (start, end) = right
             ret = "%s:[%s TO %s]" % (p.left, start, end)
         else:
-            raise RuntimeError("binary_predicate_to_hal: unsupported operator (%s): %s" % (p.operator, p))
+            raise RuntimeError("Unsupported operator (%s): %s" % (p.operator, p))
 
         # Space in HAL operators must also be replaced
         return ret.replace(" ", "%20")
 
     @staticmethod
-    def sanitize_dict(d :dict) -> dict:
+    def sanitize_dict(d: dict) -> dict:
+        """
+        Reshapes a dictionary obtained from a JSON HAL result.
+
+        Args:
+            d (dict): The JSON HAL dictionary.
+
+        Returns:
+            The reshape dictionary.
+        """
         for k, v in d.items():
             if isinstance(v, list):
                 if len(v) == 1:
@@ -161,6 +273,16 @@ class HalConnector(Connector):
 
     @staticmethod
     def to_doc_type(s :str) -> DocType:
+        """
+        Converts a HAL document type to the corresponding
+        :py:class:`DocType` value.
+
+        Args:
+            s (str): The HAL document type.
+
+        Returns:
+            THe corresponding :py:class:`DocType` value.
+        """
         ret = DocType.UNKNOWN
 
         # TODO: use dict()
@@ -195,7 +317,16 @@ class HalConnector(Connector):
 
         return ret
 
-    def sanitize_entry(self, entry :dict) -> dict:
+    def sanitize_entry(self, entry: dict) -> dict:
+        """
+        Reshapes a raw minifold entry related to HAL.
+
+        Args:
+            entry (dict): The input minifold entry.
+
+        Returns:
+            The reshaped minifold entry.
+        """
         entry = HalConnector.sanitize_dict(entry)
         keys = entry.keys()
 
@@ -234,9 +365,27 @@ class HalConnector(Connector):
         return entry
 
     def sanitize_entries(self, entries :list) -> list:
+        """
+        Reshapes a collection of raw minifold entries related to HAL.
+
+        Args:
+            entries (dict): The input minifold entries.
+
+        Returns:
+            The reshaped minifold entries.
+        """
         return [self.sanitize_entry(entry) for entry in entries]
 
-    def query_to_hal(self, q :Query) -> str:
+    def query_to_hal(self, q: Query) -> str:
+        """
+        Converts a minifold query to a HAL URL query.
+
+        Args:
+            q (Query): The minifold query.
+
+        Returns:
+            The corresponding HAL URL.
+        """
         if q.action != ACTION_READ:
             raise ValueError("query_to_hal: Unsupported action %s" % q.action)
         if len(q.attributes) > 0:
@@ -310,7 +459,16 @@ class HalConnector(Connector):
         }
         return q_hal
 
-    def query(self, q :Query) -> list:
+    def query(self, q: Query) -> list:
+        """
+        Handles an input :py:class:`Query` instance.
+
+        Args:
+            query (Query): The handled query.
+
+        Returns:
+            The list of entries matching the input query.
+        """
         super().query(q)
         entries = list()
         if q.action == ACTION_READ:

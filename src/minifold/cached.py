@@ -4,19 +4,13 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import json, os, pickle
-from functools          import partial
-from .cache             import DEFAULT_CACHE_STORAGE_BASE_DIR
+from functools import partial
+from .cache import DEFAULT_CACHE_STORAGE_BASE_DIR
 from .entries_connector import EntriesConnector
-from .filesystem        import mkdir
-from .cache             import JsonCacheConnector
-from .log               import Log
+from .filesystem import mkdir
+from .cache import JsonCacheConnector
+from .log import Log
 
 class CachedEntriesConnector(EntriesConnector):
     """

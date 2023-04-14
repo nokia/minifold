@@ -4,19 +4,49 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 class ValuesFromDictFonctor:
-    def __init__(self, attributes :list):
+    """
+    The :py:class:`ValuesFromDictFonctor` class is an
+    internal minifold fonctor used to extract a subset of values
+    from a dictionary.
+
+    It is used by several minifold :py:class:`Connector` classes,
+    including:
+
+    - :py:class:`GroupByConnector`
+    - :py:class:`SortByConnector`
+    - :py:class:`UniqueConnector`
+    """
+    def __init__(self, attributes: list):
+        """
+        Constructor.
+
+        Args:
+            attributes (list): The keys of the values to be extracted.
+        """
         self.m_attributes = attributes
 
     @property
     def attributes(self) -> list:
+        """
+        Retrieves the keys of interest related to this
+        :py:class:`ValuesFromDictFonctor` instance.
+
+        Args:
+            The attributes of interest related to this
+            :py:class:`ValuesFromDictFonctor` instance.
+        """
         return self.m_attributes
 
-    def __call__(self, entry :dict) -> tuple:
+    def __call__(self, entry: dict) -> tuple:
+        """
+        Applies this py:class:`ValuesFromDictFonctor` instance
+        to an input dictionary.
+
+        Args:
+            entry (dict): An input dictionary.
+
+        Returns:
+            The extracted values of interest.
+        """
         return tuple(entry.get(k) for k in self.attributes)

@@ -4,21 +4,15 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 """
 This file gathers some useful function to get and display
 some entries from an abitrary :py:class:`Connector` instance.
 """
 
 from .connector import Connector
-from .html      import html
-from .query     import Query
-from .unique    import UniqueConnector
+from .html import html
+from .query import Query
+from .unique import UniqueConnector
 
 def get_values(connector: Connector, attribute: str) -> list:
     """
@@ -49,7 +43,7 @@ def show_some_values(
     query :Query = None
 ):
     """
-    Display in Jupyter notebook some values for each attribute of the entries
+    Displays in Jupyter notebook some values for each attribute of the entries
     served by a given :py:class:`Connector` instance.
     This is useful to discover a dataset.
 

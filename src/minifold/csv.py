@@ -4,18 +4,12 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import io, csv
-from enum       import IntEnum
+from enum import IntEnum
 
 from .connector import Connector
-from .query     import Query, ACTION_READ, action_to_str
-from .log       import Log
+from .query import Query, ACTION_READ, action_to_str
+from .log import Log
 
 class CsvModeEnum(IntEnum):
     """
@@ -31,6 +25,10 @@ class CsvModeEnum(IntEnum):
         return s[i + 1:]
 
 class CsvConnector(Connector):
+    """
+    The :py:class:`CsvConnector` is a minifold gateway allowing to manipulate
+    data stored in CSV file.
+    """
     def __init__(
         self,
         data: str,
@@ -88,7 +86,7 @@ class CsvConnector(Connector):
         in this :py:class:`CsvConnector` instance.
 
         Args:
-            object: The name of the minifold object.
+            object (str): The name of the minifold object.
                 As a :py:class:`CsvConnector` instance stores a single
                 collection, ``object`` is no relevant and you may pass ``None``.
 

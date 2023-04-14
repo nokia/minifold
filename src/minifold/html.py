@@ -4,29 +4,46 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
+"""
+This file gathers some utilities to process, render, or make HTML
+strings in minifold.
+"""
 
 import re, sys
-from html       import escape
+from html import escape
 from .connector import Connector
-from .query     import Query
+from .query import Query
 
-PATTERN_URL = re.compile("http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+# Regular expression matching an URL
+PATTERN_URL = re.compile(
+    "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+)
 
-def str_to_html(s :str) -> str:
-    return s.rstrip(".").rstrip(",")
+#def to_html_link(d: dict, k: str, v: str) -> str:
+#    try:
+#        return "<a href=\"%s\">%s</a>" % (d[k], escape(v))
+#    except KeyError:
+#        return v
 
-def to_html_link(d :dict, k :str, v :str) -> str:
-    try:
-        return "<a href=\"%s\">%s</a>" % (d[k], escape(v))
-    except KeyError:
-        return v
+def value_to_html(x: object) -> str:
+    """
+    Converts a value to its corresponding HTML string.
 
-def value_to_html(x) -> str:
+    Args:
+        x (object): The input value.
+
+    Returns:
+        The corresponding HTML string.
+    """
+    def str_to_html(s :str) -> str:
+        """
+        Right-strips ``"."`` and ``","`` from a string.
+
+        Args:
+            s (str): The input string.
+        """
+        return s.rstrip(".").rstrip(",")
+
     if isinstance(x, dict):
         ret = dict_to_html(x, x.keys())
     elif isinstance(x, str):
@@ -42,7 +59,7 @@ def value_to_html(x) -> str:
 
 def html(s :str):
     """
-    Evaluate HTML code in a Jupyter Notebook.
+    Evaluates HTML code in a Jupyter Notebook.
 
     Args:
         s: A str containing HTML code.
@@ -54,13 +71,12 @@ def html(s :str):
 
 def print_error(x: object):
     """
-    Print an error in a Jupyter Notebook.
+    Prints an error in a Jupyter Notebook.
 
     Args:
         x: An expection.
     """
     print(str(x), file = sys.stderr)
-
 
 def entries_to_html(
     entries :list,
@@ -69,7 +85,7 @@ def entries_to_html(
     keep_entry_if :callable = None
 ) -> str:
     """
-    Export to HTML a list of dict.
+    Exports to HTML a list of dict.
 
     Args:
         entries: A list of dicts

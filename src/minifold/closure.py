@@ -4,13 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
-
 def is_multiple_key(key: object) -> bool:
     """
     Checks whether a key is a multiple key (i.e., a key involving
@@ -100,7 +93,7 @@ try:
         """
         return (source(e, g), target(e, g))
 
-    def minimal_cover_graph(g :DirectedGraph) -> set:
+    def minimal_cover_graph(g: DirectedGraph) -> set:
         """
         Computes the minimal cover set of functional dependencies
         given a graph where each vertex corresponding to an attribute

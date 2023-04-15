@@ -7,7 +7,7 @@ Depending on your preferences, you may install the dependencies through APT, or 
 
 ```bash
 sudo apt update
-sudo apt install git graphviz python3 python3-notebook python3-numpy python3-pytest
+sudo apt install git python3 python3-pytest
 ```
 
 * If you are a developer, please also install the APT dependencies:

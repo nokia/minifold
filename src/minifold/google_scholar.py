@@ -176,6 +176,9 @@ class MinifoldScholarQuerier(ScholarQuerier):
 
         Args:
             gs_query (ScholarQuery): A Google scholar query.
+
+        Raises:
+            ``RuntimeError`` if the result can't be fetched from Google scholar.
         """
         # Network
         url = gs_query.get_url()
@@ -187,10 +190,12 @@ class MinifoldScholarQuerier(ScholarQuerier):
         s_html = response.text
 
         # Parsing
-        assert s_html
-        self.parse(s_html)
-        self.articles = list()
-        self.parse(s_html)
+        if s_html:
+            self.parse(s_html)
+            self.articles = list()
+            self.parse(s_html)
+        else:
+            raise RuntimeError("Cannot fetch result from Google scholar")
 
 
 class GoogleScholarConnector(Connector):

@@ -24,7 +24,8 @@ sudo pip3 install sphinx_mdinclude --break-system-packages
 * Install [jupyter](https://jupyter.org/install).
 * Install [graphviz](https://jupyter.org/install).
 
-# Installation from PIP
+# Installation
+## From PIP
 
 There are several possible ways to install the package:
 
@@ -44,7 +45,7 @@ deactivate               # Leave the  "env" virtual environment
 sudo pip3 install minifold --break-system-packages
 ```
 
-# Installation from sources
+## From git
 
 * Clone the repository and install the package:
 

@@ -1,6 +1,6 @@
 ## Development Lead
 
-* Marc-Olivier Buob <[marc-olivier.buob@nokia-bell-labs.com](marc-olivier.buob@nokia-bell-labs.com)>
+* [Marc-Olivier Buob](https://www.bell-labs.com/about/researcher-profiles/marc-olivier-buob/) <[marc-olivier.buob@nokia-bell-labs.com](marc-olivier.buob@nokia-bell-labs.com)>
 
 ## Contributors
 

@@ -26,6 +26,10 @@ def count(entries: list) -> int:
     """
     Count the number of entries.
 
+    Example:
+        >>> count([{"a": 10}, {"a": 20}])
+        2
+
     Args:
         entries (list): A list of entries.
 
@@ -37,7 +41,7 @@ def count(entries: list) -> int:
 class CountConnector(Connector):
     """
     The :py:class:`CountConnector` class is used to implement the COUNT
-    SQL operator in a minifold query plan. As it is one of the rare
+    statement in a minifold query plan. As it is one of the rare
     connector returning an integer (instead of a list of entries) this
     is often the root connector in the tree modeling the minifold query plan.
     """

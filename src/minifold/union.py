@@ -4,15 +4,9 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
-from itertools  import chain
+from itertools import chain
 from .connector import Connector
-from .query     import Query, ACTION_READ
+from .query import Query, ACTION_READ
 
 def union_gen(list_entries: list) -> iter:
     """
@@ -40,11 +34,33 @@ def union(list_entries: list) -> list:
     return [entry for entry in union_gen(list_entries)]
 
 class UnionConnector(Connector):
-    def __init__(self, children :list):
+    """
+    The :py:class:`UnionConnector` class implements the UNION
+    statement in a minifold pipeline.
+    """
+    def __init__(self, children: list):
+        """
+        Constructor.
+
+        Args:
+            child (Connector): The list of children
+                minifold :py:class:`Connector` instances.
+        """
+
         super().__init__()
         self.children = children
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
+        """
+        Lists the available attributes related to a given collection of
+        minifold entries exposed by this :py:class:`WhereConnector` instance.
+
+        Args:
+            object (str): The name of the collection.
+
+        Returns:
+            The set of corresponding attributes.
+        """
         attrs = set()
         for child in self.children:
             try:
@@ -54,6 +70,15 @@ class UnionConnector(Connector):
         return attrs
 
     def query(self, query :Query) -> list:
+        """
+        Handles an input :py:class:`Query` instance.
+
+        Args:
+            query (Query): The handled query.
+
+        Returns:
+            The list of entries matching the input query.
+        """
         super().query(query)
         if query.action != ACTION_READ:
             raise ValueError("Invalid action in query %s" % query)

@@ -4,14 +4,14 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from .connector             import Connector
-from .query                 import Query
+from .connector import Connector
+from .query import Query
 
 """
-This file gather the function and classes related the joins supported
-in minifold, excepted the natural join and corresponding in SQL to
-the ``INNER JOIN``, ``LEFT JOIN``, ``RIGHT JOIN``
-and ``FULL OUTER JOIN`` statements.
+This file gathers the functions and the classes related the joins supported
+in minifold (excepted the natural join) corresponding in SQL to
+the INNER JOIN, LEFT JOIN, RIGHT JOIN
+and FULL OUTER JOIN statements.
 
 `This schema <http://4.bp.blogspot.com/-_HsHikmChBI/VmQGJjLKgyI/AAAAAAAAEPw/JaLnV0bsbEo/s1600/sql%2Bjoins%2Bguide%2Band%2Bsyntax.jpg>` recalls their meaning.
 
@@ -20,9 +20,9 @@ See also:
 - the :py:func:`natural_join` function.
 """
 
-INNER_JOIN      = 1  # Returns matching records
-LEFT_JOIN       = 2  # Returns left entries + matching right entries (=> right attributes may be None)
-RIGHT_JOIN      = 3  # Returns right entries + matching left entries (=> left attributes may be None)
+INNER_JOIN = 1  # Returns matching records
+LEFT_JOIN = 2  # Returns left entries + matching right entries (=> right attributes may be None)
+RIGHT_JOIN = 3  # Returns right entries + matching left entries (=> left attributes may be None)
 FULL_OUTER_JOIN = 4  # Returns left and right entries while merging matching entries
 
 def merge_dict(l :dict, r :dict) -> dict:
@@ -93,7 +93,7 @@ def inner_join_if(
     merge: callable = merge_dict
 ) -> list:
     """
-    Computes the ``INNER JOIN`` of two lists of minifold entries.
+    Computes the INNER JOIN of two lists of minifold entries.
 
     Args:
         l_entries (dict): The minifold entries corresponding to the left operand.
@@ -126,7 +126,7 @@ def left_join_if(
     merge = merge_dict
 ) -> list:
     """
-    Computes the ``LEFT JOIN`` of two lists of minifold entries.
+    Computes the LEFT JOIN of two lists of minifold entries.
 
     Args:
         l_entries (dict): The minifold entries corresponding to the left operand.
@@ -166,7 +166,7 @@ def left_join_if(
 
 def right_join_if(l_entries :list, r_entries :list, f, match_once = True) -> list:
     """
-    Computes the ``RIGHT JOIN`` of two lists of minifold entries.
+    Computes the RIGHT JOIN of two lists of minifold entries.
 
     Args:
         l_entries (dict): The minifold entries corresponding to the left operand.
@@ -185,7 +185,7 @@ def right_join_if(l_entries :list, r_entries :list, f, match_once = True) -> lis
 
 def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -> list:
     """
-    Computes the ``FULL OUTER JOIN`` of two lists of minifold entries.
+    Computes the FULL OUTER JOIN of two lists of minifold entries.
 
     Args:
         l_entries (dict): The minifold entries corresponding to the left operand.
@@ -228,8 +228,8 @@ def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -
 class JoinIfConnector(Connector):
     """
     The :py:class:`JoinIfConnector` is a minifold connector that implements
-    the ``INNER JOIN``, ``LEFT JOIN``, ``RIGHT JOIN``
-    and ``FULL OUTER JOIN`` statements in a minifold pipeline.
+    the INNER JOIN, LEFT JOIN, RIGHT JOIN
+    and FULL OUTER JOIN statements in a minifold pipeline.
     """
     def __init__(
         self,
@@ -246,11 +246,10 @@ class JoinIfConnector(Connector):
             right (Connector): The right :py:class:`Connector` child.
             join_if (callable): The callback implementing the join criterion.
             mode (int): The type of join. The valid values are:
-
-                - :py:data:`INNER_JOIN`
-                - :py:data:`LEFT_JOIN`
-                - :py:data:`RIGHT_JOIN`
-                - :py:data:`FULL_OUTER_JOIN`
+                :py:data:`INNER_JOIN`,
+                :py:data:`LEFT_JOIN`,
+                :py:data:`RIGHT_JOIN`,
+                :py:data:`FULL_OUTER_JOIN`.
         """
         super().__init__()
         self.m_left = left
@@ -271,8 +270,10 @@ class JoinIfConnector(Connector):
         Returns:
             The set of corresponding attributes.
         """
-        return self.m_left.attributes(object) \
-             | self.m_right.attributes(object)
+        return (
+            self.m_left.attributes(object) |
+            self.m_right.attributes(object)
+        )
 
     def query(self, query: Query) -> list:
         """
@@ -283,6 +284,7 @@ class JoinIfConnector(Connector):
 
         Raises:
             :py:class:`ValueError` if :py:attr:`self.m_mode` is not valid.
+
         Returns:
             The list of entries matching the input query.
         """

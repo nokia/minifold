@@ -4,12 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Dylan Sellar"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 from .binary_predicate    import BinaryPredicate
 from .connector           import Connector
 from .query               import Query, ACTION_READ
@@ -27,21 +21,67 @@ except ImportError as e:
     raise e
 
 class MongoConnector(Connector):
-    def __init__(self, mongo_url :str, db_name :str):
+    """
+    The :py:class:`MongoConnector` is a minifold gateway allowing
+    to manipulate data stored in a Mongo database.
+    """
+    def __init__(self, mongo_url: str, db_name: str):
+        """
+        Constructor.
+
+        Args:
+            mongo_url (str): The URL of the mongo database.
+            db_name (str): The name of the queried database.
+        """
         self.client = self.connect(mongo_url)
         self.db_name = db_name
         self.use_database(db_name)
 
-    def connect(self, mongo_url :str) -> MongoClient:
+    def connect(self, mongo_url: str) -> MongoClient:
+        """
+        Connects to a Mongo database.
+
+        Args:
+            mongo_url (str): The URL of the mongo database.
+
+        Returns:
+            The corresponding :py:class`MongoClient` instance.
+        """
         return MongoClient(mongo_url)
 
-    def use_database(self, db_name :str):
+    def use_database(self, db_name: str):
+        """
+        Selects the active database.
+
+        Args:
+            db_name (str): The name of the queried database.
+        """
         self.db = self.client[db_name]
 
-    def attributes(self, obj :str = None) -> set:
+    def attributes(self, obj: str = None) -> set:
+        """
+        Lists the available attributes related to a given collection of
+        minifold entries exposed by this :py:class:`MongoConnector` instance.
+
+        Args:
+            object (str): The name of the collection.
+
+        Returns:
+            The set of corresponding attributes.
+        """
+
         return set()
 
-    def query(self, query :Query) -> list:
+    def query(self, query: Query) -> list:
+        """
+        Handles an input :py:class:`Query` instance.
+
+        Args:
+            query (Query): The handled query.
+
+        Returns:
+            The list of entries matching the input query.
+        """
         super().query(query)
         ret = list()
         assert self.db
@@ -49,7 +89,7 @@ class MongoConnector(Connector):
             ret = list(
                 self.db[query.object].find(
                     {},
-                    {attr : 1 for attr in query.attributes} if query.attributes else None
+                    {attr:  1 for attr in query.attributes} if query.attributes else None
                 )
                     .limit(query.limit if query.limit else 0)
                     .skip(query.offset if query.offset else 0)

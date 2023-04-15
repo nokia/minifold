@@ -9,14 +9,14 @@ from .hash import to_hashable
 from .query import Query
 from .values_from_dict import ValuesFromDictFonctor
 
-def group_by_impl(fonctor: ValuesFromDictFonctor, entries: list) -> dict:
+def group_by_impl(functor: ValuesFromDictFonctor, entries: list) -> dict:
     """
     Implementation details of :func:`group_by`.
 
     Args:
-        fonctor (ValuesFromDictFonctor): The fonctor allowing to extract
+        functor (ValuesFromDictFonctor): The functor allowing to extract
             the values used to form the aggregates.
-        entries (list): A list of minifold entries
+        entries (list): A list of minifold entries.
 
     Returns:
         A dictionary where each key identifies an aggregate and is mapped
@@ -24,7 +24,7 @@ def group_by_impl(fonctor: ValuesFromDictFonctor, entries: list) -> dict:
     """
     ret = dict()
     for entry in entries:
-        key = fonctor(entry)
+        key = functor(entry)
         if len(key) == 1:
             (key,) = key
         key = to_hashable(key)
@@ -35,7 +35,7 @@ def group_by_impl(fonctor: ValuesFromDictFonctor, entries: list) -> dict:
 
 def group_by(attributes: list, entries: list) -> dict:
     """
-    Implements the ``GROUP BY`` SQL statement for a list of minifold entries.
+    Implements the GROUP BY statement for a list of minifold entries.
 
     Args:
         attributes (list): The list of entry keys used to form the aggregates.
@@ -45,12 +45,12 @@ def group_by(attributes: list, entries: list) -> dict:
         A dictionary where each key identifies an aggregate and is mapped
         to the corresponding entries.
     """
-    fonctor = ValuesFromDictFonctor(attributes)
-    return group_by_impl(fonctor, entries)
+    functor = ValuesFromDictFonctor(attributes)
+    return group_by_impl(functor, entries)
 
 class GroupByConnector(Connector):
     """
-    The :py:class:`GroupByConnector` class implements the ``GROUP BY`` SQL
+    The :py:class:`GroupByConnector` class implements the GROUP BY
     statement in a minifold pipeline.
     """
     def __init__(self, attributes: list, child: Connector):
@@ -64,7 +64,7 @@ class GroupByConnector(Connector):
                 instance.
         """
         super().__init__()
-        self.m_fonctor = ValuesFromDictFonctor(attributes)
+        self.m_functor = ValuesFromDictFonctor(attributes)
         self.m_child = child
 
     @property
@@ -88,7 +88,7 @@ class GroupByConnector(Connector):
         Returns:
             The set of corresponding attributes.
         """
-        return set(self.m_fonctor.attributes)
+        return set(self.m_functor.attributes)
 
     def query(self, q: Query) -> list:
         """
@@ -104,7 +104,7 @@ class GroupByConnector(Connector):
         return self.answer(
             q,
             group_by_impl(
-                self.m_fonctor,
+                self.m_functor,
                 self.m_child.query(q)
             )
         )
@@ -118,4 +118,4 @@ class GroupByConnector(Connector):
             The string representation of this
             :py:class:`GroupByConnector` instance
         """
-        return "GROUP BY %s" % ", ".join(self.m_fonctor.attributes)
+        return "GROUP BY %s" % ", ".join(self.m_functor.attributes)

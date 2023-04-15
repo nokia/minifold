@@ -29,14 +29,14 @@ except ImportError as e:
 import asyncio, datetime, re
 import concurrent.futures
 
-from copy              import deepcopy
-from functools         import partial
-from .connector        import Connector
-from .query            import ACTION_READ, Query
-from .html             import html_to_text
-from .log              import Log
-from .proxy            import make_session
-from .request_cache    import install_cache
+from copy import deepcopy
+from functools import partial
+from .connector import Connector
+from .query import ACTION_READ, Query
+from .html import html_to_text
+from .log import Log
+from .proxy import make_session
+from .request_cache import install_cache
 
 DEFAULT_TIMEOUT = (1.0, 2.0)    # (connect timeout, read timeout)
 # DEFAULT_TIMEOUT = (0.5, 1.0)  # (connect timeout, read timeout)

@@ -7,15 +7,15 @@
 class ValuesFromDictFonctor:
     """
     The :py:class:`ValuesFromDictFonctor` class is an
-    internal minifold fonctor used to extract a subset of values
+    internal minifold functor used to extract a subset of values
     from a dictionary.
 
     It is used by several minifold :py:class:`Connector` classes,
     including:
 
-    - :py:class:`GroupByConnector`
-    - :py:class:`SortByConnector`
-    - :py:class:`UniqueConnector`
+    - :py:class:`GroupByConnector`;
+    - :py:class:`SortByConnector`;
+    - :py:class:`UniqueConnector`.
     """
     def __init__(self, attributes: list):
         """
@@ -32,7 +32,7 @@ class ValuesFromDictFonctor:
         Retrieves the keys of interest related to this
         :py:class:`ValuesFromDictFonctor` instance.
 
-        Args:
+        Returns:
             The attributes of interest related to this
             :py:class:`ValuesFromDictFonctor` instance.
         """

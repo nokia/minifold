@@ -8,14 +8,14 @@
 The HAL Computer science bibliography provides open bibliographic information
 on major computer science journals and proceedings.
 
-- `HAL website <https://hal.archives-ouvertes.fr/>`__
+- `HAL website <https://hal.archives-ouvertes.fr>`__
 - `API specs <https://wiki.inria.fr/lincs/Hal-api>`__
 
 Some query examples:
 
-- ``https://api.archives-ouvertes.fr/search/?q=structId_i:(160294)&fq=producedDateY_i:[2012%20TO%20*]``
-- ``https://api.archives-ouvertes.fr/search/?q=*:*&fq=authFullName_s:(%22Fabien%20Mathieu%22)&fq=producedDateY_i:[2012%20TO%20*]&&fl=title_s&sort=submittedDate_tdate+desc&wt=json``
-- ``https://api.archives-ouvertes.fr/search/?q=structId_i:(160294)&fq=&rows=999&fl=keyword_s,producedDateY_i,authFullName_s,*itle_s,abstract_s,docType_s&sort=submittedDate_tdate+desc&wt=json``
+- `Retrieves LINCS publication since 2012 <https://api.archives-ouvertes.fr/search/?q=structId_i:(160294)&fq=producedDateY_i:[2012%20TO%20*]>`
+- `Retrieves articles authored by Fabien Mathieu since 2012<https://api.archives-ouvertes.fr/search/?q=*:*&fq=authFullName_s:(%22Fabien%20Mathieu%22)&fq=producedDateY_i:[2012%20TO%20*]&&fl=title_s&sort=submittedDate_tdate+desc&wt=json>`
+- `Retrieves LINCS publication in JSON for a subset of attributes, sorted from the newest one to the oldest one <https://api.archives-ouvertes.fr/search/?q=structId_i:(160294)&fq=&rows=999&fl=keyword_s,producedDateY_i,authFullName_s,*itle_s,abstract_s,docType_s&sort=submittedDate_tdate+desc&wt=json>`
 
 It is possible to query a specific researcher using its HAL-ID.
 """
@@ -23,13 +23,13 @@ It is possible to query a specific researcher using its HAL-ID.
 import email.utils
 import json, operator
 
-from .binary_predicate      import BinaryPredicate, __in__
-from .connector             import Connector
-from .doc_type              import DocType
-from .download              import download
-from .log                   import Log
-from .strings               import to_canonic_fullname
-from .query                 import Query, ACTION_READ, SORT_ASC
+from .binary_predicate import BinaryPredicate, __in__
+from .connector import Connector
+from .doc_type import DocType
+from .download import download
+from .log import Log
+from .strings import to_canonic_fullname
+from .query import Query, ACTION_READ, SORT_ASC
 
 # Default HAL API queried
 HAL_API_URL = "https://api.archives-ouvertes.fr/search"

@@ -50,7 +50,7 @@ class ForEachFilter:
 
     def __call__(self, entry: dict) -> bool:
         """
-        Fonctor method, filtering each sub-entry filtered
+        Functor method, filtering each sub-entry filtered
         by this :py:class:`ForEachFilter`.
 
         Args:

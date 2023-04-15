@@ -13,8 +13,8 @@ on major computer science journals and proceedings.
 
 Some query examples:
 
-- ``https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json``
-- ``https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json``
+- `Retrieves articles authored by Fabien Mathieu, in JSON format <https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu&h=500&format=json>`
+- `Retrieves articles authored by Fabien Mathieu pubished in 2014, in JSON format <https://dblp.dagstuhl.de/search/publ/api?q=fabien-mathieu%20year:2014&h=500&format=json>`
 
 By default DBLP only returns up to 30 records (see
 `this link <https://dblp.org/faq/How+to+use+the+dblp+search+API.html>`__).
@@ -25,11 +25,12 @@ It is possible to query a specific researcher using its DBLP-ID.
 The ID can be found by browsing the page related to a researcher.
 
 Example:
-- https://dblp.uni-trier.de/pers/hd/c/Chen:Chung_Shue
+- `Query using the DBLP name <https://dblp.uni-trier.de/pers/hd/c/Chen:Chung_Shue>`
+- `Query using the DBLP ID <https://dblp.org/pid/30/1446>`
 - The DBLP ID can be obtained by clicking on the export bibliography icon.
 
 For the moment, the only result format supported by DBLP is XML
-(see `this link <https://dblp.org/pid/30/1446.xml`__).
+(see `this link <https://dblp.org/pid/30/1446.xml>`__).
 """
 
 try:
@@ -72,15 +73,16 @@ except ImportError as e:
     )
     raise e
 
-import json, operator
+import json
+import operator
 from pprint import pformat
 
-from .binary_predicate      import BinaryPredicate
-from .connector             import Connector
-from .doc_type              import DocType
-from .log                   import Log
-from .strings               import to_international_string, to_canonic_fullname as _to_canonic_fullname
-from .query                 import Query, ACTION_READ
+from .binary_predicate import BinaryPredicate
+from .connector import Connector
+from .doc_type import DocType
+from .log import Log
+from .strings import to_international_string, to_canonic_fullname as _to_canonic_fullname
+from .query import Query, ACTION_READ
 
 # Default queried DBLP API.
 DBLP_API_URL = "https://dblp.dagstuhl.de"

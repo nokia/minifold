@@ -4,12 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 def cast_none(s: str) -> None:
     """
     Casts a string to ``None`` if possible, raises an exception otherwise.
@@ -21,7 +15,7 @@ def cast_none(s: str) -> None:
         ValueError: if the cast cannot be achieved.
 
     Returns:
-        None if successful.
+        ``None`` if successful.
     """
     if s is None:
         return None
@@ -37,7 +31,7 @@ def cast_bool(s: str) -> bool:
         s (str): The string to be casted.
 
     Raises:
-        ValueError: if the cast cannot be achieved.
+        ``ValueError``, if the cast cannot be achieved.
 
     Returns:
         The boolean corresponding to s if successful.
@@ -64,7 +58,7 @@ def lexical_cast(s: str, cast: callable) -> object:
             :py:func:`int`, :py:func:`float`, etc.
 
     Raises:
-        ValueError: if the cast cannot be achieved.
+        ``ValueError``, if the cast cannot be achieved.
 
     Returns:
         The corresponding value.

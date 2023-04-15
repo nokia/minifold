@@ -2,13 +2,12 @@
 #
 # Twitter connector
 #
-# Authors:
-#   Fabien Mathieu    <fabien.mathieu@nokia-bell-labs.com>
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
 import datetime
 from .connector import Connector
-from .query     import ACTION_READ, Query
+from .query import ACTION_READ, Query
 
 try:
     import tweepy
@@ -21,7 +20,16 @@ except ImportError as e:
     )
     raise e
 
-def tweet_to_dict(tweet):
+def tweet_to_dict(tweet) -> dict:
+    """
+    Converts a tweet to a dictionary.
+
+    Args:
+        tweet: The input tweet.
+
+    Returns:
+        The corresponding dictionary.
+    """
     # Fetch tweet
     try:
         content = tweet._json["full_text"]
@@ -38,7 +46,10 @@ def tweet_to_dict(tweet):
         # Try to get image from youtube, e.g: https://img.youtube.com/vi/iZCyv0e2RLM/1.jpg
         try:
             if "youtu" in tweet._json["entities"]["urls"][0]["display_url"]:
-                image = "https://img.youtube.com/vi/%s/1.jpg" % tweet._json["entities"]["urls"][0]["display_url"].split("/")[-1]
+                image = (
+                    "https://img.youtube.com/vi/%s/1.jpg"
+                    % tweet._json["entities"]["urls"][0]["display_url"].split("/")[-1]
+                )
         except:
             Log.warning("No image found for tweet %s" % content)
 
@@ -77,16 +88,27 @@ def tweet_to_dict(tweet):
     }
 
 class TwitterConnector(Connector):
+    """
+    The :py:class:`TwitterConnector` is a gateway minifold allowing
+    to fetch tweets from Twitter.
+    """
     def __init__(
         self,
-        twitter_id :str,
-        consumer_key :str,
-        consumer_secret :str,
-        access_token :str,
-        access_token_secret :str
+        twitter_id: str,
+        consumer_key: str,
+        consumer_secret: str,
+        access_token: str,
+        access_token_secret: str
     ):
         """
         Constructor.
+
+        Args:
+            twitter_id (str): The Twitter identifier.
+            consumer_key (str): The Twitter API Key.
+            consumer_secret (str): The Twitter secret.
+            access_token (str): The Twitter access token.
+            access_token_secret: The Twitter access token secret.
         """
         super().__init__()
         self.twitter_id          = twitter_id
@@ -97,7 +119,19 @@ class TwitterConnector(Connector):
         self.api                 = None
         self.connect()
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
+        """
+        Lists the available attributes related to a given collection of
+        minifold entries exposed by this :py:class:`WhereConnector` instance.
+
+        Args:
+            object (str): The name of the collection.
+                Valid collections are ``"self"`` and ``"feed"``.
+
+        Returns:
+            The set of corresponding attributes.
+        """
+
         return {
             "text",
             "image",
@@ -109,19 +143,21 @@ class TwitterConnector(Connector):
 
     def connect(self):
         """
-        Connect to twitter API.
+        Connect to the Twitter API.
         """
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         auth.set_access_token(self.access_token, self.access_token_secret)
         self.api = tweepy.API(auth)
 
-    def query(self, q :Query) -> list:
+    def query(self, q: Query) -> list:
         """
-        Query the TwitterConnector.
+        Handles an input :py:class:`Query` instance.
+
         Args:
-            q: A minifold Query.
+            query (Query): The handled query.
+
         Returns:
-            A list of dict containing the queried entries.
+            The list of entries matching the input query.
         """
         if not self.api:
             raise RuntimeError("Not connected to twitter")
@@ -132,14 +168,22 @@ class TwitterConnector(Connector):
                 assert q.limit > 0
                 size = q.limit
                 if q.object == "self":
-                    tweets = self.api.user_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
+                    tweets = self.api.user_timeline(
+                        id = self.twitter_id,
+                        tweet_mode = "extended",
+                        count = size
+                    )
                 elif q.object == "feed":
-                    tweets = self.api.home_timeline(id = self.twitter_id, tweet_mode = "extended", count = size)
+                    tweets = self.api.home_timeline(
+                        id = self.twitter_id,
+                        tweet_mode = "extended",
+                        count = size
+                    )
                 else:
                     tweets = list()
                 entries = [tweet_to_dict(tweet) for tweet in tweets]
             else:
-                raise ValueError("TwitterConnector: invalid object '%s'" % q.object)
+                raise ValueError(f"Invalid object '{q.object}'")
         else:
-            raise RuntimeError("TwitterConnector.query(%s): action %s not implemented" % (q, q.action))
+            raise RuntimeError(f"Query {s}: action {q.action} not implemented")
         return self.answer(q, entries)

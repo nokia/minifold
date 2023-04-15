@@ -42,13 +42,16 @@ from .join_if import (
     INNER_JOIN, LEFT_JOIN, RIGHT_JOIN, FULL_OUTER_JOIN, merge_dict,
     JoinIfConnector, inner_join_if, left_join_if, right_join_if, full_outer_join_if
 )
-# << TODO documentation
 from .json import JsonConnector, JsonFileConnector
 from .lambdas import LambdasConnector, lambdas
 from .ldap import LdapConnector
 from .lexical_cast import cast_bool, cast_none, lexical_cast, lexical_casts
 from .limit import LimitConnector, limit
-from .log import Log
+from .log import (
+    RED, GREEN, YELLOW, BLUE, PINK, CYAN, GRAY,
+    BOLD, UNDERLINED, BLINKING, HIGHLIGHTED,
+    Log
+)
 from .mongo import MongoConnector
 from .natural_join import NaturalJoinConnector, are_naturally_joined, natural_join
 from .proxy import Proxy, proxy_enable, proxy_disable, make_session, proxy_enable_localhost
@@ -58,8 +61,11 @@ from .query import (
 )
 from .rename import RenameConnector, rename, rename_query
 from .request_cache import install_cache
-# from .search import ...
-from .select import SelectConnector
+from .search import (
+    SearchFilter, search,
+    equals, contains, lower_case_contains, lower_case_equals, contains_words
+)
+from .select import SelectConnector, select
 from .singleton import Singleton
 from .sort_by import SortByConnector, sort_by
 from .strings import (
@@ -72,5 +78,4 @@ from .twitter import TwitterConnector, tweet_to_dict
 from .union import UnionConnector, union
 from .unique import UniqueConnector, unique
 from .unnest import UnnestConnector, unnest
-# >>
 from .where import WhereConnector, where

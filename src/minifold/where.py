@@ -4,12 +4,16 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from .connector             import Connector
-from .query                 import Query
+from .connector import Connector
+from .query import Query
 
-def where(entries :list, f: callable) -> list:
+def where(entries: list, f: callable) -> list:
     """
-    Implements the ``WHERE `` SQL statement for a list of minifold entries.
+    Implements the WHERE statement for a list of minifold entries.
+
+    Example:
+        >>> where([{"a": 1, "b": 1}, {"a": 2, "b": 2}, {"a": 3, "b": 3}], lambda e: e["a"] <= 2)
+        [{'a': 1, 'b': 1}, {'a': 2, 'b': 2}]
 
     Args:
         entries (list): A list of minifold entries.
@@ -20,12 +24,11 @@ def where(entries :list, f: callable) -> list:
     Returns:
         The kept entries.
     """
-
     return [entry for entry in entries if f(entry)]
 
 class WhereConnector(Connector):
     """
-    The :py:class:`WhereConnector` class implements the ``WHERE`` SQL
+    The :py:class:`WhereConnector` class implements the WHERE
     statement in a minifold pipeline.
     """
     def __init__(self, child: Connector, keep_if: callable):

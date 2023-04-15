@@ -3,17 +3,14 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
-from html.parser            import HTMLParser
-from .log                   import Log
-from .entries_connector     import EntriesConnector
+from html.parser import HTMLParser
+from .log import Log
+from .entries_connector import EntriesConnector
 
 class HtmlTableParser(HTMLParser):
+    """
+    The :py:class:`HtmlTableParser` class extracts the values from an HTML table.
+    """
     def __init__(self, columns: list, output_list: list, keep_entry: callable = None):
         """
         Constructor.
@@ -77,7 +74,10 @@ class HtmlTableParser(HTMLParser):
             self.fetch_data = False
 
             # Push new key/value pair
-            key = self.columns[self.index] if self.index < len(self.columns) else self.columns[-1]
+            key = (
+                self.columns[self.index] if self.index < len(self.columns)
+                else self.columns[-1]
+            )
             if key in self.entry.keys():
                 current_value = self.entry[key]
                 if not isinstance(current_value, list):

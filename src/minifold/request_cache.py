@@ -4,15 +4,9 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import os, sys
-from .cache         import DEFAULT_CACHE_STORAGE_BASE_DIR, DEFAULT_CACHE_STORAGE_LIFETIME
-from .filesystem    import check_writable_directory, mkdir
+from .cache import DEFAULT_CACHE_STORAGE_BASE_DIR, DEFAULT_CACHE_STORAGE_LIFETIME
+from .filesystem import check_writable_directory, mkdir
 
 try:
     import requests_cache
@@ -26,6 +20,15 @@ except ImportError as e:
     raise e
 
 def install_cache(cache_filename :str = None):
+    """
+    Enables ``requests_cache`` for minifold, hence allowing to cache HTTP queries
+    issued by minifold.
+
+    Args:
+        cache_filename (str): The path to the minifold cache. You may pass
+            ``None`` to use the default path (i.e., ``~/.minifold/cache/requests_cache``
+            under Linux).
+    """
     if not cache_filename:
         directory = DEFAULT_CACHE_STORAGE_BASE_DIR
         cache_filename = os.path.join(DEFAULT_CACHE_STORAGE_BASE_DIR, "requests_cache")

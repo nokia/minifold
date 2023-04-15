@@ -58,3 +58,8 @@ sphinx_mdinclude = "*"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = [
+    "src/minifold/scholar.py"
+]

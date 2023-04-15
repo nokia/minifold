@@ -185,5 +185,5 @@ class TwitterConnector(Connector):
             else:
                 raise ValueError(f"Invalid object '{q.object}'")
         else:
-            raise RuntimeError(f"Query {s}: action {q.action} not implemented")
+            raise RuntimeError(f"Query {q}: action {q.action} not implemented")
         return self.answer(q, entries)

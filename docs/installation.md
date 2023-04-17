@@ -3,10 +3,16 @@
 
 Depending on your preferences, you may install the dependencies through APT, or through PIP. Please see the following steps if you want to use APT dependencies.
 
-* Install the APT dependencies:
+* Install `poetry`: 
 
 ```bash
 sudo apt update
+sudo apt update python3-poetry python3-trove-classifiers
+```
+
+* Install the APT dependencies:
+
+```bash
 sudo apt install git python3 python3-pytest
 ```
 

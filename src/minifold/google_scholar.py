@@ -162,13 +162,19 @@ class MinifoldScholarQuerier(ScholarQuerier):
 
         Args:
             s_html (str): An HTML Google Scholar page content.
+
+        Raises:
+            ``RuntimeError`` if the result can't be fetched from Google scholar.
         """
-        soup = SoupKitchen.make_soup(s_html)
-        soup = soup.find(name="div", attrs={"id": "gs_res_ccl_mid"})
-        for div in soup.findAll(name="div", attrs={"class": "gs_r"}):
-            s = div.prettify()
-            entry = parse_article(s)
-            self.articles.append(entry)
+        try:
+            soup = SoupKitchen.make_soup(s_html)
+            soup = soup.find(name="div", attrs={"id": "gs_res_ccl_mid"})
+            for div in soup.findAll(name="div", attrs={"class": "gs_r"}):
+                s = div.prettify()
+                entry = parse_article(s)
+                self.articles.append(entry)
+        except:
+            raise RuntimeError(f"Unable to parse:\n\n{s_html}")
 
     def send_query(self, gs_query: ScholarQuery):
         """

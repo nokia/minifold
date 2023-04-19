@@ -4,7 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-
 class Singleton(type):
     """
     The :py:class:`Singleton` allows to define singleton classes, i.e.
@@ -23,6 +22,14 @@ class Singleton(type):
     def __call__(cls, *args, **kwargs):
         """
         Functor method.
+
+        Args:
+            cls: The class using the singleton pattern.
+            *args: The args of the class constructor of ``cls``.
+            **kwargs: The kwargs of the class constructor of ``cls``.
+
+        Returns:
+            The singleton corresponding to ``cls``.
         """
         if cls not in cls.s_instances:
             cls.s_instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)

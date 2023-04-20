@@ -3,7 +3,7 @@
 
 Depending on your preferences, you may install the dependencies through APT, or through PIP. Please see the following steps if you want to use APT dependencies.
 
-* Install `poetry`: 
+* Install `poetry`:
 
 ```bash
 sudo apt update
@@ -41,7 +41,7 @@ There are several possible ways to install the package:
 python3 -m venv env      # Create your virtual environment
 source env/bin/activate  # Activate the "env" virtual environment
 which python             # Check you use the venv python interpret (i.e., not /usr/bin/python3)
-pip install minifold
+pip install minifold --force-reinstall
 deactivate               # Leave the  "env" virtual environment
 ```
 
@@ -57,7 +57,7 @@ sudo pip3 install minifold --break-system-packages
 
 ```bash
 git clone https://github.com/nokia/minifold.git
-cd minifold 
+cd minifold
 ```
 
 * Install the missing dependencies and build the wheel of the project:
@@ -86,5 +86,5 @@ deactivate               # Leave the  "env" virtual environment
   * System-wide (Linux):
 
 ```bash
-sudo pip3 install dist/*whl --break-system-packages
+sudo pip3 install dist/*whl --break-system-packages --force-reinstall
 ```

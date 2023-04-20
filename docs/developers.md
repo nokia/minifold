@@ -1,17 +1,19 @@
-# Developer's corner 
-## Tests
+# Developer's corner
+## pytest and flake
 
 To launch the test suite, run:
-* If the package is installed system-wide:
-
-```bash
-pytest
-```
-
-* Else, with `poetry`:
 
 ```bash
 poetry install --with test
+poetry run pytest
+```
+
+## Coverage
+
+To evaluate the test coverage, run:
+
+```bash
+poetry install --with dev
 poetry run coverage run -m pytest
 poetry run coverage xml
 ```
@@ -26,6 +28,12 @@ tox -e py
 
 ## Programming style
 
+To check the programming style, run:
+
+```bash
+poetry install --with dev
+```
+
 To check the quality of the code, use `flake8`:
 ```bash
 # Stops the build if there are Python syntax errors or undefined names
@@ -33,14 +41,19 @@ poetry run flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --sta
 # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 poetry run flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 ```
+... or directly:
+```bash
+poetry run flake8 src/ tests/
+```
 
 ## Documentation
 
 To build the documentation, run:
-* If the package is installed system-wide and if `make` is installed:
+* If `make` is installed:
 
 ```bash
-make docs
+poetry install --with docs
+poetry run make docs
 ```
 
 * Otherwise:
@@ -87,4 +100,16 @@ Alternatively, you could run:
 
 ```bash
 poetry publish
+```
+
+## Modifying the project dependencies
+
+Update the `pyproject.toml` file. Then, run:
+```bash
+poetry lock
+poetry install
+```
+You could check the dependencies of your wheels thanks to `pkginfo`:
+```bash
+pkginfo -f requires_dist dist/*whl
 ```

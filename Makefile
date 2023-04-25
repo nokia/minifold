@@ -49,38 +49,35 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 src tests
+	poetry run flake8 src tests
 
 test: ## run tests quickly with the default Python
-	pytest
+	poetry run pytest
 
 test-all: ## run tests on every Python version with tox
-	tox
+	poetry run tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source $(PROJECT) -m pytest
-	coverage report -m
-	coverage html
+	poetry run coverage run -m pytest
+	poetry run coverage html
+	poetry run coverage xml
 	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -rf docs/_build
 	rm -rf docs/_autosummary
-	sphinx-apidoc -f -o docs/ src/
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
+	poetry run sphinx-apidoc -f -o docs/ src/
+	poetry run sphinx-build -b html docs/ docs/_build/html
 	$(BROWSER) docs/_build/html/index.html
 
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
 release: dist ## package and upload a release
-	twine upload dist/*
+	poetry publish
 
 dist: clean ## builds source and wheel package
-	python3 setup.py sdist
-	python3 setup.py bdist_wheel
-	ls -l dist
+	poetry build
 
-install: clean ## install the package to the active Python's site-packages
-	python3 setup.py install
+install: clean dist ## install the package to the active Python's site-packages
+	pip3 install dist/*whl --break-system-packages --force-reinstall --no-deps

@@ -1,20 +1,21 @@
 #!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
-# Authors:
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
 import datetime
-from pprint                         import pformat
-from time                           import sleep
+from pprint import pformat
+from time import sleep
 
-from minifold.binary_predicate      import BinaryPredicate
-from minifold.cache                 import \
-    DEFAULT_CACHE_STORAGE_BASE_DIR, StorageCacheConnector, \
+from minifold.binary_predicate import BinaryPredicate
+from minifold.cache import (
+    DEFAULT_CACHE_STORAGE_BASE_DIR, StorageCacheConnector,
     JsonCacheConnector, PickleCacheConnector
-from minifold.entries_connector     import EntriesConnector
-from minifold.log                   import Log
-from minifold.query                 import Query
+)
+from minifold.entries_connector import EntriesConnector
+from minifold.log import Log
+from minifold.query import Query
 
 Log.enable_print = True
 

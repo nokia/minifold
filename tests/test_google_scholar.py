@@ -4,9 +4,9 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from minifold.binary_predicate  import BinaryPredicate
-from minifold.query             import Query
-from minifold.google_scholar    import GoogleScholarConnector
+from minifold.binary_predicate import BinaryPredicate
+from minifold.query import Query
+from minifold.google_scholar import GoogleScholarConnector
 
 SCHOLAR = GoogleScholarConnector()
 

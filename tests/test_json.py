@@ -4,16 +4,9 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
-
-from minifold.binary_predicate  import BinaryPredicate
-from minifold.json              import JsonConnector
-from minifold.query             import Query
+from minifold.binary_predicate import BinaryPredicate
+from minifold.json import JsonConnector
+from minifold.query import Query
 
 JSON_CONTENT = """
 [
@@ -50,5 +43,3 @@ def test_json_select_where():
         )
     }
     assert john_lastnames == {"Doe", "Connor"}
-
-

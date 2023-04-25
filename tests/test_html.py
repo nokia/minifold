@@ -1,12 +1,11 @@
 #!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
-# Authors:
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
-
-# Beautiful soup tests
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
 try:
+    # Beautiful soup tests
     from bs4           import BeautifulSoup
     from minifold.html import remove_tags, sanitize_html
 

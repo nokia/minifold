@@ -4,16 +4,10 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
-from minifold.binary_predicate      import BinaryPredicate
-from minifold.entries_connector     import EntriesConnector
-from minifold.query                 import Query
-from minifold.limit                 import LimitConnector, limit
+from minifold.binary_predicate import BinaryPredicate
+from minifold.entries_connector import EntriesConnector
+from minifold.query import Query
+from minifold.limit import LimitConnector, limit
 
 ENTRIES = [
     {'a' : 1,   'b' : 2,   'c' : 3},

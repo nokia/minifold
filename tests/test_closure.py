@@ -4,19 +4,13 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 try:
     # PyBGL is available at https://github.com/nokia/PyBGL
-    from pybgl.graph        import DirectedGraph, vertices, add_edge, add_vertex, edges, vertices
-    from pybgl.graph_dp     import GraphDp
-    from pybgl.graphviz     import dotstr_to_html
-    from pybgl.html         import html
-    from pybgl.ipynb        import in_ipynb
+    from pybgl.graph import DirectedGraph, vertices, add_edge, add_vertex, edges, vertices
+    from pybgl.graph_dp import GraphDp
+    from pybgl.graphviz import dotstr_to_html
+    from pybgl.html import html
+    from pybgl.ipynb import in_ipynb
     from pybgl.property_map import make_func_property_map
     WITH_PYBGL = True
 except ImportError:

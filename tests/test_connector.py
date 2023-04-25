@@ -1,12 +1,12 @@
 #!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
-# Authors:
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
 import sys
 from minifold.connector import Connector
-from minifold.log       import Log
+from minifold.log import Log
 
 Log.enable_print = True
 

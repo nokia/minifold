@@ -1,13 +1,13 @@
 #!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
-# Authors:
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
-from minifold.count             import CountConnector, count
+from minifold.count import CountConnector, count
 from minifold.entries_connector import EntriesConnector
 from minifold.binary_predicate  import BinaryPredicate
-from minifold.query             import Query
+from minifold.query import Query
 
 ENTRIES = [
     {'a' : 1,   'b' : 2,   'c' : 3},

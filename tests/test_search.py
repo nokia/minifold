@@ -4,14 +4,11 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import re
-from minifold.search import contains, contains_words, equals, lower_case_equals, lower_case_contains
+from minifold.search import (
+    contains, contains_words, equals,
+    lower_case_equals, lower_case_contains
+)
 
 def check_tests(match, tests):
     for (params, expected) in tests:
@@ -23,8 +20,8 @@ def check_tests(match, tests):
 def test_contains_words():
     tests = [
         # Basic tests
-        (("aa", "xx aa yy", True),  True),
-        (("aa", "xx AA yy", True),  True),
+        (("aa", "xx aa yy", True), True),
+        (("aa", "xx AA yy", True), True),
         # Case sensitive
         (("aa", "xx aa yy", False), True),
         (("aa", "xx AA yy", False), False),
@@ -38,7 +35,7 @@ def test_contains():
         (("aa", "xx AA yy"), False),
         (("aa", "xx aa yy"), True),
         (("aa", "xx AA yy"), False),
-        (("aa", "xxaayy"),   True),
+        (("aa", "xxaayy"), True),
     ]
     check_tests(contains, tests)
 
@@ -70,4 +67,3 @@ def test_lower_case_equals():
         (("aa", "bb"), False),
     ]
     check_tests(lower_case_equals, tests)
-

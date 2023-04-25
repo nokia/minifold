@@ -1,8 +1,8 @@
 #!/usr/bin/env pytest-3
 # -*- coding: utf-8 -*-
 #
-# Authors:
-#   Marc-Olivier Buob <marc-olivier.buob@nokia-bell-labs.com>
+# This file is part of the minifold project.
+# https://github.com/nokia/minifold
 
 from minifold.lexical_cast import cast_none, cast_bool, lexical_cast, lexical_casts
 
@@ -48,4 +48,3 @@ def test_lexical_casts():
     assert lexical_casts("False", cast_operators) == False
     assert lexical_casts("17", cast_operators) == 17
     assert lexical_casts("17.2", cast_operators) == 17.2
-

@@ -4,16 +4,10 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import io, os, sys
 
-from minifold.csv       import CsvConnector, CsvModeEnum
-from minifold.query     import Query
+from minifold.csv import CsvConnector, CsvModeEnum
+from minifold.query import Query
 
 CSV_STRING = """col1,col2,col3
 1,2,3

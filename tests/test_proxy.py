@@ -4,12 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 from minifold.proxy import Proxy, proxy_enable_localhost, proxy_disable
 
 def test_proxy_disabled():
@@ -20,7 +14,7 @@ def test_proxy_disabled():
 def test_proxy_enable_disable():
     proxy = Proxy()
     proxy_enable_localhost()
-    assert proxy["http"]  == "http://127.0.0.1:8080"
+    assert proxy["http"] == "http://127.0.0.1:8080"
     assert proxy["https"] == "https://127.0.0.1:8080"
     proxy_disable()
     assert not proxy.get("http")

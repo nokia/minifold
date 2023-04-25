@@ -4,20 +4,18 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 from minifold.entries_connector import EntriesConnector
-from minifold.query             import Query
-from minifold.lambdas           import LambdasConnector, find_lambda_dependencies, find_lambdas_dependencies
+from minifold.query import Query
+from minifold.lambdas import (
+    LambdasConnector,
+    find_lambda_dependencies,
+    find_lambdas_dependencies
+)
 
 ENTRIES = [
-    {"a" : 1,   "b" : 2,   "c" : 3,   "d" : 4},
-    {"a" : 10,  "b" : 20,  "c" : 30,  "d" : 40},
-    {"a" : 100, "b" : 200, "c" : 300, "d" : 400}
+    {"a": 1, "b": 2, "c": 3, "d": 4},
+    {"a": 10, "b": 20, "c": 30, "d": 40},
+    {"a": 100, "b": 200, "c": 300, "d": 400}
 ]
 
 class StrictEntriesConnector(EntriesConnector):
@@ -33,13 +31,13 @@ class StrictEntriesConnector(EntriesConnector):
 STRICT_CONNECTOR = StrictEntriesConnector(ENTRIES)
 
 MAP_LAMBDAS = {
-    "a2" : lambda e: e["a"] ** 2,       # a^2
-    "a3" : lambda e: e["a"] * e["a2"],  # a^3
-    "b2" : lambda e: e["b"] ** 2,       # ...
-    "b3" : lambda e: e["b"] * e["b2"],
-    "c2" : lambda e: e["c"] ** 2,
-    "c3" : lambda e: e["c"] * e["c2"],
-    "d"  : lambda e: e["d"] * 10
+    "a2": lambda e: e["a"] ** 2,       # a^2
+    "a3": lambda e: e["a"] * e["a2"],  # a^3
+    "b2": lambda e: e["b"] ** 2,       # ...
+    "b3": lambda e: e["b"] * e["b2"],
+    "c2": lambda e: e["c"] ** 2,
+    "c3": lambda e: e["c"] * e["c2"],
+    "d": lambda e: e["d"] * 10
 }
 
 LAMBDAS_CONNECTOR = LambdasConnector(MAP_LAMBDAS, STRICT_CONNECTOR)
@@ -57,13 +55,13 @@ def test_find_lambda_dependencies():
 def test_find_lambdas_dependencies():
     map_required_keys = find_lambdas_dependencies(MAP_LAMBDAS)
     expected = {
-        "a2" : {"a"},
-        "a3" : {"a", "a2"},
-        "b2" : {"b"},
-        "b3" : {"b", "b2"},
-        "c2" : {"c"},
-        "c3" : {"c", "c2"},
-        "d"  : {"d"}
+        "a2": {"a"},
+        "a3": {"a", "a2"},
+        "b2": {"b"},
+        "b3": {"b", "b2"},
+        "c2": {"c"},
+        "c3": {"c", "c2"},
+        "d": {"d"}
     }
     assert map_required_keys == expected
 
@@ -72,12 +70,10 @@ def test_lambdas_simple():
     obtained = LAMBDAS_CONNECTOR.query(Query(attributes = attributes))
     check_keys(obtained, attributes)
     assert obtained == [
-        {"a" : 1,   "b" : 2,   "c" : 3},
-        {"a" : 10,  "b" : 20,  "c" : 30},
-        {"a" : 100, "b" : 200, "c" : 300}
+        {"a": 1, "b": 2, "c": 3},
+        {"a": 10, "b": 20, "c": 30},
+        {"a": 100, "b": 200, "c": 300}
     ]
-
-
 
 def test_lambdas_all():
     attributes = {
@@ -103,16 +99,16 @@ def test_lambdas_x2():
 def test_lambdas_where():
     expected = [
         {
-            "a"  : 10,
-            "a2" : 100,
-            "a3" : 1000,
-            "b"  : 20,
-            "b2" : 400,
-            "b3" : 8000,
-            "c"  : 30,
-            "c2" : 900,
-            "c3" : 27000,
-            "d"  : 400,
+            "a": 10,
+            "a2": 100,
+            "a3": 1000,
+            "b": 20,
+            "b2": 400,
+            "b3": 8000,
+            "c": 30,
+            "c2": 900,
+            "c3": 27000,
+            "d": 400,
         }
     ]
 
@@ -125,10 +121,10 @@ def test_lambdas_where():
 def test_lambdas_select_where():
     expected = [
         {
-            "a2" : 100,
-            "a3" : 1000,
-            "b"  : 20,
-            "b2" : 400,
+            "a2": 100,
+            "a3": 1000,
+            "b": 20,
+            "b2": 400,
         }
     ]
 
@@ -144,7 +140,6 @@ def test_lambdas_select_where():
     ))
     assert obtained == expected
 
-
 def test_lambdas_attributes():
     obtained = LAMBDAS_CONNECTOR.attributes(None)
     expected = {
@@ -154,4 +149,3 @@ def test_lambdas_attributes():
         "d"
     }
     assert obtained == expected
-

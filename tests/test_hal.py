@@ -4,19 +4,12 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-__author__     = "Marc-Olivier Buob"
-__maintainer__ = "Marc-Olivier Buob"
-__email__      = "marc-olivier.buob@nokia-bell-labs.com"
-__copyright__  = "Copyright (C) 2018, Nokia"
-__license__    = "BSD-3"
-
 import urllib3
-
 from minifold.binary_predicate  import BinaryPredicate
-from minifold.hal               import HAL_ALIASES, HalConnector
-from minifold.log               import Log
-from minifold.query             import Query
-from minifold.rename            import RenameConnector
+from minifold.hal import HAL_ALIASES, HalConnector
+from minifold.log import Log
+from minifold.query import Query
+from minifold.rename import RenameConnector
 
 Log.enable_print = True
 

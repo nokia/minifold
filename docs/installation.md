@@ -16,7 +16,7 @@ sudo apt update python3-poetry python3-trove-classifiers
 sudo apt install git python3 python3-pytest
 ```
 
-* If you are a developer, please also install the APT dependencies:
+* If you are a developer, please also install the following dependencies:
 
 ```bash
 sudo apt install python3-pip bumpversion python3-coverage python3-pytest python3-pytest-cov python3-pytest-runner python3-sphinx python3-sphinx-rtd-theme

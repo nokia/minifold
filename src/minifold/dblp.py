@@ -312,14 +312,19 @@ class DblpConnector(Connector):
         s = s.lower()
         if s in {
             "article", "conference and workshop papers", "conference or workshop",
-            "incollection", "inproceedings", "proceedings"
+            "incollection", "inproceedings", "proceedings",
+            "informal and other publications",
         }:
             return DocType.ARTICLE
         # elif s == "????":
         #     return DocType.COMM
         elif s == "journal articles":
             return DocType.JOURNAL
-        elif s in {"informal publications", "reference works"}:
+        elif s in {
+            "informal publications",
+            "reference works",
+            "issue"
+        }:
             return DocType.REPORT
         elif s in {"phdthesis", "books and theses", "parts in books or collections"}:
             return DocType.BOOKS_AND_THESES
@@ -328,7 +333,7 @@ class DblpConnector(Connector):
         elif s == "editorship":
             return DocType.CHAPTER
         else:
-            Log.warning("DblpConnector.to_doc_type: unknown type: %s" % s)
+            Log.warning("DblpConnector.to_doc_type: unknown type: '%s'" % s)
             return DocType.UNKNOWN
 
     def reshape_entry(self, query: Query, entry: dict) -> dict:

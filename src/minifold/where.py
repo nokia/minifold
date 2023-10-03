@@ -7,6 +7,7 @@
 from .connector import Connector
 from .query import Query
 
+
 def where(entries: list, f: callable) -> list:
     """
     Implements the WHERE statement for a list of minifold entries.
@@ -25,6 +26,7 @@ def where(entries: list, f: callable) -> list:
         The kept entries.
     """
     return [entry for entry in entries if f(entry)]
+
 
 class WhereConnector(Connector):
     """
@@ -56,7 +58,7 @@ class WhereConnector(Connector):
         """
         return self.m_child
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
         """
         Lists the available attributes related to a given collection of
         minifold entries exposed by this :py:class:`WhereConnector` instance.
@@ -80,7 +82,7 @@ class WhereConnector(Connector):
         """
         return self.m_keep_if
 
-    def query(self, q :Query) -> list:
+    def query(self, q: Query) -> list:
         """
         Handles an input :py:class:`Query` instance.
 

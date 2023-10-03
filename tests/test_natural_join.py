@@ -30,9 +30,11 @@ EXPECTED = [
     {"institution": "Institut4", "institution_id": 4, "name": "Name4"}
 ]
 
+
 def test_natural_join():
     obtained = natural_join(RESEARCHERS, INSTITUTIONS)
     assert obtained == EXPECTED
+
 
 def test_natural_join_connector():
     connector = NaturalJoinConnector(
@@ -42,7 +44,7 @@ def test_natural_join_connector():
 
     obtained = connector.query(
         Query(
-            attributes = ["name", "institution_id", "institution"]
+            attributes=["name", "institution_id", "institution"]
         )
     )
 

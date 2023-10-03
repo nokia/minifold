@@ -4,19 +4,19 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from .log       import Log
+from .log import Log
 from .singleton import Singleton
 
 try:
     import requests
 except ImportError as e:
-    from .log import Log
     Log.warning(
         "Please install requests.\n"
         "  APT: sudo apt install python3-requests\n"
         "  PIP: sudo pip3 install --upgrade requests\n"
     )
     raise e
+
 
 class Proxy(dict, metaclass=Singleton):
     """
@@ -31,7 +31,8 @@ class Proxy(dict, metaclass=Singleton):
     """
     pass
 
-def proxy_enable(host :str, port :int, protocols :list = None):
+
+def proxy_enable(host: str, port: int, protocols: list = None):
     """
     Enables the :py:class:`Proxy` singleton.
 
@@ -49,12 +50,14 @@ def proxy_enable(host :str, port :int, protocols :list = None):
         url = f"{protocol}://{host}:{port}"
         proxy[protocol] = url
 
+
 def proxy_disable():
     """
     Disables the :py:class:`Proxy` singleton.
     """
     proxy = Proxy()
     proxy.clear()
+
 
 def make_session() -> requests.Session:
     """
@@ -71,12 +74,14 @@ def make_session() -> requests.Session:
         session.proxies.update(proxy)
     return session
 
-#---------------------------------------------------------------
-# Example to use a local proxy
-#---------------------------------------------------------------
 
-PROXY_LOCALHOST_IP    = "127.0.0.1"
-PROXY_LOCALHOST_PORT  = 8080
+# ---------------------------------------------------------------
+# Example to use a local proxy
+# ---------------------------------------------------------------
+
+PROXY_LOCALHOST_IP = "127.0.0.1"
+PROXY_LOCALHOST_PORT = 8080
+
 
 def proxy_enable_localhost():
     """

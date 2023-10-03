@@ -23,6 +23,7 @@ def cast_none(s: str) -> None:
         return None
     raise ValueError("Invalid literal for cast_none(): %s" % s)
 
+
 def cast_bool(s: str) -> bool:
     """
     Casts a string to a ``bool`` if possible, raises an exception otherwise.
@@ -39,12 +40,13 @@ def cast_bool(s: str) -> bool:
     if isinstance(s, bool):
         return s
     elif isinstance(s, str):
-        l = s.lower()
-        if l == "true":
+        sl = s.lower()
+        if sl == "true":
             return True
-        elif l == "false":
+        elif sl == "false":
             return False
     raise ValueError("Invalid literal for cast_bool(): %s" % s)
+
 
 def lexical_cast(s: str, cast: callable) -> object:
     """
@@ -64,6 +66,7 @@ def lexical_cast(s: str, cast: callable) -> object:
         The corresponding value.
     """
     return cast(s)
+
 
 def lexical_casts(s: str, cast_operators: list = None) -> object:
     """

@@ -10,19 +10,21 @@ from minifold.google_scholar import GoogleScholarConnector
 
 SCHOLAR = GoogleScholarConnector()
 
+
 def test_google_scholar():
     try:
         entries = SCHOLAR.query(Query(
-            filters = BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob")
+            filters=BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob")
         ))
         assert len(entries) >= 9
     except RuntimeError:
         pass
 
+
 def test_google_scholar_where_year():
     try:
         entries = SCHOLAR.query(Query(
-            filters = BinaryPredicate(
+            filters=BinaryPredicate(
                 BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob"),
                 "&&",
                 BinaryPredicate(
@@ -36,11 +38,12 @@ def test_google_scholar_where_year():
     except RuntimeError:
         pass
 
+
 def test_google_scholar_limit():
     try:
         entries = SCHOLAR.query(Query(
-            filters = BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob"),
-            limit = 2
+            filters=BinaryPredicate("authors", "CONTAINS", "Marc-Olivier Buob"),
+            limit=2
         ))
         assert len(entries) == 2
     except RuntimeError:

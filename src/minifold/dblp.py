@@ -84,15 +84,17 @@ from .log import Log
 from .strings import to_international_string, to_canonic_fullname as _to_canonic_fullname
 from .query import Query, ACTION_READ
 
+
 # Default queried DBLP API.
 DBLP_API_URL = "https://dblp.dagstuhl.de"
 
 # Maps DBLP ontology to our ontology.
 DBLP_ALIASES = {
-    "type"    : "dblp_doc_type",
-    "venue"   : "conference",
-    "url"     : "dblp_url",
+    "type": "dblp_doc_type",
+    "venue": "conference",
+    "url": "dblp_url",
 }
+
 
 def to_canonic_fullname(s: str) -> str:
     """
@@ -109,6 +111,7 @@ def to_canonic_fullname(s: str) -> str:
     if isinstance(s, dict):
         s = s["text"]
     return _to_canonic_fullname(s)
+
 
 class DblpConnector(Connector):
     """
@@ -141,11 +144,11 @@ class DblpConnector(Connector):
             not dblp_api_url.endswith("/search") and
             not dblp_api_url.endswith("/search/")
         ), f"Invalid API URL [{dblp_api_url}], remove '/search/' suffix"
-        self.m_format  = "json"  # valid values are in {"xml", "json", "jsonp"}.
+        self.m_format = "json"  # valid values are in {"xml", "json", "jsonp"}.
         self.m_map_dblp_id = map_dblp_id if map_dblp_id else dict()
         self.m_map_dblp_name = map_dblp_name if map_dblp_name else dict()
         self.m_map_rev_name = {
-            to_canonic_fullname(dblp_name) : name
+            to_canonic_fullname(dblp_name): name
             for (name, dblp_name) in self.m_map_dblp_name.items()
         }
 
@@ -260,7 +263,7 @@ class DblpConnector(Connector):
         pid = self.m_map_dblp_id.get(s)
         return pid if pid else self.get_dblp_name(s)
 
-    def binary_predicate_to_dblp(self, p :BinaryPredicate, result :dict):
+    def binary_predicate_to_dblp(self, p: BinaryPredicate, result: dict):
         """
         Converts a minifold predicate to a DBLP predicate.
 
@@ -350,12 +353,12 @@ class DblpConnector(Connector):
         """
         if "type" in entry.keys():
             doc_type = DblpConnector.to_doc_type(entry["type"])
-            entry["doc_type"]      = doc_type  # Compatible with Hal "doc_type" values.
+            entry["doc_type"] = doc_type  # Compatible with Hal "doc_type" values.
             entry["dblp_doc_type"] = doc_type  # To compare Hal and DBLP doc_types.
 
         if len(query.attributes) > 0:
             keys = set(entry.keys()) & set(query.attributes)
-            entry = {k : entry[k] for k in keys}
+            entry = {k: entry[k] for k in keys}
 
         for (k, v) in entry.items():
             if isinstance(v, str):
@@ -401,8 +404,8 @@ class DblpConnector(Connector):
         try:
             raw_entries = results["result"]["hits"]["hit"]
             for raw_entry in raw_entries:
-                entry               = raw_entry["info"]
-                entry["dblp_id"]    = int(raw_entry["@id"])
+                entry = raw_entry["info"]
+                entry["dblp_id"] = int(raw_entry["@id"])
                 entry["dblp_score"] = int(raw_entry["@score"])
 
                 try:
@@ -480,17 +483,17 @@ class DblpConnector(Connector):
 
             if object == "pid":
                 q_dblp = "%(server)s/%(object)s/%(pid)s.%(format)s" % {
-                    "server" : self.api_url,
-                    "object" : object,
-                    "pid"    : pid,
-                    "format" : format,
+                    "server": self.api_url,
+                    "object": object,
+                    "pid": pid,
+                    "format": format,
                 }
             else:
                 # WHERE
                 if query.filters:
                     search = {
-                        "prefix" : self.get_dblp_name(query.object),
-                        "suffix" : ""
+                        "prefix": self.get_dblp_name(query.object),
+                        "suffix": ""
                     }
                     self.binary_predicate_to_dblp(query.filters, search)
                     url_options.append("%s%s" % (search["prefix"], search["suffix"]))
@@ -503,9 +506,9 @@ class DblpConnector(Connector):
                 # Format of the result.
                 url_options.append("format=%s" % format)
                 q_dblp = "%(server)s/%(object)s/api?q=%(query)s" % {
-                    "server" : self.api_url,
-                    "object" : object,
-                    "query"  : "&".join(url_options)
+                    "server": self.api_url,
+                    "object": object,
+                    "query": "&".join(url_options)
                 }
 
             Log.info("--> DBLP: %s" % q_dblp)

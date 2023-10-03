@@ -21,7 +21,8 @@ It is possible to query a specific researcher using its HAL-ID.
 """
 
 import email.utils
-import json, operator
+import json
+import operator
 
 from .binary_predicate import BinaryPredicate, __in__
 from .connector import Connector
@@ -37,47 +38,48 @@ HAL_API_URL = "https://api.archives-ouvertes.fr/search"
 # Maps HAL ontology to our ontology
 # Note: this is not an exhaustive list of the attributes returned by HAL.
 HAL_ALIASES = {
-    "en_abstract_s"         : "abstract",
-    "fr_abstract_s"         : "abstract_fr",
-    "authFullName_s"        : "authors",
-    "bookTitle_s"           : "book",
-    "citationFull_s"        : "citation_full",
-    "city_s"                : "city",
-    "conferenceTitle_s"     : "conference",
-    "conferenceEndDateD_i"  : "conference_day",
-    "conferenceEndDateM_i"  : "conference_month",
-    "conferenceEndDateY_i"  : "conference_year",
-    "conferenceEndDate_s"   : "conference_date",
-    "conferenceOrganizer_s" : "conference_organizer",
-    "country_s"             : "country_code",
-    "docType_s"             : "hal_doc_type",
-    "en_title_s"            : "en_title",
-    "fr_title_s"            : "fr_title",
-    "fileMain_s"            : "url_viewer",
-    "files_s"               : "pdf",
-    "journalTitle_s"        : "journal",
-    "modifiedDateD_i"       : "date_modified_day",
-    "modifiedDateM_i"       : "date_modified_month",
-    "modifiedDateY_i"       : "date_modified_year",
-    "modifiedDate_s"        : "date_modified",
-    "keyword_s"             : "keywords",
-    "title_s"               : "title",
-    "producedDateD_i"       : "day",
-    "producedDateM_i"       : "month",
-    "producedDateY_i"       : "year",
-    "producedDate_s"        : "date_produced",
-    "releasedDateD_i"       : "date_released_day",
-    "releasedDateM_i"       : "date_released_month",
-    "releasedDateY_i"       : "date_released_year",
-    "releasedDate_s"        : "date_released",
-    "structId_i"            : "laboratory",
-    "submittedDateD_i"      : "date_submitted_day",
-    "submittedDateM_i"      : "date_submitted_month",
-    "submittedDateY_i"      : "date_submitted_year",
-    "submittedDate_s"       : "date_submitted",
-    "uri_s"                 : "hal_url",
-    "version_i"             : "version"
+    "en_abstract_s": "abstract",
+    "fr_abstract_s": "abstract_fr",
+    "authFullName_s": "authors",
+    "bookTitle_s": "book",
+    "citationFull_s": "citation_full",
+    "city_s": "city",
+    "conferenceTitle_s": "conference",
+    "conferenceEndDateD_i": "conference_day",
+    "conferenceEndDateM_i": "conference_month",
+    "conferenceEndDateY_i": "conference_year",
+    "conferenceEndDate_s": "conference_date",
+    "conferenceOrganizer_s": "conference_organizer",
+    "country_s": "country_code",
+    "docType_s": "hal_doc_type",
+    "en_title_s": "en_title",
+    "fr_title_s": "fr_title",
+    "fileMain_s": "url_viewer",
+    "files_s": "pdf",
+    "journalTitle_s": "journal",
+    "modifiedDateD_i": "date_modified_day",
+    "modifiedDateM_i": "date_modified_month",
+    "modifiedDateY_i": "date_modified_year",
+    "modifiedDate_s": "date_modified",
+    "keyword_s": "keywords",
+    "title_s": "title",
+    "producedDateD_i": "day",
+    "producedDateM_i": "month",
+    "producedDateY_i": "year",
+    "producedDate_s": "date_produced",
+    "releasedDateD_i": "date_released_day",
+    "releasedDateM_i": "date_released_month",
+    "releasedDateY_i": "date_released_year",
+    "releasedDate_s": "date_released",
+    "structId_i": "laboratory",
+    "submittedDateD_i": "date_submitted_day",
+    "submittedDateM_i": "date_submitted_month",
+    "submittedDateY_i": "date_submitted_year",
+    "submittedDate_s": "date_submitted",
+    "uri_s": "hal_url",
+    "version_i": "version"
 }
+
 
 class HalConnector(Connector):
     """
@@ -104,12 +106,12 @@ class HalConnector(Connector):
                 researcher names to their name in HAL.
         """
         super().__init__()
-        self.m_api_url      = hal_api_url
-        self.m_format       = "json"
-        self.m_map_hal_id   = map_hal_id   if map_hal_id   else dict()
+        self.m_api_url = hal_api_url
+        self.m_format = "json"
+        self.m_map_hal_id = map_hal_id if map_hal_id else dict()
         self.m_map_hal_name = map_hal_name if map_hal_name else dict()
         self.m_map_rev_name = {
-            to_canonic_fullname(hal_name) : name
+            to_canonic_fullname(hal_name): name
             for (name, hal_name) in self.m_map_hal_name.items()
         }
 
@@ -205,7 +207,7 @@ class HalConnector(Connector):
         return HalConnector.quote(s)
 
     @staticmethod
-    def binary_predicate_to_hal(p :BinaryPredicate) -> str:
+    def binary_predicate_to_hal(p: BinaryPredicate) -> str:
         """
         Converts a minifold predicate to the corresponding HAL URL predicate.
 
@@ -272,7 +274,7 @@ class HalConnector(Connector):
         return d
 
     @staticmethod
-    def to_doc_type(s :str) -> DocType:
+    def to_doc_type(s: str) -> DocType:
         """
         Converts a HAL document type to the corresponding
         :py:class:`DocType` value.
@@ -364,7 +366,7 @@ class HalConnector(Connector):
 
         return entry
 
-    def sanitize_entries(self, entries :list) -> list:
+    def sanitize_entries(self, entries: list) -> list:
         """
         Reshapes a collection of raw minifold entries related to HAL.
 
@@ -409,7 +411,7 @@ class HalConnector(Connector):
             try:
                 # Try to consider the object as a HAL ID.
                 hal_id = self.map_hal_id[q.object]
-                object = "*:*&fq=authIdHal_s:(%s)" % HalConnector.quote(self.map_hal_id[q.object])
+                object = "*:*&fq=authIdHal_s:(%s)" % HalConnector.quote(hal_id)
             except KeyError:
                 # If not found, try to translate the string using self.map_hal_name.
                 # Else, use the provided name.
@@ -454,8 +456,8 @@ class HalConnector(Connector):
         url_options.append("wt=%s" % self.format)
 
         q_hal = "%(server)s/?q=%(options)s" % {
-            "server"  : self.api_url,
-            "options" : "&".join(url_options)
+            "server": self.api_url,
+            "options": "&".join(url_options)
         }
         return q_hal
 
@@ -474,7 +476,7 @@ class HalConnector(Connector):
         if q.action == ACTION_READ:
             q_hal = self.query_to_hal(q)
             Log.info("--> HAL: %s" % q_hal)
-            reply = download(q_hal, timeout = (2.0, 7.0))
+            reply = download(q_hal, timeout=(2.0, 7.0))
             try:
                 data = reply.text
                 if self.m_format == "json":
@@ -489,6 +491,11 @@ class HalConnector(Connector):
                 else:
                     raise RuntimeError("Format not implemented: %s" % self.m_format)
             except Exception as e:
-                raise RuntimeError("Cannot get reply from %s (status %s)" % (self.m_api_url, e))
+                raise RuntimeError(
+                    "Cannot get reply from %s (status %s)" % (
+                        self.m_api_url,
+                        e
+                    )
+                )
 
         return self.answer(q, entries)

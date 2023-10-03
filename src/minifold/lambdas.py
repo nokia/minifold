@@ -8,6 +8,7 @@ from copy import deepcopy
 from .connector import Connector
 from .query import Query
 
+
 def find_lambda_dependencies(func: callable) -> set:
     """
     Infers the keys needed by a function processing a dictionary
@@ -32,6 +33,7 @@ def find_lambda_dependencies(func: callable) -> set:
         break
     return set(entry.keys())
 
+
 def find_lambdas_dependencies(map_lambdas: dict) -> dict:
     """
     Infers the keys needed by several functions that outputs a specific
@@ -51,6 +53,7 @@ def find_lambdas_dependencies(map_lambdas: dict) -> dict:
         attr: find_lambda_dependencies(func)
         for (attr, func) in map_lambdas.items()
     }
+
 
 def lambdas(map_lambdas: dict, entries: list, attributes: set = None) -> list:
     """
@@ -76,6 +79,7 @@ def lambdas(map_lambdas: dict, entries: list, attributes: set = None) -> list:
                 except KeyError:
                     entry[attr] = None
     return entries
+
 
 class LambdasConnector(Connector):
     """
@@ -164,7 +168,7 @@ class LambdasConnector(Connector):
 
             if q.attributes:
                 child_attributes = self.m_child.attributes(None)
-                select_attributes  = self.find_needed_attributes(set(q.attributes))
+                select_attributes = self.find_needed_attributes(set(q.attributes))
                 # Remove lambda-specific attributes
                 lambdas_attributes = set(self.m_map_lambdas.keys()) - {
                     dep_attr

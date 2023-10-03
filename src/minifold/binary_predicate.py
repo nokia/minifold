@@ -7,6 +7,7 @@
 import operator
 from .dict_util import reverse_dict
 
+
 def __in__(x: object, y: iter) -> bool:
     """
     Checks whether ``x`` is in ``y``.
@@ -21,24 +22,26 @@ def __in__(x: object, y: iter) -> bool:
     """
     return operator.__contains__(y, x)
 
+
 OPERATORS = {
-    ">"   : operator.__gt__,
-    "<"   : operator.__lt__,
-    ">="  : operator.__ge__,
-    "<="  : operator.__le__,
-    "=="  : operator.__eq__,
-    "!="  : operator.__ne__,
-    "||"  : operator.__or__,
-    "OR"  : operator.__or__,
-    "&&"  : operator.__and__,
-    "AND" : operator.__and__,
-    "^"   : operator.__xor__,
-    "XOR" : operator.__xor__,
-    "IN"  : __in__,
-    "CONTAINS" : operator.__contains__,
+    ">": operator.__gt__,
+    "<": operator.__lt__,
+    ">=": operator.__ge__,
+    "<=": operator.__le__,
+    "==": operator.__eq__,
+    "!=": operator.__ne__,
+    "||": operator.__or__,
+    "OR": operator.__or__,
+    "&&": operator.__and__,
+    "AND": operator.__and__,
+    "^": operator.__xor__,
+    "XOR": operator.__xor__,
+    "IN": __in__,
+    "CONTAINS": operator.__contains__,
 }
 
 OPERATORS_TO_STR = reverse_dict(OPERATORS)
+
 
 class BinaryPredicate:
     """
@@ -65,9 +68,9 @@ class BinaryPredicate:
             operator (str): The binary operator, see also :py:data:`OPERATORS`.
             right (str): The right operand. Cannot be the key of an entry.
         """
-        self.m_left     = left
+        self.m_left = left
         self.m_operator = OPERATORS.get(operator, operator)
-        self.m_right    = right
+        self.m_right = right
         assert not isinstance(self.m_operator, str)
 
     @property
@@ -131,7 +134,7 @@ class BinaryPredicate:
                 right = self.right
                 return self.operator(left, right)
         except KeyError:
-            return (self.operator == operator.__eq__ and self.right == None)
+            return (self.operator == operator.__eq__ and self.right is None)
 
     def __call__(self, entry: dict) -> bool:
         """

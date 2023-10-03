@@ -6,6 +6,7 @@
 
 from enum import IntEnum
 
+
 class DocType(IntEnum):
     """
     The :py:class:`DocType` class enumerates the different kind of
@@ -16,16 +17,16 @@ class DocType(IntEnum):
     - :py:class:`HalConnector`
     - :py:class:`DblpConnector`
     """
-    BOOKS_AND_THESES = 0     # Books and Theses
-    ARTICLE          = 1     # ART, Conference and Workshop Papers
-    COMMUNICATION    = 2     # COMM
-    JOURNAL          = 3     # Journal Articles
-    REPORT           = 4     # Report, Informal Publications
-    POSTER           = 5     # POSTER
-    HDR              = 6     # HDR
-    CHAPTER          = 7     # COUV, Editorship
-    PATENT           = 8     # PATENT
-    UNKNOWN          = 9999  # UNDEFINED or ""
+    BOOKS_AND_THESES = 0  # Books and Theses
+    ARTICLE = 1           # ART, Conference and Workshop Papers
+    COMMUNICATION = 2     # COMM
+    JOURNAL = 3           # Journal Articles
+    REPORT = 4            # Report, Informal Publications
+    POSTER = 5            # POSTER
+    HDR = 6               # HDR
+    CHAPTER = 7           # COUV, Editorship
+    PATENT = 8            # PATENT
+    UNKNOWN = 9999        # UNDEFINED or ""
 
     def __str__(self) -> str:
         """
@@ -52,6 +53,7 @@ class DocType(IntEnum):
         """
         return self.value < other.value
 
+
 def doc_type_to_html(t: DocType, n: int = 1) -> str:
     """
     Builds the HTML label related to a collection of homogeneous documents.
@@ -64,8 +66,8 @@ def doc_type_to_html(t: DocType, n: int = 1) -> str:
         The corresponding HTML label.
     """
     ret = (
-        "Misc"            if t == DocType.UNKNOWN else
-        "Editorship"      if t == DocType.CHAPTER else
+        "Misc" if t == DocType.UNKNOWN else
+        "Editorship" if t == DocType.CHAPTER else
         "Journal article" if t == DocType.JOURNAL else
         t
     )

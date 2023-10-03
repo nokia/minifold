@@ -38,6 +38,7 @@ URLS = [
     "https://vimeo.com",
 ]
 
+
 def test_download():
     success = 0
     for url in URLS:
@@ -46,10 +47,11 @@ def test_download():
             success += 1
     assert success >= 1
 
+
 def test_download_connector():
-    entries = [{"url" : url} for url in URLS]
+    entries = [{"url": url} for url in URLS]
     c = DownloadConnector(
-        {"url" : "response"}, # Means entry["response"] = download(entry["url"])
+        {"url": "response"},  # Means entry["response"] = download(entry["url"])
         EntriesConnector(entries)
     )
     entries = c.query(Query())
@@ -60,13 +62,14 @@ def test_download_connector():
             success += 1
     assert success >= 1
 
+
 def test_download_select():
-    entries = [{"url" : url} for url in URLS]
+    entries = [{"url": url} for url in URLS]
     c = DownloadConnector(
-        {"url" : "response"},
+        {"url": "response"},
         EntriesConnector(entries)
     )
-    entries = c.query(Query(attributes = ("url", "response")))
+    entries = c.query(Query(attributes=("url", "response")))
 
     success = 0
     for entry in entries:
@@ -79,18 +82,18 @@ def test_html_to_text():
     urls = [
         "https://www.merriam-webster.com/dictionary/tapir"
     ]
-    entries = [{"url" : url} for url in urls]
+    entries = [{"url": url} for url in urls]
     c = DownloadConnector(
-        {"url" : "response"},
+        {"url": "response"},
         EntriesConnector(entries)
     )
-    entries = c.query(Query(attributes = ("url", "response")))
+    entries = c.query(Query(attributes=("url", "response")))
 
     success = 0
     for entry in entries:
         response = entry["response"]
         if isinstance(entry["response"], str):
-            assert not "</" in response, "Found </ in %r" % response
+            assert "</" not in response, "Found </ in %r" % response
             success += 1
     assert success >= 1
 
@@ -101,7 +104,7 @@ def test_html_to_text():
 #
 # import requests
 #
-# def responses_to_files(urls :list, map_url_response :dict, output_dir :str = ".") -> tuple:
+# def responses_to_files(urls: list, map_url_response: dict, output_dir: str = ".") -> tuple:
 #     new_urls = list()
 #     changed = False
 #     for (i, url) in enumerate(urls):
@@ -119,7 +122,7 @@ def test_html_to_text():
 #                 changed = True
 #     return (new_urls, changed)
 #
-# def load_urls(filename :str) -> list:
+# def load_urls(filename: str) -> list:
 #     with open(filename) as f:
 #         return [line.strip() for line in f if not line.startswith("#")]
 #
@@ -130,4 +133,3 @@ def test_html_to_text():
 #     if changed:
 #        with open(filename, "w") as f:
 #            print("\n".join(self.new_urls), file = f)
-

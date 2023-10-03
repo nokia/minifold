@@ -8,6 +8,7 @@ from minifold.entries_connector import EntriesConnector
 from minifold.query import Query
 from minifold.sort_by import sort_by, SortByConnector
 
+
 ENTRIES = [
     {"a": 1, "b": 200, "c": 31},
     {"a": 1, "b": 250, "c": 3},
@@ -81,6 +82,7 @@ EXPECTED_DESC = {
     ],
 }
 
+
 def test_sort_by_asc():
     for k in ["a", "b", "c", ("a", "b"), ("b", "a")]:
         obtained = sort_by(
@@ -88,6 +90,7 @@ def test_sort_by_asc():
             ENTRIES
         )
         assert obtained == EXPECTED_ASC[k]
+
 
 def test_sort_by_desc():
     for k in ["a", "b", "c", ("a", "b"), ("b", "a")]:
@@ -97,6 +100,7 @@ def test_sort_by_desc():
             True
         )
         assert obtained == EXPECTED_DESC[k]
+
 
 def test_sort_by_connector():
     sort_by_connector = SortByConnector(

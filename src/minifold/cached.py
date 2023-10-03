@@ -4,13 +4,14 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-import json, os, pickle
+import json
+import os
+import pickle
 from functools import partial
-from .cache import DEFAULT_CACHE_STORAGE_BASE_DIR
 from .entries_connector import EntriesConnector
 from .filesystem import mkdir
-from .cache import JsonCacheConnector
 from .log import Log
+
 
 class CachedEntriesConnector(EntriesConnector):
     """
@@ -89,7 +90,7 @@ class JsonCachedConnector(CachedEntriesConnector):
     The :py:class:`JsonCachedConnector` class implements the
     :py:class:`CachedEntriesConnector` using a tierce JSON file.
     """
-    def __init__(self, load_entries, cache_filename :str, **kwargs):
+    def __init__(self, load_entries: callable, cache_filename: str, **kwargs):
         """
         Constructor.
         See also :py:class:`CachedEntriesConnector.__init__`
@@ -103,10 +104,10 @@ class JsonCachedConnector(CachedEntriesConnector):
         super().__init__(
             load_entries,
             cache_filename,
-            load_cache = json.load,
-            save_cache = partial(json.dump, indent=4),
-            read_mode  = "r",
-            write_mode = "w",
+            load_cache=json.load,
+            save_cache=partial(json.dump, indent=4),
+            read_mode="r",
+            write_mode="w",
             **kwargs
         )
 
@@ -116,7 +117,7 @@ class PickleCachedConnector(CachedEntriesConnector):
     The :py:class:`PickleCachedConnector` class implements the
     :py:class:`CachedEntriesConnector` using a tierce pickle file.
     """
-    def __init__(self, load_entries, cache_filename :str, **kwargs):
+    def __init__(self, load_entries: callable, cache_filename: str, **kwargs):
         """
         Constructor.
         See also :py:class:`CachedEntriesConnector.__init__`
@@ -130,9 +131,9 @@ class PickleCachedConnector(CachedEntriesConnector):
         super().__init__(
             load_entries,
             cache_filename,
-            load_cache = pickle.load,
-            save_cache = pickle.dump,
-            read_mode  = "rb",
-            write_mode = "wb",
+            load_cache=pickle.load,
+            save_cache=pickle.dump,
+            read_mode="rb",
+            write_mode="wb",
             **kwargs
         )

@@ -16,7 +16,11 @@ def reverse_dict(d: dict) -> dict:
     Returns:
         The reversed dictionary.
     """
-    return {v : k for (k, v) in d.items()}
+    return {
+        v: k
+        for (k, v) in d.items()
+    }
+
 
 def freeze_dict(d: dict) -> dict:
     """
@@ -28,4 +32,7 @@ def freeze_dict(d: dict) -> dict:
     Returns:
         The freezed dictionary.
     """
-    return {k : frozenset(v) if isinstance(v, set) else v for (k, v) in d.items()}
+    return {
+        k: frozenset(v) if isinstance(v, set) else v
+        for (k, v) in d.items()
+    }

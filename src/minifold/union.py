@@ -8,6 +8,7 @@ from itertools import chain
 from .connector import Connector
 from .query import Query, ACTION_READ
 
+
 def union_gen(list_entries: list) -> iter:
     """
     Iterator over a list of list of dicts.
@@ -19,6 +20,7 @@ def union_gen(list_entries: list) -> iter:
         The resulting generator.
     """
     return chain(*list_entries)
+
 
 def union(list_entries: list) -> list:
     """
@@ -32,6 +34,7 @@ def union(list_entries: list) -> list:
         The resulting list of dicts.
     """
     return [entry for entry in union_gen(list_entries)]
+
 
 class UnionConnector(Connector):
     """
@@ -65,11 +68,11 @@ class UnionConnector(Connector):
         for child in self.children:
             try:
                 attrs |= child.attributes(object)
-            except:
+            except Exception:
                 pass
         return attrs
 
-    def query(self, query :Query) -> list:
+    def query(self, query: Query) -> list:
         """
         Handles an input :py:class:`Query` instance.
 

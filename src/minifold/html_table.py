@@ -7,6 +7,7 @@ from html.parser import HTMLParser
 from .log import Log
 from .entries_connector import EntriesConnector
 
+
 class HtmlTableParser(HTMLParser):
     """
     The :py:class:`HtmlTableParser` class extracts the values from an HTML table.
@@ -33,11 +34,11 @@ class HtmlTableParser(HTMLParser):
         """
         HTMLParser.__init__(self)
         self.fetch_data = False
-        self.columns    = columns
-        self.index      = 0
-        self.entries    = output_list
-        self.entry      = dict()
-        self.value      = str()
+        self.columns = columns
+        self.index = 0
+        self.entries = output_list
+        self.entry = dict()
+        self.value = str()
         self.keep_entry = keep_entry
 
     # Inherited abstract method
@@ -111,6 +112,7 @@ class HtmlTableParser(HTMLParser):
         if self.fetch_data and data:
             self.value += data
 
+
 def html_table(filename: str, columns: list, keep_entry: bool = None) -> list:
     """
     Loads an HTML table from an input file
@@ -139,25 +141,26 @@ def html_table(filename: str, columns: list, keep_entry: bool = None) -> list:
         parser.feed(s)
     return entries
 
+
 class HtmlTableConnector(EntriesConnector):
     """
     The :py:class:`HtmlTableConnector` class is a minifold gateway allowing
     to fetch data stored in an HTML table.
     """
-    def __init__(self, filename :str, columns :list, keep_entry = None):
+    def __init__(self, filename: str, columns: list, keep_entry: callable = None):
         """
         Constructor.
 
         Args:
-            filename: Input HTML filename.
-            columns: list of string mapping the attribute name
+            filename (str): Input HTML filename.
+            columns (list): list of string mapping the attribute name
                 corresponding with the index. If data is fetch
                 for columns having a greater index than
                 len(columns), columns[-1] is used, and this
                 key may store a list of string values instead
                 of a single string. This allow to store data
                 stored among several columns in a single attribute.
-            keep_entry: callback which determine whether an
+            keep_entry (callable): callback which determine whether an
                 must entry must be kept or discard. Pass None
                 to filter nothing. This is the opportunity to
                 discard a header or irrelevant row.

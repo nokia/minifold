@@ -28,6 +28,7 @@ UNDERLINED = 4
 BLINKING = 5
 HIGHLIGHTED = 7
 
+
 class Log:
     """
     The :py:class:`Log` enables logging in Minifold.
@@ -91,7 +92,7 @@ class Log:
         return "\033[0m"
 
     @classmethod
-    def print(cls, message_type: int, message: str, file = sys.stderr):
+    def print(cls, message_type: int, message: str, file=sys.stderr):
         """
         Internal method, used to orints a message with a custom header and style.
 
@@ -105,14 +106,14 @@ class Log:
             header = cls.message_header[message_type]
             print(
                 "%(start_style)s%(message)s%(end_style)s" % {
-                    "start_style" : cls.start_style(fg_color = color),
-                    "message"     : " ".join([
+                    "start_style": cls.start_style(fg_color=color),
+                    "message": " ".join([
                             header,
                             message if isinstance(message, str) else pformat(message)
                         ]),
-                    "end_style"   : cls.default_style()
+                    "end_style": cls.default_style()
                 },
-                file = file
+                file=file
             )
 
     @classmethod

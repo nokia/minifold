@@ -14,6 +14,7 @@ from .html import html
 from .query import Query
 from .unique import UniqueConnector
 
+
 def get_values(connector: Connector, attribute: str) -> list:
     """
     Retrieves distinct values mapped with a given attribute stored
@@ -33,14 +34,15 @@ def get_values(connector: Connector, attribute: str) -> list:
         [attribute],
         connector
     )
-    q = Query(attributes = [attribute])
+    q = Query(attributes=[attribute])
     return [entry[attribute] for entry in enriched_connector.query(q)]
 
+
 def show_some_values(
-    connector :Connector,
-    limit :int = 5,
-    max_strlen :int = None,
-    query :Query = None
+    connector: Connector,
+    limit: int = 5,
+    max_strlen: int = None,
+    query: Query = None
 ):
     """
     Displays in Jupyter notebook some values for each attribute of the entries
@@ -58,7 +60,7 @@ def show_some_values(
         query = Query()
 
     map_values = {
-        attribute : get_values(connector, attribute)
+        attribute: get_values(connector, attribute)
         for attribute in connector.attributes(query.object)
     }
 
@@ -73,17 +75,17 @@ def show_some_values(
             %(rows)s
         </table>
         """ % {
-            "limit" : limit,
-            "rows"  : "".join(["""
+            "limit": limit,
+            "rows": "".join(["""
                 <tr>
                     <td><code>%(attribute)s</code></td>
                     <td>%(num_values)d</td>
                     <td style="text-align:left"><code>%(values)s</code></td>
                 </tr>
                 """ % {
-                    "attribute"  : attribute,
-                    "num_values" : len(map_values[attribute]),
-                    "values" : "<br/>".join([
+                    "attribute": attribute,
+                    "num_values": len(map_values[attribute]),
+                    "values": "<br/>".join([
                         str(x)[:max_strlen] for x in map_values[attribute][:limit]
                     ]),
                 } for attribute in connector.attributes(query.object)

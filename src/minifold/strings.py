@@ -53,6 +53,7 @@ MAP_TO_INTERNATIONAL = {
     "ß": "ss",
 }
 
+
 def to_international_chr(c: str) -> str:
     """
     Converts international characters to the corresponding character(s)
@@ -71,6 +72,7 @@ def to_international_chr(c: str) -> str:
         The corresponding characters(s).
     """
     return MAP_TO_INTERNATIONAL.get(c, c)
+
 
 def to_international_string(s: str) -> str:
     """
@@ -91,6 +93,7 @@ def to_international_string(s: str) -> str:
     translator = str.maketrans(MAP_TO_INTERNATIONAL)
     return s.translate(translator)
 
+
 def remove_punctuation(s: str) -> str:
     """
     Replaces the punctuation characters by spaces.
@@ -108,6 +111,7 @@ def remove_punctuation(s: str) -> str:
     translator = str.maketrans({key: " " for key in string.punctuation})
     return s.translate(translator)
 
+
 def remove_html_tags(s: str) -> str:
     """
     Removes the HTML tag from an HTML string.
@@ -123,6 +127,7 @@ def remove_html_tags(s: str) -> str:
         The converted string.
     """
     return re.sub("<[^>]+>", "", s)
+
 
 def remove_html_escape_sequences(s: str) -> str:
     """
@@ -140,6 +145,7 @@ def remove_html_escape_sequences(s: str) -> str:
     """
     return re.sub("[&].*;", "", s)
 
+
 def remove_latex_escape_sequence(s: str) -> str:
     """
     Removes the latex sequences.
@@ -155,6 +161,7 @@ def remove_latex_escape_sequence(s: str) -> str:
         The converted string.
     """
     return re.sub("\\\\[a-zA-Z0-9]+ ", "", s)
+
 
 def to_canonic_string(s: str) -> str:
     """
@@ -172,6 +179,7 @@ def to_canonic_string(s: str) -> str:
     s = remove_latex_escape_sequence(s)
     s = s.replace(" ", "")  # Remove  spaces
     return s
+
 
 def to_canonic_fullname(s: str) -> str:
     """
@@ -192,6 +200,7 @@ def to_canonic_fullname(s: str) -> str:
     s = re.sub("[a-zA-Z]+[.]", "", s)  # Remove sigles
     s = " ".join(s.split())            # Remove useless spaces
     return s
+
 
 def unicode_to_utf8(s: str) -> str:
     """

@@ -14,6 +14,7 @@ ACTION_DELETE = 3  # For DELETE ... queries
 SORT_ASC = True    # For ... SORT BY ... ASC queries
 SORT_DESC = False  # For ... SORT BY ... DESC queries
 
+
 def action_to_str(action: int) -> str:
     """
     Converts an :py:class:`Query` action to its corresponding string.
@@ -39,10 +40,11 @@ def action_to_str(action: int) -> str:
     else:
         raise RuntimeError("action_to_str: invalid action %s" % action)
 
+
 class Query:
     def __init__(
         self,
-        action = ACTION_READ,
+        action: int = ACTION_READ,
         object: str = "",
         attributes: list = None,
         filters: object = None,
@@ -152,7 +154,8 @@ class Query:
 
     def __str__(self) -> str:
         """
-        Converts this :py:class:`Query` instance to its corresponding string representation.
+        Converts this :py:class:`Query` instance to its
+        corresponding string representation.
 
         Returns:
             The corresponding string representation.
@@ -165,7 +168,7 @@ class Query:
             "object": " FROM %s" % self.object if self.object else "",
             "filters": " WHERE %s" % self.filters if self.filters else "",
             "limit": " LIMIT %s" % self.limit if self.limit else "",
-            "offset": " OFFSET %s" % self.offset if self.offset  else "",
+            "offset": " OFFSET %s" % self.offset if self.offset else "",
             "sort_by": " SORT BY %s" % ", ".join(
                     [
                         "%s %s" % (

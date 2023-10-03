@@ -7,6 +7,7 @@
 from .connector import Connector
 from .query import Query, ACTION_READ
 
+
 def count_gen(gen: iter) -> int:
     """
     Count the number of elements listed by a generator.
@@ -21,6 +22,7 @@ def count_gen(gen: iter) -> int:
     for _ in gen:
         n += 1
     return n
+
 
 def count(entries: list) -> int:
     """
@@ -38,6 +40,7 @@ def count(entries: list) -> int:
     """
     return len(entries)
 
+
 class CountConnector(Connector):
     """
     The :py:class:`CountConnector` class is used to implement the COUNT
@@ -45,7 +48,7 @@ class CountConnector(Connector):
     connector returning an integer (instead of a list of entries) this
     is often the root connector in the tree modeling the minifold query plan.
     """
-    def __init__(self, child :Connector):
+    def __init__(self, child: Connector):
         """
         Constructor.
 

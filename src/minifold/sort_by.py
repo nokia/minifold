@@ -8,7 +8,12 @@ from .connector import Connector
 from .query import Query
 from .values_from_dict import ValuesFromDictFonctor
 
-def sort_by_impl(functor: ValuesFromDictFonctor, entries: list, desc: bool = True) -> list:
+
+def sort_by_impl(
+    functor: ValuesFromDictFonctor,
+    entries: list,
+    desc: bool = True
+) -> list:
     """
     Implementation details of :func:`sort_by`.
 
@@ -24,7 +29,12 @@ def sort_by_impl(functor: ValuesFromDictFonctor, entries: list, desc: bool = Tru
     """
     return sorted(entries, key=functor, reverse=desc)
 
-def sort_by(attributes :list, entries :list, desc: bool = False) -> list:
+
+def sort_by(
+    attributes: list,
+    entries: list,
+    desc: bool = False
+) -> list:
     """
     Sorts a list of minifold entries.
 
@@ -39,6 +49,7 @@ def sort_by(attributes :list, entries :list, desc: bool = False) -> list:
     """
     functor = ValuesFromDictFonctor(attributes)
     return sort_by_impl(functor, entries, desc)
+
 
 class SortByConnector(Connector):
     """
@@ -61,7 +72,7 @@ class SortByConnector(Connector):
         self.m_child = child
         self.m_desc = desc
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
         """
         Lists the available attributes related to a given collection of
         minifold entries exposed by this :py:class:`SortByConnector` instance.
@@ -96,7 +107,7 @@ class SortByConnector(Connector):
         """
         return self.m_desc
 
-    def query(self, q :Query) -> list:
+    def query(self, q: Query) -> list:
         """
         Handles an input :py:class:`Query` instance.
 

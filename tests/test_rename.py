@@ -27,10 +27,11 @@ RENAME_CONNECTOR = RenameConnector(
     EntriesConnector(ENTRIES)
 )
 
+
 def test_rename_select_where():
     query = Query(
-        attributes = ["A", "C", "D"],
-        filters = BinaryPredicate(
+        attributes=["A", "C", "D"],
+        filters=BinaryPredicate(
             BinaryPredicate("A", "<=", 100),
             "&&",
             BinaryPredicate("b", ">", 20)
@@ -42,6 +43,7 @@ def test_rename_select_where():
         {"A": 100, "C": 300, "D": None},
         {"A": 100, "C": None, "D": 400}
     ]
+
 
 def test_rename_attributes():
     obtained = RENAME_CONNECTOR.attributes(None)

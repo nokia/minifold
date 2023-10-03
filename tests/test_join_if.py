@@ -11,17 +11,17 @@ from minifold.join_if import (
     inner_join_if, left_join_if, right_join_if, full_outer_join_if
 )
 from minifold.query import Query
-from minifold.strings import to_canonic_string
 
 ENTRIES1 = [
-    {"k1" : "left",   "k12" : "only1"},
-    {"k1" : "match1", "k12" : "match"}
+    {"k1": "left", "k12": "only1"},
+    {"k1": "match1", "k12": "match"}
 ]
 
 ENTRIES2 = [
-    {"k2" : "right",  "k12" : "only2"},
-    {"k2" : "match2", "k12" : "match"}
+    {"k2": "right",  "k12": "only2"},
+    {"k2": "match2", "k12": "match"}
 ]
+
 
 def test_left_join():
     obtained = left_join_if(
@@ -29,10 +29,11 @@ def test_left_join():
         lambda l, r: l["k12"] == r["k12"]
     )
     expected = [
-        {"k1" : "left",   "k12" : "only1", "k2" : None},
-        {"k1" : "match1", "k12" : "match", "k2" : "match2"}
+        {"k1": "left", "k12": "only1", "k2": None},
+        {"k1": "match1", "k12": "match", "k2": "match2"}
     ]
     assert obtained == expected
+
 
 def test_right_join():
     obtained = right_join_if(
@@ -40,10 +41,11 @@ def test_right_join():
         lambda l, r: l["k12"] == r["k12"]
     )
     expected = [
-        {"k1" : None,     "k12" : "only2", "k2" : "right"},
-        {"k1" : "match1", "k12" : "match", "k2" : "match2"}
+        {"k1": None, "k12": "only2", "k2": "right"},
+        {"k1": "match1", "k12": "match", "k2": "match2"}
     ]
     assert obtained == expected
+
 
 def test_full_outer_join():
     obtained = full_outer_join_if(
@@ -51,11 +53,12 @@ def test_full_outer_join():
         lambda l, r: l["k12"] == r["k12"]
     )
     expected = [
-        {"k1" : "left",   "k12" : "only1", "k2" : None},
-        {"k1" : "match1", "k12" : "match", "k2" : "match2"},
-        {"k1" : None,     "k12" : "only2", "k2" : "right"}
+        {"k1": "left", "k12": "only1", "k2": None},
+        {"k1": "match1", "k12": "match", "k2": "match2"},
+        {"k1": None, "k12": "only2", "k2": "right"}
     ]
     assert obtained == expected
+
 
 def test_inner_join():
     obtained = inner_join_if(
@@ -63,16 +66,17 @@ def test_inner_join():
         lambda l, r: l["k12"] == r["k12"]
     )
     expected = [
-        {"k1" : "match1", "k12" : "match", "k2" : "match2"}
+        {"k1": "match1", "k12": "match", "k2": "match2"}
     ]
     assert obtained == expected
 
+
 def test_join_if_connector():
     expected = {
-        INNER_JOIN      : 1,
-        LEFT_JOIN       : 2,
-        RIGHT_JOIN      : 2,
-        FULL_OUTER_JOIN : 3
+        INNER_JOIN: 1,
+        LEFT_JOIN: 2,
+        RIGHT_JOIN: 2,
+        FULL_OUTER_JOIN: 3
     }
     for mode in expected.keys():
         connector = JoinIfConnector(

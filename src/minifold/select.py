@@ -7,7 +7,8 @@
 from .connector import Connector
 from .query import Query
 
-def select(entries :list, attributes :list) -> list:
+
+def select(entries: list, attributes: list) -> list:
     """
     Implements the SELECT statement for a list of minifold entries.
 
@@ -22,7 +23,8 @@ def select(entries :list, attributes :list) -> list:
     Returns:
         The input entries, restricted to the key of interest.
     """
-    return [{k : entry[k] for k in attributes} for entry in entries]
+    return [{k: entry[k] for k in attributes} for entry in entries]
+
 
 class SelectConnector(Connector):
     """
@@ -42,7 +44,7 @@ class SelectConnector(Connector):
         self.m_child = child
         self.m_attributes = attributes
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
         """
         Lists the available attributes related to a given collection of
         minifold entries exposed by this :py:class:`SelectConnector` instance.
@@ -65,7 +67,7 @@ class SelectConnector(Connector):
         """
         return self.m_child
 
-    def query(self, query :Query) -> list:
+    def query(self, query: Query) -> list:
         """
         Handles an input :py:class:`Query` instance.
 

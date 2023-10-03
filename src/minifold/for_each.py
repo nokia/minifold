@@ -72,6 +72,7 @@ class ForEachFilter:
 
         return True
 
+
 def for_each_sub_entry(entry, attribute: str, map_lambda: dict) -> dict:
     """
     Applies a set of lambda functions to the sub-entries carried by

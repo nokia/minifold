@@ -5,8 +5,8 @@
 # https://github.com/nokia/minifold
 
 try:
-    from ldap3                  import Server, Connection, SUBTREE, ALL_ATTRIBUTES, ALL
-    from ldap3.core.exceptions  import LDAPInvalidFilterError
+    from ldap3 import Server, Connection, SUBTREE, ALL_ATTRIBUTES, ALL
+    from ldap3.core.exceptions import LDAPInvalidFilterError
 except ImportError as e:
     from .log import Log
     Log.warning(
@@ -21,6 +21,7 @@ from .connector import Connector
 from .query import Query, ACTION_READ
 from .binary_predicate import BinaryPredicate
 from .log import Log
+
 
 class LdapConnector(Connector):
     def __init__(
@@ -41,7 +42,7 @@ class LdapConnector(Connector):
                 be established using SSL, ``False`` or ``None`` otherwise.
         """
         super().__init__()
-        self.m_server     = Server(ldap_host, use_ssl=ldap_use_ssl, get_info=ALL)
+        self.m_server = Server(ldap_host, use_ssl=ldap_use_ssl, get_info=ALL)
         self.m_connection = Connection(self.m_server, ldap_user, ldap_password)
         self.m_connection.bind()
 
@@ -171,7 +172,7 @@ class LdapConnector(Connector):
             The corresponding sanitized dictionary.
         """
         sane = False
-        for k,v in d.items():
+        for k, v in d.items():
             # raw values are always list
             if len(v) == 1:
                 d[k] = LdapConnector.literal_from_ldap(v[0])
@@ -210,8 +211,8 @@ class LdapConnector(Connector):
             try:
                 if attributes != ALL_ATTRIBUTES:
                     attributes = set(attributes) & self.attributes(q.object)
-                Log.info("--> LDAP: dn = %s filter = %s attributes = %s"
-                    % (
+                Log.info(
+                    "--> LDAP: dn = %s filter = %s attributes = %s" % (
                         q.object,
                         keep_if,
                         attributes
@@ -220,8 +221,8 @@ class LdapConnector(Connector):
                 self.m_connection.search(
                     q.object,
                     keep_if,
-                    search_scope = SUBTREE,
-                    attributes = attributes
+                    search_scope=SUBTREE,
+                    attributes=attributes
                 )
             except LDAPInvalidFilterError as e:
                 Log.error("LdapConnector::query: Invalid filter: %s" % keep_if)

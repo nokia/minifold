@@ -7,6 +7,7 @@
 from .connector import Connector
 from .query import Query, ACTION_READ, action_to_str
 
+
 class EntriesConnector(Connector):
     """
     :py:class:`EntriesConnector` wraps a list of minifold entries

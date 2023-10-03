@@ -4,9 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-import sys
-from pprint import pprint
-
 from minifold.entries_connector import EntriesConnector
 from minifold.query import Query
 from minifold.select import select, SelectConnector
@@ -25,25 +22,26 @@ EXPECTED = [
     {"a": 100, "c": 300}
 ]
 
+
 def test_select():
     obtained = select(ENTRIES, ATTRIBUTES)
     assert obtained == EXPECTED
 
+
 def test_select_on_entries_connector():
     entries_connector = EntriesConnector(ENTRIES)
     obtained = entries_connector.query(
-        Query(
-            attributes = ATTRIBUTES
-        )
+        Query(attributes=ATTRIBUTES)
     )
     assert obtained == EXPECTED
+
 
 def test_select_connector_alters_query():
     entries_connector = EntriesConnector(ENTRIES)
     select_connector = SelectConnector(entries_connector, ATTRIBUTES)
     obtained = select_connector.query(
         Query(
-            attributes = []
+            attributes=[]
         )
     )
     assert obtained == EXPECTED

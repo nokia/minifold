@@ -6,10 +6,12 @@
 
 from minifold.proxy import Proxy, proxy_enable_localhost, proxy_disable
 
+
 def test_proxy_disabled():
     proxy = Proxy()
     assert not proxy.get("http")
     assert not proxy.get("https")
+
 
 def test_proxy_enable_disable():
     proxy = Proxy()

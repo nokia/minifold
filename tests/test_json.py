@@ -8,6 +8,7 @@ from minifold.binary_predicate import BinaryPredicate
 from minifold.json import JsonConnector
 from minifold.query import Query
 
+
 JSON_CONTENT = """
 [
     {
@@ -23,22 +24,24 @@ JSON_CONTENT = """
 ]
 """
 
+
 def test_json_select():
     connector = JsonConnector(JSON_CONTENT)
     firstnames = {
-        entry["firstname"] \
-        for entry in connector.query(Query(attributes = ["firstname"]))
+        entry["firstname"]
+        for entry in connector.query(Query(attributes=["firstname"]))
     }
     assert firstnames == {"John", "Jane"}
+
 
 def test_json_select_where():
     connector = JsonConnector(JSON_CONTENT)
     john_lastnames = {
-        entry["lastname"] \
+        entry["lastname"]
         for entry in connector.query(
             Query(
-                attributes = ["lastname"],
-                filters    = BinaryPredicate("firstname", "==", "John")
+                attributes=["lastname"],
+                filters=BinaryPredicate("firstname", "==", "John")
             )
         )
     }

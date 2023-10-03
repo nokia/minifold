@@ -6,12 +6,12 @@
 
 try:
     # Beautiful soup tests
-    from bs4           import BeautifulSoup
+    from bs4 import BeautifulSoup
     from minifold.html import remove_tags, sanitize_html
 
     def test_remove_tags_flat():
         s = "<html><body>ab<i>xxxx</i>cd</i><b>yyyyy</b>ef</body></html>"
-        soup = BeautifulSoup(s, features = "lxml")
+        soup = BeautifulSoup(s, features="lxml")
         tags = ["i", "b"]
         remove_tags(soup, tags)
         assert str(soup) == "<html><body>abcdef</body></html>"
@@ -33,7 +33,7 @@ try:
 </html>"""
 
     def test_remove_tags_rec():
-        soup = BeautifulSoup(HTML1, features = "lxml")
+        soup = BeautifulSoup(HTML1, features="lxml")
         remove_tags(soup, ["script"])
         assert str(soup) == EXPECTED1
 

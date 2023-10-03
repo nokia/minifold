@@ -4,25 +4,28 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-import io, csv
+import csv
+import io
 from enum import IntEnum
 
 from .connector import Connector
 from .query import Query, ACTION_READ, action_to_str
 from .log import Log
 
+
 class CsvModeEnum(IntEnum):
     """
     Enumeration listing the different kind of supported CSV data source.
     """
     FILENAME = 0  # Use text file
-    STRING   = 1  # Use str
-    TEXTIO   = 2  # Use any class inheriting TextIOBase
+    STRING = 1    # Use str
+    TEXTIO = 2    # Use any class inheriting TextIOBase
 
     def __str__(self) -> str:
         s = IntEnum.__str__(self)
         i = len(self.__class__.__name__)
         return s[i + 1:]
+
 
 class CsvConnector(Connector):
     """
@@ -54,9 +57,9 @@ class CsvConnector(Connector):
         """
         super().__init__()
         stream = (
-            open(data, "rt")  if mode == CsvModeEnum.FILENAME else
-            io.StringIO(data) if mode == CsvModeEnum.STRING   else
-            data              if mode == CsvModeEnum.TEXTIO   else
+            open(data, "rt") if mode == CsvModeEnum.FILENAME else
+            io.StringIO(data) if mode == CsvModeEnum.STRING else
+            data if mode == CsvModeEnum.TEXTIO else
             None
         )
         if not stream:
@@ -76,8 +79,10 @@ class CsvConnector(Connector):
         # Assuming that attributes are declared in the first line of the CSV data.
         self.indexed_attributes = rows[0]
         self.entries = [
-            {self.indexed_attributes[i] : v
-            for (i, v) in enumerate(row)} for row in rows[1:]
+            {
+                self.indexed_attributes[i]: v
+                for (i, v) in enumerate(row)
+            } for row in rows[1:]
         ]
 
     def attributes(self, object: str):

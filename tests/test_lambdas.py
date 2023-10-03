@@ -18,15 +18,17 @@ ENTRIES = [
     {"a": 100, "b": 200, "c": 300, "d": 400}
 ]
 
+
 class StrictEntriesConnector(EntriesConnector):
     def __init__(self, entries):
         super().__init__(entries)
         self.last_queried_attributes = None
 
-    def query(self, q :Query) -> list:
+    def query(self, q: Query) -> list:
         assert set(q.attributes) <= self.attributes(None)
         self.last_queried_attributes = set(q.attributes)
         return super().query(q)
+
 
 STRICT_CONNECTOR = StrictEntriesConnector(ENTRIES)
 
@@ -42,15 +44,18 @@ MAP_LAMBDAS = {
 
 LAMBDAS_CONNECTOR = LambdasConnector(MAP_LAMBDAS, STRICT_CONNECTOR)
 
-def check_keys(entries :list, expected_keys :set):
+
+def check_keys(entries: list, expected_keys: set):
     for entry in entries:
         assert set(entry.keys()) == expected_keys
+
 
 def test_find_lambda_dependencies():
     obtained = find_lambda_dependencies(MAP_LAMBDAS["a2"])
     assert obtained == {"a"}
     obtained = find_lambda_dependencies(MAP_LAMBDAS["a3"])
     assert obtained == {"a", "a2"}
+
 
 def test_find_lambdas_dependencies():
     map_required_keys = find_lambdas_dependencies(MAP_LAMBDAS)
@@ -65,15 +70,17 @@ def test_find_lambdas_dependencies():
     }
     assert map_required_keys == expected
 
+
 def test_lambdas_simple():
     attributes = {"a", "b", "c"}
-    obtained = LAMBDAS_CONNECTOR.query(Query(attributes = attributes))
+    obtained = LAMBDAS_CONNECTOR.query(Query(attributes=attributes))
     check_keys(obtained, attributes)
     assert obtained == [
         {"a": 1, "b": 2, "c": 3},
         {"a": 10, "b": 20, "c": 30},
         {"a": 100, "b": 200, "c": 300}
     ]
+
 
 def test_lambdas_all():
     attributes = {
@@ -87,14 +94,16 @@ def test_lambdas_all():
     check_keys(obtained, attributes)
     assert STRICT_CONNECTOR.last_queried_attributes == set()
 
-    obtained = LAMBDAS_CONNECTOR.query(Query(attributes = attributes))
+    obtained = LAMBDAS_CONNECTOR.query(Query(attributes=attributes))
     check_keys(obtained, attributes)
     assert STRICT_CONNECTOR.last_queried_attributes == {"a", "b", "c", "d"}
 
+
 def test_lambdas_x2():
     attributes = {"a2", "b2", "c2"}
-    obtained = LAMBDAS_CONNECTOR.query(Query(attributes = attributes))
+    obtained = LAMBDAS_CONNECTOR.query(Query(attributes=attributes))
     check_keys(obtained, attributes)
+
 
 def test_lambdas_where():
     expected = [
@@ -112,11 +121,12 @@ def test_lambdas_where():
         }
     ]
 
-    obtained = LAMBDAS_CONNECTOR.query(Query(filters = lambda e: e["a"] == 10))
+    obtained = LAMBDAS_CONNECTOR.query(Query(filters=lambda e: e["a"] == 10))
     assert obtained == expected
 
-    obtained = LAMBDAS_CONNECTOR.query(Query(filters = lambda e: e["a2"] == 100))
+    obtained = LAMBDAS_CONNECTOR.query(Query(filters=lambda e: e["a2"] == 100))
     assert obtained == expected
+
 
 def test_lambdas_select_where():
     expected = [
@@ -129,16 +139,17 @@ def test_lambdas_select_where():
     ]
 
     obtained = LAMBDAS_CONNECTOR.query(Query(
-        attributes = ["a2", "a3", "b", "b2"],
-        filters = lambda e: e["a"] == 10
+        attributes=["a2", "a3", "b", "b2"],
+        filters=lambda e: e["a"] == 10
     ))
     assert obtained == expected
 
     obtained = LAMBDAS_CONNECTOR.query(Query(
-        attributes = ["a2", "a3", "b", "b2"],
-        filters = lambda e: e["a2"] == 100
+        attributes=["a2", "a3", "b", "b2"],
+        filters=lambda e: e["a2"] == 100
     ))
     assert obtained == expected
+
 
 def test_lambdas_attributes():
     obtained = LAMBDAS_CONNECTOR.attributes(None)

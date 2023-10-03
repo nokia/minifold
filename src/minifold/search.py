@@ -7,6 +7,7 @@
 import re
 from .where import where
 
+
 def equals(x: object, y: object) -> bool:
     """
     Tests whether two objects are equal (wraps the ``==`` operator).
@@ -27,6 +28,7 @@ def equals(x: object, y: object) -> bool:
     """
     return x == y
 
+
 def contains(x: object, y: object) -> bool:
     """
     Tests whether two objects are equal (wraps the ``==`` operator).
@@ -44,6 +46,7 @@ def contains(x: object, y: object) -> bool:
         ``False`` otherwise.
     """
     return x in y
+
 
 def lower_case_equals(x: str, y: str) -> bool:
     """
@@ -63,6 +66,7 @@ def lower_case_equals(x: str, y: str) -> bool:
     """
     return x.lower() == y.lower()
 
+
 def lower_case_contains(x: str, y: str) -> bool:
     """
     Checks whether a string is included in another one without considering the case.
@@ -80,6 +84,7 @@ def lower_case_contains(x: str, y: str) -> bool:
         ``False`` otherwise.
     """
     return x.lower() in y.lower()
+
 
 def contains_words(word: str, sentence: str, ignore_case: bool = True):
     """
@@ -105,6 +110,7 @@ def contains_words(word: str, sentence: str, ignore_case: bool = True):
     flags = re.IGNORECASE if ignore_case else 0
     regex = re.compile(pattern, flags)
     return bool(regex.match(sentence))
+
 
 class SearchFilter:
     """
@@ -146,6 +152,7 @@ class SearchFilter:
                 if self.match(search_value, entry[attribute]):
                     return True
         return False
+
 
 def search(
     entries: list,

@@ -25,7 +25,8 @@ LEFT_JOIN = 2  # Returns left entries + matching right entries (=> right attribu
 RIGHT_JOIN = 3  # Returns right entries + matching left entries (=> left attributes may be None)
 FULL_OUTER_JOIN = 4  # Returns left and right entries while merging matching entries
 
-def merge_dict(l :dict, r :dict) -> dict:
+
+def merge_dict(l_entry: dict, r_entry: dict) -> dict:
     """
     Merges two dictionaries. The input dictionaries are not altered.
 
@@ -34,15 +35,16 @@ def merge_dict(l :dict, r :dict) -> dict:
         {'a': 1, 'b': 3, 'c': 4}
 
     Args:
-        l (dict): A dictionary.
-        r (dict): Another dictionary.
+        l_entry (dict): A dictionary.
+        r_entry (dict): Another dictionary.
 
     Returns:
         The dictionary obtained by merging ``l`` and ``r``.
     """
-    ret = l.copy()
-    ret.update(r)
+    ret = l_entry.copy()
+    ret.update(r_entry)
     return ret
+
 
 def join_mode_to_string(mode: int) -> str:
     """
@@ -60,14 +62,19 @@ def join_mode_to_string(mode: int) -> str:
         return "FULL OUTER JOIN"
     return "?"
 
-def are_joined_if(l: dict, r: dict, f: callable) -> bool:
+
+def are_joined_if(
+    l_entry: dict,
+    r_entry: dict,
+    f: callable
+) -> bool:
     """
     Internal function, used to check whether two dictionaries can be joined
     according to a functor.
 
     Args:
-        l (dict): The dictionary corresponding to the left operand.
-        r (dict): The dictionary corresponding to the right operand.
+        l_entry (dict): The dictionary corresponding to the left operand.
+        r_entry (dict): The dictionary corresponding to the right operand.
         f (callable): A functor such that ``f(l, r)`` returns
             ``True`` if and only if ``l`` and ``r`` can be joined,
             ``False`` otherwise.
@@ -81,9 +88,12 @@ def are_joined_if(l: dict, r: dict, f: callable) -> bool:
         ``False`` otherwise.
     """
     try:
-        return f(l, r)
+        return f(l_entry, r_entry)
     except KeyError as e:
-        raise RuntimeError("Cannot join\n\tl = %r\n\tr = %r\n%s" % (l, r, e))
+        raise RuntimeError(
+            "Cannot join\n\tl = %r\n\tr = %r\n%s" % (l_entry, r_entry, e)
+        )
+
 
 def inner_join_if(
     l_entries: list,
@@ -111,19 +121,21 @@ def inner_join_if(
         The corresponding list of entries.
     """
     ret = list()
-    for l in l_entries:
-        for r in r_entries:
-            if are_joined_if(l, r, f):
-                ret.append(merge(l, r))
+    for l_entry in l_entries:
+        for r_entry in r_entries:
+            if are_joined_if(l_entry, r_entry, f):
+                ret.append(merge(l_entry, r_entry))
                 if match_once:
                     break
     return ret
 
+
 def left_join_if(
-    l_entries :list,
-    r_entries :list, f,
-    match_once = True,
-    merge = merge_dict
+    l_entries: list,
+    r_entries: list,
+    f: callable,
+    match_once: bool = True,
+    merge: callable = merge_dict
 ) -> list:
     """
     Computes the LEFT JOIN of two lists of minifold entries.
@@ -145,18 +157,18 @@ def left_join_if(
     """
     ret = list()
     if len(r_entries) > 0:
-        for l in l_entries:
+        for l_entry in l_entries:
             joined = False
-            r = None
-            for r in r_entries:
-                if are_joined_if(l, r, f):
+            r_entry = None
+            for r_entry in r_entries:
+                if are_joined_if(l_entry, r_entry, f):
                     joined = True
-                    ret.append(merge(l, r))
+                    ret.append(merge(l_entry, r_entry))
                     if match_once:
                         break
             if joined is False:
-                entry = l
-                missing_keys = set(r.keys()) - set(l.keys())
+                entry = l_entry
+                missing_keys = set(r_entry.keys()) - set(l_entry.keys())
                 for k in missing_keys:
                     entry[k] = None
                 ret.append(entry)
@@ -164,7 +176,13 @@ def left_join_if(
         ret = l_entries
     return ret
 
-def right_join_if(l_entries :list, r_entries :list, f, match_once = True) -> list:
+
+def right_join_if(
+    l_entries: list,
+    r_entries: list,
+    f: callable,
+    match_once: bool = True
+) -> list:
     """
     Computes the RIGHT JOIN of two lists of minifold entries.
 
@@ -181,9 +199,19 @@ def right_join_if(l_entries :list, r_entries :list, f, match_once = True) -> lis
     Returns:
         The corresponding list of entries.
     """
-    return left_join_if(r_entries, l_entries, lambda l,r: f(r,l), match_once)
+    return left_join_if(
+        r_entries,
+        l_entries, lambda l_entry, r_entry: f(r_entry, l_entry),
+        match_once
+    )
 
-def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -> list:
+
+def full_outer_join_if(
+    l_entries: list,
+    r_entries: list,
+    f: callable,
+    match_once: bool = True
+) -> list:
     """
     Computes the FULL OUTER JOIN of two lists of minifold entries.
 
@@ -205,25 +233,26 @@ def full_outer_join_if(l_entries :list, r_entries :list, f, match_once = True) -
 
     # Retrieve left keys
     l_keys = set()
-    for l in l_entries:
-        l_keys |= {k for k in l.keys()}
+    for l_entry in l_entries:
+        l_keys |= {k for k in l_entry.keys()}
 
     # Get missing right entries
-    for r in r_entries:
+    for r_entry in r_entries:
         joined = False
-        for l in l_entries:
-            if are_joined_if(l, r, f):
+        for l_entry in l_entries:
+            if are_joined_if(l_entry, r_entry, f):
                 joined = True
                 break
 
         if not joined:
-            entry = r
-            missing_keys = set(l_keys) - set(r.keys())
+            entry = r_entry
+            missing_keys = set(l_keys) - set(r_entry.keys())
             for k in missing_keys:
                 entry[k] = None
             ret.append(entry)
 
     return ret
+
 
 class JoinIfConnector(Connector):
     """
@@ -259,7 +288,7 @@ class JoinIfConnector(Connector):
         self.m_right_entries = list()
         self.m_mode = mode
 
-    def attributes(self, object :str):
+    def attributes(self, object: str):
         """
         Lists the available attributes related to a given collection of
         minifold entries exposed by this :py:class:`JoinIfConnector` instance.

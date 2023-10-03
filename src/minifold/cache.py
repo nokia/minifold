@@ -4,10 +4,13 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-import datetime, functools, json, os, pickle, sys, traceback
+import datetime
+import json
+import os
+import pickle
+import traceback
 
 from functools import partial
-from pprint import pprint
 
 from .connector import Connector
 from .filesystem import check_writable_directory, mtime, mkdir, rm
@@ -115,7 +118,7 @@ class CacheConnector(Connector):
         try:
             data = self.callback_read(query)
             success = (data is not None)
-        except:
+        except Exception:
             Log.error(
                 "CacheConnector.read(%s): Cannot read cache:\n%s" % (
                     query,
@@ -139,7 +142,7 @@ class CacheConnector(Connector):
         success = True
         try:
             self.callback_write(query, data)
-        except:
+        except Exception:
             Log.error(
                 "CacheConnector.write(%s, %s): Cannot write cache:\n%s" % (
                     traceback.format_exc(),
@@ -172,8 +175,9 @@ class CacheConnector(Connector):
 
         Args:
             query (Query): The handled :py:class:`Query` instance.
-            data (object): The data fetched by this :py:class:`Query` that must be
-                saved to this :py:class:`CacheEntriesConnector` instance.
+            data (object): The data fetched by this :py:class:`Query` that
+                must be saved to this :py:class:`CacheEntriesConnector`
+                instance.
 
         Returns:
             ``True`` if ``query`` may be cached in this
@@ -186,9 +190,10 @@ class CacheConnector(Connector):
         """
         Handles an incoming :py:class:`Query` instance.
 
-        The :py:class:`CacheEntriesConnector` checks whether it is already cached.
-        If ``query`` is cached in this :py:class:`CacheEntriesConnector`, it is not
-        forwarded to :py:attr:`self.child` and the results are directly from the cache.
+        The :py:class:`CacheEntriesConnector` checks whether it is already
+        cached. If ``query`` is cached in this
+        :py:class:`CacheEntriesConnector`, it is not forwarded to
+        :py:attr:`self.child` and the results are directly from the cache.
         Otherwise, it is forwarded to :py:attr:`self.child`.
 
         Args:
@@ -210,7 +215,11 @@ class CacheConnector(Connector):
 
 
 # Default parameters, used to initialize StorageCacheConnector class members.
-DEFAULT_CACHE_STORAGE_BASE_DIR = os.path.join(os.path.expanduser("~"), ".minifold", "cache")
+DEFAULT_CACHE_STORAGE_BASE_DIR = os.path.join(
+    os.path.expanduser("~"),
+    ".minifold",
+    "cache"
+)
 DEFAULT_CACHE_STORAGE_LIFETIME = datetime.timedelta(days=3)
 
 
@@ -231,7 +240,8 @@ def make_cache_dir(base_dir: str, sub_dir: str = ""):
 class StorageCacheConnector(CacheConnector):
     """
     :py:class:`StorageCacheConnector` is an abstract class
-    that specializes of :py:class:`CacheConnector` to manage file on the local storage.
+    that specializes of :py:class:`CacheConnector` to manage
+    file on the local storage.
 
     See specializations:
 
@@ -278,16 +288,25 @@ class StorageCacheConnector(CacheConnector):
         super().__init__(child)
         self.callback_load = callback_load
         self.callback_dump = callback_dump
-        self.lifetime = lifetime if lifetime is not None else StorageCacheConnector.lifetime
-        self.cache_dir = cache_dir if cache_dir else \
-            make_cache_dir(StorageCacheConnector.base_dir, child.__class__.__name__)
+        self.lifetime = (
+                lifetime if lifetime is not None
+                else StorageCacheConnector.lifetime
+        )
+        self.cache_dir = (
+            cache_dir if cache_dir
+            else make_cache_dir(
+                StorageCacheConnector.base_dir,
+                child.__class__.__name__
+            )
+        )
         self.read_mode = read_mode
         self.write_mode = write_mode
         self.extension = extension
 
     def make_cache_filename(self, query: Query) -> str:
         """
-        Crafts the filename of the cache to store a given :py:class:`Query` instance.
+        Crafts the filename of the cache to store a given :py:class:`Query`
+        instance.
 
         Args:
             query (Query): The handled :py:class:`Query` instance.

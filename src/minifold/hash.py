@@ -10,7 +10,8 @@ Internals to make hashable object that are not hashable.
 This is useful, e.g, in the :py:class:`UniqueConnector` class.
 """
 
-def to_hashable(x):
+
+def to_hashable(x: object) -> object:
     """
     Converts an object to an hashable ``tuple``.
 
@@ -20,6 +21,14 @@ def to_hashable(x):
     Returns:
         The corresponding hashable object.
     """
-    return tuple(to_hashable(elt) for elt in x) if isinstance(x, (set, list)) \
-      else tuple((to_hashable(k), to_hashable(v)) for k, v in x.items()) if isinstance(x, dict) \
-      else x
+    return (
+        tuple(
+            to_hashable(elt)
+            for elt in x
+        ) if isinstance(x, (set, list))
+        else tuple(
+            (to_hashable(k), to_hashable(v))
+            for k, v in x.items()
+        ) if isinstance(x, dict)
+        else x
+    )

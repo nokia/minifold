@@ -8,6 +8,7 @@ from minifold.config import Config
 from minifold.connector import Connector
 from minifold.log import Log
 
+
 Log.enable_print = True
 
 DEFAULT_MINIFOLD_CONFIG = """{
@@ -25,11 +26,12 @@ DEFAULT_MINIFOLD_CONFIG = """{
     }
 }"""
 
+
 def test_minifold_config_singleton():
-    from minifold.dblp import DblpConnector
     config = Config()
     config2 = Config()
     assert config == config2
+
 
 def test_minifold_config_loads():
     config = Config()

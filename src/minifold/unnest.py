@@ -7,12 +7,13 @@
 from .connector import Connector
 from .query import Query
 
+
 def unnest(map_key_unnestedkey: dict, entries: list) -> list:
     """
     Implements the ``unnest`` PostgresSQL function for a list of minifold entries.
 
     Example:
-        >>> unnest({"a": "A", "b": "B"}, [{"a" : [1, 2, 3], "b" : [10, 20, 30]}])
+        >>> unnest({"a": "A", "b": "B"}, [{"a": [1, 2, 3], "b": [10, 20, 30]}])
         [{'A': 1}, {'A': 2}, {'A': 3}, {'B': 10}, {'B': 20}, {'B': 30}]
 
     Args:
@@ -32,10 +33,11 @@ def unnest(map_key_unnestedkey: dict, entries: list) -> list:
             new_attribute = map_key_unnestedkey.get(k)
             if isinstance(values, list):
                 for value in values:
-                    ret.append({new_attribute : value})
+                    ret.append({new_attribute: value})
             else:
-                ret.append({new_attribute : values})
+                ret.append({new_attribute: values})
     return ret
+
 
 class UnnestConnector(Connector):
     """

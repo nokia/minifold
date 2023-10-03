@@ -4,8 +4,6 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-import sys
-from pprint import pprint
 from minifold.entries_connector import EntriesConnector
 from minifold.query import Query, ACTION_READ
 from minifold.group_by import group_by, GroupByConnector
@@ -17,12 +15,14 @@ ENTRIES = [
     {"a": 100, "b": 2, "c": 30},
 ]
 
+
 def test_group_by_a():
-    #for k in ["a", "b", "c", ["a", "b"], ["b", "a"]]:
+    # for k in ["a", "b", "c", ["a", "b"], ["b", "a"]]:
     aggregat = group_by("a", ENTRIES)
     assert len(aggregat[1]) == 2
     assert len(aggregat[10]) == 1
     assert len(aggregat[100]) == 1
+
 
 def test_group_by_b():
     aggregat = group_by("b", ENTRIES)
@@ -30,6 +30,7 @@ def test_group_by_b():
     assert len(aggregat[200]) == 2
     assert len(aggregat[250]) == 1
     assert len(aggregat) == 3
+
 
 def test_group_by_c():
     aggregat = group_by("c", ENTRIES)
@@ -39,6 +40,7 @@ def test_group_by_c():
     assert len(aggregat[300]) == 1
     assert len(aggregat) == 4
 
+
 def test_group_by_ab():
     aggregat = group_by(("a", "b"), ENTRIES)
     assert len(aggregat[(1, 200)]) == 1
@@ -46,6 +48,7 @@ def test_group_by_ab():
     assert len(aggregat[(10, 200)]) == 1
     assert len(aggregat[(100, 2)]) == 1
     assert len(aggregat) == 4
+
 
 def test_group_by_ba():
     aggregat = group_by(("b", "a"), ENTRIES)
@@ -55,6 +58,7 @@ def test_group_by_ba():
     assert len(aggregat[(2, 100)]) == 1
     assert len(aggregat) == 4
 
+
 def test_group_by_connector():
     print("connector group by b, a")
     group_by_connector = GroupByConnector(
@@ -63,7 +67,7 @@ def test_group_by_connector():
     )
 
     assert len(group_by_connector.query(Query(
-        action = ACTION_READ,
-        object = "",
-        attributes = [],
+        action=ACTION_READ,
+        object="",
+        attributes=[],
     ))) == 4

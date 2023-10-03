@@ -4,10 +4,11 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from .binary_predicate    import BinaryPredicate
-from .connector           import Connector
-from .query               import Query, ACTION_READ
-from .where               import where
+from .binary_predicate import BinaryPredicate
+from .connector import Connector
+from .query import Query, ACTION_READ
+from .where import where
+
 
 try:
     from pymongo import MongoClient
@@ -19,6 +20,7 @@ except ImportError as e:
         "  PIP: sudo pip3 install --upgrade pymongo\n"
     )
     raise e
+
 
 class MongoConnector(Connector):
     """
@@ -89,10 +91,13 @@ class MongoConnector(Connector):
             ret = list(
                 self.db[query.object].find(
                     {},
-                    {attr:  1 for attr in query.attributes} if query.attributes else None
+                    {
+                        attr: 1
+                        for attr in query.attributes
+                    } if query.attributes else None
                 )
-                    .limit(query.limit if query.limit else 0)
-                    .skip(query.offset if query.offset else 0)
+                .limit(query.limit if query.limit else 0)
+                .skip(query.offset if query.offset else 0)
             )
             if not query.filters:
                 pass

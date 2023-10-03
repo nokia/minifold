@@ -13,7 +13,6 @@ from .log import Log
 try:
     import pycountry
 except ImportError as e:
-    from .log import Log
     Log.warning(
         "\n".join([
             "Please install requests",
@@ -23,7 +22,8 @@ except ImportError as e:
     )
     raise e
 
-def _country_code_to_name(country_code :str) -> str:
+
+def _country_code_to_name(country_code: str) -> str:
     """
     Fixes an obsolete country code.
 
@@ -39,14 +39,15 @@ def _country_code_to_name(country_code :str) -> str:
     ret = None
 
     try:
-        country = pycountry.countries.get(alpha_2 = country_code.upper())
+        country = pycountry.countries.get(alpha_2=country_code.upper())
         ret = country.name
-    except KeyError as e:
+    except KeyError:
         Log.warning("Unknown country %r" % country_code)
 
     return ret
 
-def country_code_to_name(country_code :str) -> str:
+
+def country_code_to_name(country_code: str) -> str:
     """
     Retrieves the name of a country given its code.
 
@@ -61,7 +62,7 @@ def country_code_to_name(country_code :str) -> str:
 
     ret = None
     try:
-        country = pycountry.countries.get(alpha_2 = country_code.upper())
+        country = pycountry.countries.get(alpha_2=country_code.upper())
         if country is None:
             return None
         ret = country.name

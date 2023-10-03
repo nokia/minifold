@@ -6,13 +6,15 @@
 
 from minifold.doc_type import DocType
 
+
 def test_sort():
     hdr = DocType.HDR
-    book  = DocType.BOOKS_AND_THESES
+    book = DocType.BOOKS_AND_THESES
     assert sorted([hdr, book]) == [book, hdr]
 
+
 def test_dblp():
-    from minifold.dblp      import DblpConnector
+    from minifold.dblp import DblpConnector
     for s in [
         "conference and workshop papers",
         "conference or workshop",
@@ -22,6 +24,7 @@ def test_dblp():
         "editorship"
     ]:
         assert DblpConnector.to_doc_type(s) != DocType.UNKNOWN
+
 
 def test_hal():
     from minifold.hal import HalConnector

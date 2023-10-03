@@ -9,6 +9,7 @@ from pprint import pformat
 from .query import Query
 from .log import Log
 
+
 class Connector:
     """
     The :py:class:`Connector` class is the base class of most of classes involved in
@@ -125,7 +126,11 @@ class Connector:
             # WHERE
             if query.filters is None or query.filters(entry):
                 # SELECT
-                entry = {k : v for (k, v) in entry.items() if k in attributes}
+                entry = {
+                    k: v
+                    for (k, v) in entry.items()
+                    if k in attributes
+                }
                 missing_attributes = set(attributes) - set(entry.keys())
                 for k in missing_attributes:
                     entry[k] = None

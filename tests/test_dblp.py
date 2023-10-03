@@ -15,59 +15,64 @@ Log.enable_print = True
 CONFERENCES = {"FORTE"}
 
 FULLNAMES = [
-    "Natalya Rozhnova",  # No trap here
-    "Marc-Olivier Buob", # Composed firstname
-    "Céline Comte",      # Accent
-    "François Durand",   # Special characters
-    "Ana Bušić",         # Special characters
+    "Natalya Rozhnova",   # No trap here
+    "Marc-Olivier Buob",  # Composed firstname
+    "Céline Comte",       # Accent
+    "François Durand",    # Special characters
+    "Ana Bušić",          # Special characters
 ]
 
 DBLP_MAP_PID = {
-    "Bartek Blaszczyszyn" : "88/4182",
-    "Chung Shue Chen"     : "30/1446",
-    "Giovanni Pau"        : "87/6423",
-    "Fabien Schneider"    : "77/2750-1",
-    "Xuan Zeng"           : "58/5418-2",
+    "Bartek Blaszczyszyn": "88/4182",
+    "Chung Shue Chen": "30/1446",
+    "Giovanni Pau": "87/6423",
+    "Fabien Schneider": "77/2750-1",
+    "Xuan Zeng": "58/5418-2",
 }
 
-DBLP = DblpConnector(map_dblp_id = DBLP_MAP_PID)
+DBLP = DblpConnector(map_dblp_id=DBLP_MAP_PID)
+
 
 def test_conference():
     for conference in CONFERENCES:
         try:
             entries = DBLP.query(Query(
-                object  = "conference",
-                filters = BinaryPredicate("conference", "==", conference)
+                object="conference",
+                filters=BinaryPredicate("conference", "==", conference)
             ))
+            assert entries
         except requests.exceptions.ReadTimeout:
             pass
+
 
 def test_dblp_bibliography_without_pid():
     for fullname in FULLNAMES:
         try:
-            entries = DBLP.query(Query(object = fullname))
+            entries = DBLP.query(Query(object=fullname))
             assert len(entries) > 0
         except requests.exceptions.ReadTimeout:
             pass
+
 
 def test_dblp_bibliography_with_pid():
     for fullname in DBLP_MAP_PID.keys():
         try:
-            entries = DBLP.query(Query(object = fullname))
+            entries = DBLP.query(Query(object=fullname))
             assert len(entries) > 0
         except requests.exceptions.ReadTimeout:
             pass
 
+
 def test_dblp_publication():
     attributes = ["title", "authors", "year"]
-    year       = 2016
-    fullname   = "Marc-Olivier Buob"
+    year = 2016
+    fullname = "Marc-Olivier Buob"
 
     try:
         entries = DBLP.query(Query(
-            object = "publication",
-            attributes = attributes,
-            filters = BinaryPredicate(
+            object="publication",
+            attributes=attributes,
+            filters=BinaryPredicate(
                 BinaryPredicate("year", "==", year),
                 "&&",
                 BinaryPredicate("authors", "==", fullname)
@@ -80,16 +85,17 @@ def test_dblp_publication():
     except requests.exceptions.ReadTimeout:
         pass
 
+
 def test_dblp_researcher():
     attributes = ["title", "authors", "year"]
-    year       = 2008
-    fullname   = "Marc-Olivier Buob"
+    year = 2008
+    fullname = "Marc-Olivier Buob"
 
     try:
         entries = DBLP.query(Query(
-            object = "publication",
-            attributes = attributes,
-            filters = BinaryPredicate(
+            object="publication",
+            attributes=attributes,
+            filters=BinaryPredicate(
                 BinaryPredicate("year", "==", year),
                 "&&",
                 BinaryPredicate("authors", "==", fullname)

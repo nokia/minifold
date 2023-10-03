@@ -6,6 +6,7 @@
 
 from minifold.country import country_code_to_name
 
+
 def test_country_code_to_name():
     assert country_code_to_name("FR") == "France"
     assert country_code_to_name("DE") == "Germany"

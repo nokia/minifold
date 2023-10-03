@@ -9,6 +9,7 @@ from .hash import to_hashable
 from .query import Query
 from .values_from_dict import ValuesFromDictFonctor
 
+
 def group_by_impl(functor: ValuesFromDictFonctor, entries: list) -> dict:
     """
     Implementation details of :func:`group_by`.
@@ -33,6 +34,7 @@ def group_by_impl(functor: ValuesFromDictFonctor, entries: list) -> dict:
         ret[key].append(entry)
     return ret
 
+
 def group_by(attributes: list, entries: list) -> dict:
     """
     Implements the GROUP BY statement for a list of minifold entries.
@@ -47,6 +49,7 @@ def group_by(attributes: list, entries: list) -> dict:
     """
     functor = ValuesFromDictFonctor(attributes)
     return group_by_impl(functor, entries)
+
 
 class GroupByConnector(Connector):
     """

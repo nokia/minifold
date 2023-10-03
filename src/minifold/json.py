@@ -4,8 +4,10 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-import codecs, json
+import codecs
+import json
 from .entries_connector import EntriesConnector
+
 
 def identity(x: object) -> list:
     """
@@ -18,6 +20,7 @@ def identity(x: object) -> list:
         The ``x`` object.
     """
     return x
+
 
 def load_json_from_str(json_data: str, extract_json: callable = identity) -> list:
     """
@@ -38,6 +41,7 @@ def load_json_from_str(json_data: str, extract_json: callable = identity) -> lis
     assert isinstance(entries, list), f"Minifold expects a list of dict, got {type(entries)}"
     return entries
 
+
 def load_json_from_file(json_filename: str, extract_json: callable = identity) -> list:
     """
     Loads minifold from a JSON file.
@@ -51,9 +55,10 @@ def load_json_from_file(json_filename: str, extract_json: callable = identity) -
     Returns:
         A list of minifold entries.
     """
-    with codecs.open(json_filename, encoding = "utf8") as f_json:
+    with codecs.open(json_filename, encoding="utf8") as f_json:
         entries = load_json_from_str(f_json.read(), extract_json)
     return entries
+
 
 class JsonConnector(EntriesConnector):
     """
@@ -72,6 +77,7 @@ class JsonConnector(EntriesConnector):
         assert isinstance(entries, list)
         super().__init__(entries)
 
+
 class JsonFileConnector(JsonConnector):
     """
     The :py:class:`JsonConnector` class is a gateway to a JSON file.
@@ -85,7 +91,7 @@ class JsonFileConnector(JsonConnector):
             extract_json: A function that converts the JSON data to a list
                 of minifold entries. Defaults to :py:func:`identity`.
         """
-        with codecs.open(json_filename, encoding = "utf8") as f_json:
+        with codecs.open(json_filename, encoding="utf8") as f_json:
             super().__init__(f_json.read(), extract_json)
 
     # TODO: For the moment we only support ACTION_READ queries,

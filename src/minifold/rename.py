@@ -10,7 +10,8 @@ from .dict_util import reverse_dict
 from .connector import Connector
 from .query import Query
 
-def rename_list(l: list, mapping: dict) -> list:
+
+def rename_list(values: list, mapping: dict) -> list:
     """
     Replaces some values involved in a list.
 
@@ -19,19 +20,20 @@ def rename_list(l: list, mapping: dict) -> list:
         ['A', 'B', 'A', 'c']
 
     Args:
-        l (list): The input list, modified in place.
+        values (list): The input list, modified in place.
         mapping (dict): A dictionary mapping each value to
             be replaced by the new corresponding value.
 
     Returns:
         The updated list.
     """
-    for (i, value) in enumerate(l):
+    for (i, value) in enumerate(values):
         try:
-            l[i] = mapping[value]
-        except KeyError as e:
+            values[i] = mapping[value]
+        except KeyError:
             pass  # see test_dblp.py
-    return l
+    return values
+
 
 def rename_key(d: dict, old_key: str, new_key: str) -> dict:
     """
@@ -55,6 +57,7 @@ def rename_key(d: dict, old_key: str, new_key: str) -> dict:
         pass
     return d
 
+
 def rename_entry(d: dict, mapping: dict) -> dict:
     """
     Replaces several keys (possibly) involved in a dictionary.
@@ -75,6 +78,7 @@ def rename_entry(d: dict, mapping: dict) -> dict:
         rename_key(d, old_key, new_key)
     return d
 
+
 def rename(mapping: dict, entries: list) -> list:
     """
     Replaces several keys (possibly) involved in a list of minifold entries.
@@ -94,6 +98,7 @@ def rename(mapping: dict, entries: list) -> list:
     for entry in entries:
         rename_entry(entry, mapping)
     return entries
+
 
 # TODO minifold.searchSearchFilter is not supported
 def rename_filters(filters: object, mapping: dict):
@@ -121,11 +126,12 @@ def rename_filters(filters: object, mapping: dict):
         except KeyError:
             pass
     elif isinstance(filters, BinaryPredicate):
-        filters.m_left  = rename_filters(filters.left,  mapping)
+        filters.m_left = rename_filters(filters.left, mapping)
         filters.m_right = rename_filters(filters.right, mapping)
     else:
         raise RuntimeError("rename_filters: unsupported type %s: filters = %s" % (type(filters), filters))
     return filters
+
 
 def rename_sort_by(sort_by: dict, mapping: dict) -> dict:
     """
@@ -144,6 +150,7 @@ def rename_sort_by(sort_by: dict, mapping: dict) -> dict:
         mapping.get(attribute, attribute): sort_asc
         for attribute, sort_asc in sort_by.items()
     } if sort_by else dict()
+
 
 def rename_query(q: Query, mapping: dict) -> Query:
     """
@@ -164,6 +171,7 @@ def rename_query(q: Query, mapping: dict) -> Query:
     rename_filters(q_renamed.filters, mapping)
     q.sort_by = rename_sort_by(q_renamed.sort_by, mapping)
     return q_renamed
+
 
 class RenameConnector(Connector):
     """
@@ -215,7 +223,7 @@ class RenameConnector(Connector):
             The list of entries matching the input query.
         """
         super().query(q)
-        assert self.child != None
+        assert self.child is not None
         q_renamed = rename_query(deepcopy(q), self.map_qr)
         return self.answer(
             q,

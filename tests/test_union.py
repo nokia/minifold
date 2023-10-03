@@ -4,10 +4,10 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from minifold.count import CountConnector, count
 from minifold.entries_connector import EntriesConnector
 from minifold.query import Query
 from minifold.union import UnionConnector, union
+
 
 ENTRIES = [
     {"a": 1, "b": 2, "c": 3},
@@ -19,10 +19,12 @@ ENTRIES = [
 ENTRIES_CONNECTOR = EntriesConnector(ENTRIES)
 EMPTY_CONNECTOR = EntriesConnector([])
 
+
 def test_union():
     assert union([ENTRIES, []]) == ENTRIES
     assert union([[], ENTRIES]) == ENTRIES
     assert union([ENTRIES, ENTRIES]) == ENTRIES + ENTRIES
+
 
 def test_union_connector_empty():
     union_connector = UnionConnector([
@@ -30,6 +32,7 @@ def test_union_connector_empty():
         EMPTY_CONNECTOR
     ])
     union_connector.query(Query()) == ENTRIES
+
 
 def test_union_connector_duplicates():
     union_connector = UnionConnector([

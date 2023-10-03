@@ -8,8 +8,13 @@
 This file gathers useful function to interact with the filesystem of the local storage.
 """
 
-import datetime, os, errno, shutil, tempfile
+import datetime
+import os
+import errno
+import shutil
+import tempfile
 from .log import Log
+
 
 def rm(path: str, recursive: bool = False):
     """
@@ -30,6 +35,7 @@ def rm(path: str, recursive: bool = False):
         except FileNotFoundError:
             pass
 
+
 def ctime(path: str) -> datetime.datetime:
     """
     Retrieves the creation date of a file.
@@ -43,6 +49,7 @@ def ctime(path: str) -> datetime.datetime:
     posix_time = os.path.getctime(path)
     return datetime.datetime.utcfromtimestamp(posix_time)
 
+
 def mtime(path: str) -> datetime.datetime:
     """
     Retrieves the modification date of a file.
@@ -55,6 +62,7 @@ def mtime(path: str) -> datetime.datetime:
     """
     posix_time = os.path.getmtime(path)
     return datetime.datetime.utcfromtimestamp(posix_time)
+
 
 def mkdir(directory: str):
     """
@@ -79,6 +87,7 @@ def mkdir(directory: str):
         else:
             raise OSError("Cannot mkdir %s: %s" % (directory, e))
 
+
 def check_writable_directory(directory: str):
     """
     Tests whether a directory is writable. If not, an expection is raised.
@@ -94,12 +103,13 @@ def check_writable_directory(directory: str):
     if not os.access(directory, os.W_OK | os.X_OK):
         raise RuntimeError("Directory '%s' is not writable" % directory)
     try:
-        with tempfile.TemporaryFile(dir = directory):
+        with tempfile.TemporaryFile(dir=directory):
             pass
     except Exception as e:
         raise RuntimeError("Cannot write into directory '%s': %s" % (directory, e))
 
-def find(dir_name :str) -> list:
+
+def find(dir_name: str) -> list:
     """
     Lists the regular files in a stored in given directory or one of its subdirectories
     (in shell: ``find -type f dir_name``).

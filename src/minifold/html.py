@@ -9,7 +9,8 @@ This file gathers some utilities to process, render, or make HTML
 strings in minifold.
 """
 
-import re, sys
+import re
+import sys
 from html import escape
 from .connector import Connector
 from .query import Query
@@ -19,11 +20,12 @@ PATTERN_URL = re.compile(
     "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
 )
 
-#def to_html_link(d: dict, k: str, v: str) -> str:
-#    try:
-#        return "<a href=\"%s\">%s</a>" % (d[k], escape(v))
-#    except KeyError:
-#        return v
+# def to_html_link(d: dict, k: str, v: str) -> str:
+#     try:
+#         return "<a href=\"%s\">%s</a>" % (d[k], escape(v))
+#     except KeyError:
+#         return v
+
 
 def value_to_html(x: object) -> str:
     """
@@ -57,6 +59,7 @@ def value_to_html(x: object) -> str:
         ret = escape("%s" % x)
     return ret
 
+
 def html(s: str):
     """
     Evaluates HTML code in a Jupyter Notebook.
@@ -69,6 +72,7 @@ def html(s: str):
     # or chart = charts.plot(...)
     display(chart)
 
+
 def print_error(x: object):
     """
     Prints an error in a Jupyter Notebook.
@@ -76,7 +80,8 @@ def print_error(x: object):
     Args:
         x: An expection.
     """
-    print(str(x), file = sys.stderr)
+    print(str(x), file=sys.stderr)
+
 
 def entries_to_html(
     entries: list,
@@ -138,6 +143,7 @@ def entries_to_html(
             ]),
         }
 
+
 def connector_to_html(connector: Connector, **kwargs) -> str:
     attributes = kwargs.get("attributes")
     if not attributes:
@@ -145,12 +151,23 @@ def connector_to_html(connector: Connector, **kwargs) -> str:
     entries = connector.query(Query(**kwargs))
     return entries_to_html(entries, attributes=attributes)
 
-def entry_to_html(entry: dict, map_attribute_label: dict = None, attributes: list = None) -> str:
+
+def entry_to_html(
+    entry: dict,
+    map_attribute_label: dict = None,
+    attributes: list = None
+) -> str:
     return entries_to_html([entry], map_attribute_label, attributes)
 
+
 # OBSOLETE
-def dict_to_html(d: dict, attributes: list, map_attribute_label: dict = None) -> str:
+def dict_to_html(
+    d: dict,
+    attributes: list,
+    map_attribute_label: dict = None
+) -> str:
     return entry_to_html(d, map_attribute_label, attributes)
+
 
 # ----------------------------------------------------------------------------------
 # Extensions depending on BeautifulSoup
@@ -188,32 +205,32 @@ try:
         """
         if blacklist is None:
             blacklist = HTML_BLACKLIST_TAGS
-        soup = BeautifulSoup(s_html, features = "lxml")
+        soup = BeautifulSoup(s_html, features="lxml")
         soup.find_all(s_html, "html.parser")
-        text = soup.find_all(string = True)
-        l = list()
+        text = soup.find_all(string=True)
+        values = list()
         for t in text:
             s = t.strip()
             if s and t.parent.name not in blacklist:
                 # print("<%s>: %r" % (t.parent.name, s))
                 s = re.sub("<[^>]*>", "", s)
-                l += [s]
-        s = " ".join(l)
+                values += [s]
+        s = " ".join(values)
         return re.sub(r"[\n]+", "\n\n", s)
 
     HTML_MAP_WHITELIST_ATTRS = {
-        "a"   : ["href"],
-        "img" : ["src"],
+        "a": ["href"],
+        "img": ["src"],
     }
 
     # Based on https://gist.github.com/revotu/21d52bd20a073546983985ba3bf55deb
-    def remove_all_attrs_except_saving(soup :BeautifulSoup, whitelist: dict = None):
+    def remove_all_attrs_except_saving(soup: BeautifulSoup, whitelist: dict = None):
         """
         Removes all attributes except some.
 
         Args:
             soup (BeautifulSoup): A BeautifulSoup instance, modified in place.
-            whitelist: A ``dict{tag : list(attr)}`` where tag is an HTML tag and attr
+            whitelist: A ``dict{tag: list(attr)}`` where tag is an HTML tag and attr
                 an HTML attribute.
         """
         if whitelist is None:
@@ -268,7 +285,7 @@ try:
         """
         if blacklist is None:
             blacklist = HTML_BLACKLIST_TAGS
-        soup = BeautifulSoup(s_html, features = "lxml")
+        soup = BeautifulSoup(s_html, features="lxml")
         if remove_attrs:
             remove_all_attrs_except_saving(soup)
         body = soup.find("body")
@@ -285,4 +302,3 @@ except ImportError as e:
         "  PIP: sudo pip3 install --upgrade bs4\n"
     )
     raise e
-

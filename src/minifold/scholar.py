@@ -39,12 +39,14 @@ except ImportError:
 
 # Support unicode in both Python 2 and 3. In Python 3, unicode is str.
 if sys.version_info[0] == 3:
-    unicode = str # pylint: disable-msg=W0622
-    encode = lambda s: unicode(s) # pylint: disable-msg=C0103
+    unicode = str  # pylint: disable-msg=W0622
+
+    def encode(s):
+        return unicode(s)  # pylint: disable-msg=C0103
 else:
     def encode(s):
         if isinstance(s, str):
-            return s.encode('utf-8') # pylint: disable-msg=C0103
+            return s.encode('utf-8')  # pylint: disable-msg=C0103
         else:
             return str(s)
 
@@ -82,12 +84,13 @@ class SoupKitchen(object):
 
         return BeautifulSoup(markup)
 
+
 class ScholarConf(object):
     """Helper class for global settings."""
 
     VERSION = '2.10'
     LOG_LEVEL = 1
-    MAX_PAGE_RESULTS = 10 # Current default for per-page results
+    MAX_PAGE_RESULTS = 10  # Current default for per-page results
     SCHOLAR_SITE = 'http://scholar.google.com'
 
     # USER_AGENT = 'Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.9.2.9) Gecko/20100913 Firefox/3.6.9'
@@ -97,6 +100,7 @@ class ScholarConf(object):
     # If set, we will use this file to read/save cookies to enable
     # cookie use across sessions.
     COOKIE_JAR_FILE = None
+
 
 class ScholarUtils(object):
     """A wrapper for various utensils that come in handy."""
@@ -185,9 +189,16 @@ class ScholarArticle(object):
 
     def as_csv(self, header=False, sep='|'):
         # Get keys sorted in specified order:
-        keys = [pair[0] for pair in \
-                sorted([(key, val[2]) for key, val in list(self.attrs.items())],
-                       key=lambda pair: pair[1])]
+        keys = [
+            pair[0]
+            for pair in sorted(
+                [
+                    (key, val[2])
+                    for key, val in list(self.attrs.items())
+                ],
+                key=lambda pair: pair[1]
+            )
+        ]
         res = []
         if header:
             res.append(sep.join(keys))
@@ -331,7 +342,6 @@ class ScholarArticleParser(object):
             if tag.getText().startswith('Import'):
                 self.article['url_citation'] = self._path2url(tag.get('href'))
 
-
     @staticmethod
     def _tag_has_class(tag, klass):
         """
@@ -376,6 +386,7 @@ class ScholarArticleParser(object):
                 res.append(part)
         return parts[0] + '?' + '&'.join(res)
 
+
 class ScholarArticleParser120726(ScholarArticleParser):
     """
     This class reflects update to the Scholar results page layout that
@@ -388,7 +399,7 @@ class ScholarArticleParser120726(ScholarArticleParser):
             if not hasattr(tag, 'name'):
                 continue
             if str(tag).lower().find('.pdf'):
-#                if tag.find('div', class_='gs_ttss'):
+                # if tag.find('div', class_='gs_ttss'):
                 if not isinstance(tag, NavigableString) and tag.find('div', class_='gs_ttss'):
                     self._parse_links(tag.find('div', {'class': 'gs_ttss'}))
 
@@ -421,7 +432,7 @@ class ScholarArticleParser120726(ScholarArticleParser):
                     self.article['url'] = self._path2url(atag['href'])
                     if self.article['url'].endswith('.pdf'):
                         self.article['url_pdf'] = self.article['url']
-                except:
+                except Exception:
                     # Remove a few spans that have unneeded content (e.g. [CITATION])
                     for span in tag.h3.findAll(name='span'):
                         span.clear()
@@ -548,7 +559,7 @@ class ClusterScholarQuery(ScholarQuery):
         if self.cluster is None:
             raise QueryArgumentError('cluster query needs cluster ID')
 
-        urlargs = {'cluster': self.cluster }
+        urlargs = {'cluster': self.cluster}
 
         for key, val in urlargs.items():
             urlargs[key] = quote(encode(val))
@@ -584,11 +595,11 @@ class SearchScholarQuery(ScholarQuery):
     def __init__(self):
         ScholarQuery.__init__(self)
         self._add_attribute_type('num_results', 'Results', 0)
-        self.words = None # The default search behavior
-        self.words_some = None # At least one of those words
-        self.words_none = None # None of these words
+        self.words = None  # The default search behavior
+        self.words_some = None  # At least one of those words
+        self.words_none = None  # None of these words
         self.phrase = None
-        self.scope_title = False # If True, search in title only
+        self.scope_title = False  # If True, search in title only
         self.author = None
         self.pub = None
         self.timeframe = [None, None]
@@ -699,7 +710,7 @@ class ScholarSettings(object):
     CITFORM_BIBTEX = 4
 
     def __init__(self):
-        self.citform = 0 # Citation format, default none
+        self.citform = 0  # Citation format, default none
         self.per_page_results = None
         self._is_configured = False
 
@@ -774,10 +785,10 @@ class ScholarQuerier(object):
                 ScholarUtils.log('info', 'loaded cookies file')
             except Exception as msg:
                 ScholarUtils.log('warn', 'could not load cookies file: %s' % msg)
-                self.cjar = MozillaCookieJar() # Just to be safe
+                self.cjar = MozillaCookieJar()  # Just to be safe
 
         self.opener = build_opener(HTTPCookieProcessor(self.cjar))
-        self.settings = None # Last settings object, if any
+        self.settings = None  # Last settings object, if any
 
     def apply_settings(self, settings):
         """
@@ -808,7 +819,7 @@ class ScholarQuerier(object):
             ScholarUtils.log('info', 'parsing settings failed: no form')
             return False
 
-        tag = tag.find('input', attrs={'type':'hidden', 'name':'scisig'})
+        tag = tag.find('input', attrs={'type': 'hidden', 'name': 'scisig'})
         if tag is None:
             ScholarUtils.log('info', 'parsing settings failed: scisig')
             return False
@@ -919,7 +930,7 @@ class ScholarQuerier(object):
             ScholarUtils.log('debug', 'url: %s' % hdl.geturl())
             ScholarUtils.log('debug', 'result: %s' % hdl.getcode())
             ScholarUtils.log('debug', 'headers:\n' + str(hdl.info()))
-            ScholarUtils.log('debug', 'data:\n' + html.decode('utf-8')) # For Python 3
+            ScholarUtils.log('debug', 'data:\n' + html.decode('utf-8'))  # For Python 3
             ScholarUtils.log('debug', '<<<<' + '-'*68)
 
             return html
@@ -953,12 +964,14 @@ def txt(querier, with_globals):
     for art in articles:
         print(encode(art.as_txt()) + '\n')
 
+
 def csv(querier, header=False, sep='|'):
     articles = querier.articles
     for art in articles:
         result = art.as_csv(header=header, sep=sep)
         print(encode(result))
         header = False
+
 
 def citation_export(querier):
     articles = querier.articles
@@ -1126,6 +1139,7 @@ scholar.py -c 5 -a "albert einstein" -t --none "quantum theory" --after 1970"""
         querier.save_cookies()
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

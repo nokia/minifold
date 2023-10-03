@@ -9,7 +9,8 @@ from .hash import to_hashable
 from .query import Query
 from .values_from_dict import ValuesFromDictFonctor
 
-def unique_impl(functor :ValuesFromDictFonctor, entries :list) -> list:
+
+def unique_impl(functor: ValuesFromDictFonctor, entries: list) -> list:
     """
     Implementation details of :func:`unique`.
 
@@ -33,7 +34,8 @@ def unique_impl(functor :ValuesFromDictFonctor, entries :list) -> list:
             seen_keys.add(key)
     return ret
 
-def unique(attributes :list, entries :list) -> list:
+
+def unique(attributes: list, entries: list) -> list:
     """
     Implements the UNIQUE statement for a list of minifold entries.
 
@@ -47,12 +49,13 @@ def unique(attributes :list, entries :list) -> list:
     functor = ValuesFromDictFonctor(attributes)
     return unique_impl(functor, entries)
 
+
 class UniqueConnector(Connector):
     """
     The :py:class:`UniqueConnector` class implements the GROUP BY
     statement in a minifold pipeline.
     """
-    def __init__(self, attributes :list, child):
+    def __init__(self, attributes: list, child):
         """
         Constructor.
 
@@ -76,7 +79,7 @@ class UniqueConnector(Connector):
         """
         return self.m_child
 
-    def attributes(self, object :str) -> set:
+    def attributes(self, object: str) -> set:
         """
         Lists the available attributes related to a given collection of
         minifold entries exposed by this :py:class:`UniqueConnector` instance.
@@ -90,7 +93,7 @@ class UniqueConnector(Connector):
 
         return self.child.attributes(object)
 
-    def query(self, q :Query) -> list:
+    def query(self, q: Query) -> list:
         """
         Handles an input :py:class:`Query` instance.
 

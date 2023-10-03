@@ -7,6 +7,7 @@
 from .connector import Connector
 from .query import Query
 
+
 def limit(entries: list, lim: int) -> list:
     """
     Implements the LIMITstatement for a list of minifold entries.
@@ -24,6 +25,7 @@ def limit(entries: list, lim: int) -> list:
         The kept entries.
     """
     return entries[:lim]
+
 
 class LimitConnector(Connector):
     """

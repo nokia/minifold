@@ -8,6 +8,7 @@
 This file gathers utilities related to ipython Jupyter notebooks.
 """
 
+
 def in_ipynb() -> bool:
     """
     Tests whether the code is running inside a Jupyter Notebook.

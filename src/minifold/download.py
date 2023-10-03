@@ -13,21 +13,10 @@ import sys
 if sys.version_info < (3, 5):  # async, await
     raise RuntimeError("asyncio requires python>=3.5")
 
-try:
-    import requests
-except ImportError as e:
-    from .log import Log
-    Log.warning(
-        "\n".join([
-            "Please install requests",
-            "  APT: sudo apt install python3-requests",
-            "  PIP: sudo pip3 install --upgrade requests",
-        ])
-    )
-    raise e
-
-import asyncio, datetime, re
+import asyncio
+import datetime
 import concurrent.futures
+import re
 
 from copy import deepcopy
 from functools import partial
@@ -41,6 +30,7 @@ from .request_cache import install_cache
 DEFAULT_TIMEOUT = (1.0, 2.0)    # (connect timeout, read timeout)
 # DEFAULT_TIMEOUT = (0.5, 1.0)  # (connect timeout, read timeout)
 
+
 def now() -> str:
     """
     Crafts a string storing the current timestamp.
@@ -49,6 +39,7 @@ def now() -> str:
         A string containing current timestamp.
     """
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def download(url: str, timeout: tuple = DEFAULT_TIMEOUT, cache_filename: str = None):
     """
@@ -79,11 +70,12 @@ def download(url: str, timeout: tuple = DEFAULT_TIMEOUT, cache_filename: str = N
         session = make_session()
         return session.get(
             url,
-            timeout = timeout
+            timeout=timeout
         )
     except Exception as exc:
         Log.warning("download: GET %s (timeout = %s): %s" % (url, timeout, exc))
         return exc
+
 
 def trim_http(url: str) -> str:
     """
@@ -95,7 +87,8 @@ def trim_http(url: str) -> str:
     Returns:
         The str corresponding to the trimmed URL.
     """
-    return re.sub("https?://", "", url, flags = re.IGNORECASE)
+    return re.sub("https?://", "", url, flags=re.IGNORECASE)
+
 
 # https://skipperkongen.dk/2016/09/09/easy-parallel-http-requests-with-python-and-asyncio/
 async def downloads_async(
@@ -130,12 +123,13 @@ async def downloads_async(
             ) for url in urls
         ]
         return {
-            url : response
+            url: response
             for (url, response) in zip(
                 urls,
-                await asyncio.gather(*futures, return_exceptions = return_exceptions)
+                await asyncio.gather(*futures, return_exceptions=return_exceptions)
             )
         }
+
 
 def downloads(*args) -> dict:
     """
@@ -162,6 +156,7 @@ def downloads(*args) -> dict:
     Log.debug("[%s] downloads: %d URLs fetched" % (now(), len(ret)))
     return ret
 
+
 # ---------------------------------------------------------------------------------
 # Minifold
 # ---------------------------------------------------------------------------------
@@ -184,7 +179,9 @@ def extract_response(response: object, extract_text: bool = True) -> object:
     text = response.text
     return html_to_text(text) if extract_text else text
 
+
 RE_VALID_URL = re.compile("https?://.*")
+
 
 class DownloadConnector(Connector):
     """
@@ -194,7 +191,7 @@ class DownloadConnector(Connector):
         self,
         map_url_out: dict,
         child: Connector,
-        downloads :callable = downloads,
+        downloads: callable = downloads,
         extract_response: callable = extract_response
         # TODO Pass downloads() parameters
     ):
@@ -202,16 +199,18 @@ class DownloadConnector(Connector):
         Constructor.
 
         Args:
-            map_url_out (dict): dict(str : str) entry attribute containing an URL to another
-                entry attribute that will store the contents provided by this URL.
-                Example: ``{"url" : "html_content"}``
+            map_url_out (dict): A ``dict(str: str)`` entry attribute
+                containing an URL to another entry attribute that will
+                store the contents provided by this URL.
+                Example: ``{"url": "html_content"}``
             child (Connector): The child Connector.
-            downloads (callable): ``Callback(urls) -> dict(url : content)`` where
+            downloads (callable): ``Callback(urls) -> dict(url: content)`` where
                 urls is an iterable of URLs and where.
                 the returned dict maps each urls and the corresponding response.
-                Note: You could pass ``partial(download, ...)`` to customize the timeouts.
-            extract_response (callable): ``Callback(response) -> str`` callback used to extract
-                data from an HTTP query.
+                Note: You could pass ``partial(download, ...)``
+                to customize the timeouts.
+            extract_response (callable): ``Callback(response) -> str``
+                callback used to extract data from an HTTP query.
         """
         super().__init__()
         self.map_url_out = map_url_out
@@ -219,7 +218,7 @@ class DownloadConnector(Connector):
         self.downloads = downloads
         self.extract_response = extract_response
 
-    def query(self, query :Query) -> list:
+    def query(self, query: Query) -> list:
         """
         Handles an input :py:class:`Query` instance..
 
@@ -255,7 +254,7 @@ class DownloadConnector(Connector):
                 map_url_response = self.downloads(urls)
                 if self.extract_response:
                     map_url_response = {
-                        url : self.extract_response(response)
+                        url: self.extract_response(response)
                         for (url, response) in map_url_response.items()
                     }
 

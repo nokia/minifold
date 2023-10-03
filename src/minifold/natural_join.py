@@ -6,29 +6,31 @@
 # https://github.com/nokia/minifold
 
 from .connector import Connector
-from .query     import Query
-from .join_if   import merge_dict
+from .query import Query
+from .join_if import merge_dict
 
-def are_naturally_joined(l: dict, r: dict) -> bool:
+
+def are_naturally_joined(l_entry: dict, r_entry: dict) -> bool:
     """
     Internal function, used to check whether two dictionaries can be joined
     using an NATURAL JOIN statement.
 
     Args:
-        l (dict): The dictionary corresponding to the left operand.
-        r (dict): The dictionary corresponding to the right operand.
+        l_entry (dict): The dictionary corresponding to the left operand.
+        r_entry (dict): The dictionary corresponding to the right operand.
 
     Returns:
         ``True`` if and only if ``l`` and ``r`` can be joined,
         ``False`` otherwise (i.e., ``l`` and ``r`` have no common key).
     """
-    inter_keys = set(l.keys()) & set(r.keys())
-    if len(inter_keys) == 0:
+    inter_keys = set(l_entry.keys()) & set(r_entry.keys())
+    if not inter_keys:
         return False
     for key in inter_keys:
-        if l[key] != r[key]:
+        if l_entry[key] != r_entry[key]:
             return False
     return True
+
 
 def natural_join(l_entries: list, r_entries: list) -> list:
     """
@@ -50,11 +52,12 @@ def natural_join(l_entries: list, r_entries: list) -> list:
         The corresponding list of entries.
     """
     ret = list()
-    for l in l_entries:
-        for r in r_entries:
-            if are_naturally_joined(l, r):
-                ret.append(merge_dict(l, r))
+    for l_entry in l_entries:
+        for r_entry in r_entries:
+            if are_naturally_joined(l_entry, r_entry):
+                ret.append(merge_dict(l_entry, r_entry))
     return ret
+
 
 class NaturalJoinConnector(Connector):
     """

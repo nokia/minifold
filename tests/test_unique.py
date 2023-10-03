@@ -8,12 +8,14 @@ from minifold.entries_connector import EntriesConnector
 from minifold.query import Query
 from minifold.unique import unique, UniqueConnector
 
+
 ENTRIES = [
     {"a": 1, "b": 200, "c": 31},
     {"a": 1, "b": 200, "c": 3},
     {"a": 10, "b": 200, "c": 300},
     {"a": 100, "b": 2, "c": 30}
 ]
+
 
 def test_unique():
     expected = {
@@ -46,6 +48,7 @@ def test_unique():
     for k in ["a", "b", "c", ("a", "b"), ("b", "a")]:
         obtained = unique(k if isinstance(k, tuple) else [k], ENTRIES)
         assert obtained == expected[k]
+
 
 def test_unique_connector():
     unique_connector = UniqueConnector(

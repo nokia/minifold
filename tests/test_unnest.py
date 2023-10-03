@@ -4,8 +4,8 @@
 # This file is part of the minifold project.
 # https://github.com/nokia/minifold
 
-from minifold.entries_connector import EntriesConnector
-from minifold.unnest import UnnestConnector, unnest
+from minifold.unnest import unnest
+
 
 ENTRIES = [
     {"c": [3, 3.1, 3.2]},
@@ -15,6 +15,7 @@ ENTRIES = [
 MAP_UNNEST = {
     "c": "C",
 }
+
 
 def test_unnest():
     entries = unnest(MAP_UNNEST, ENTRIES)

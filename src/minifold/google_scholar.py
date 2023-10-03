@@ -24,13 +24,18 @@ except ImportError as e:
     )
     raise e
 
-import difflib, operator
+import difflib
+import operator
+import re
 from .binary_predicate import BinaryPredicate
 from .connector import Connector
 from .download import download
 from .log import Log
 from .query import ACTION_READ, Query
-from .scholar import *
+from .scholar import (
+    ScholarConf, ScholarQuerier, ScholarQuery,
+    SearchScholarQuery, ScholarSettings, SoupKitchen
+)
 
 
 def parse_article(s_html: str) -> dict:
@@ -134,7 +139,7 @@ def parse_article(s_html: str) -> dict:
                 s = link.text.lower()
                 key = (
                     "citations" if "cited by" in s else
-                    "versions"  if "versions" in s else
+                    "versions" if "versions" in s else
                     None
                 )
                 if key:
@@ -173,7 +178,7 @@ class MinifoldScholarQuerier(ScholarQuerier):
                 s = div.prettify()
                 entry = parse_article(s)
                 self.articles.append(entry)
-        except:
+        except Exception:
             raise RuntimeError(f"Unable to parse:\n\n{s_html}")
 
     def send_query(self, gs_query: ScholarQuery):
@@ -351,13 +356,13 @@ class GoogleScholarConnector(Connector):
         # returns "J Doe" and so the self.reshape_entries will drop the records.
         # In practice, the cutoff must be quite low, but not too low. Otherwise,
         # co-authors may be wrongly renamed! Empirically, 0.4 is a good tradeoff).
-        l = difflib.get_close_matches(author, authors, n=1, cutoff=0.4)
-        if len(l) != 1:
+        ret = difflib.get_close_matches(author, authors, n=1, cutoff=0.4)
+        if len(ret) != 1:
             # We are trying to rename a co-author without knowing is real name.
             return author
         else:
             # We are renaming an author with his/her real name.
-            return l[0]
+            return ret[0]
 
     def query(self, query: Query) -> list:
         """

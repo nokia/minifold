@@ -19,6 +19,7 @@ def is_multiple_key(key: object) -> bool:
     """
     return isinstance(key, (set, frozenset, list))
 
+
 def closure(key: object, fds: dict) -> set:
     """
     Compute the closure of a key given a set of functional dependencies.
@@ -46,6 +47,7 @@ def closure(key: object, fds: dict) -> set:
         ret.remove(key)
 
     return ret
+
 
 def minimal_cover(fds: set) -> set:
     """
@@ -75,8 +77,9 @@ def minimal_cover(fds: set) -> set:
 
     return min_fds
 
+
 try:
-    from pybgl.graph import DirectedGraph, EdgeDescriptor, edges, source, target
+    from pybgl.graph import DirectedGraph, EdgeDescriptor
 
     def edge_to_pair(e: EdgeDescriptor, g: DirectedGraph) -> tuple:
         """
@@ -91,7 +94,7 @@ try:
             ``u`` is the source of ``e`` in ``g`` and
             ``v`` is the target of ``e`` in ``g``.
         """
-        return (source(e, g), target(e, g))
+        return (g.source(e), g.target(e))
 
     def minimal_cover_graph(g: DirectedGraph) -> set:
         """
@@ -105,6 +108,6 @@ try:
         Returns:
             The set of 3-NF functional dependencies.
         """
-        return minimal_cover({edge_to_pair(e, g) for e in edges(g)})
+        return minimal_cover({edge_to_pair(e, g) for e in g.edges()})
 except ImportError:
     pass

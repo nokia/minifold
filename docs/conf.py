@@ -104,19 +104,40 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 # html_theme = "alabaster"
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/nokia/minifold",
+            "icon": "fa-brands fa-github",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/minifold/",
+            "icon": "fa-custom fa-pypi",
+        },
+    ],
+    "header_links_before_dropdown": 5,
+    "show_nav_level": 2,
+    "show_toc_level": 2,
+    "navigation_depth": 2,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ["_static"]
 
+html_sidebars = {
+    # Disable left navigation bar as it is useless in practice
+    "*": [],  # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/layout.html#layout-sidebar-primary
+}
 
 # -- Options for HTMLHelp output ---------------------------------------
 

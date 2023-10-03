@@ -50,9 +50,8 @@ coverage = "*"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
-nbsphinx = "*"
-Sphinx = ">=1.4"
-sphinx-rtd-theme = "*"
+pydata-sphinx-theme = "*"
+Sphinx = ">=6.0.0"
 sphinx_mdinclude = "*"
 
 [build-system]

@@ -6,8 +6,8 @@ minifold package documentation
    :caption: Contents:
 
    installation <installation.md>
-   API documentation <minifold>
-   Developer's corner <developers.md>
+   API <minifold>
+   Developers <developers.md>
    contributing
    authors
    history

@@ -110,6 +110,7 @@ html_theme = "pydata_sphinx_theme"
 # theme further.  For a list of options available for each theme, see the
 # documentation.
 #
+# html_theme_options = {}
 html_theme_options = {
     "icon_links": [
         {
@@ -119,7 +120,7 @@ html_theme_options = {
         },
         {
             "name": "PyPI",
-            "url": "https://pypi.org/project/minifold/",
+            "url": "https://pypi.org/project/minifold",
             "icon": "fa-custom fa-pypi",
         },
     ],
@@ -134,10 +135,6 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ["_static"]
 
-html_sidebars = {
-    # Disable left navigation bar as it is useless in practice
-    "*": [],  # https://pydata-sphinx-theme.readthedocs.io/en/stable/user_guide/layout.html#layout-sidebar-primary
-}
 
 # -- Options for HTMLHelp output ---------------------------------------
 

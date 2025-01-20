@@ -413,6 +413,9 @@ class GoogleScholarConnector(Connector):
         if gs_query.author:
             # Sanitize author list.
             for entry in entries:
+                if not entry.get("authors"):
+                    # This google entry is not a publication
+                    continue
                 entry["authors"] = [
                     GoogleScholarConnector.sanitize_author(authors, author)
                     for author in entry["authors"]

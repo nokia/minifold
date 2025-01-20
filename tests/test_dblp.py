@@ -41,7 +41,10 @@ def test_conference():
                 filters=BinaryPredicate("conference", "==", conference)
             ))
             assert entries
-        except requests.exceptions.ReadTimeout:
+        except (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectTimeout
+        ):
             pass
 
 
@@ -50,7 +53,10 @@ def test_dblp_bibliography_without_pid():
         try:
             entries = DBLP.query(Query(object=fullname))
             assert len(entries) > 0
-        except requests.exceptions.ReadTimeout:
+        except (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectTimeout
+        ):
             pass
 
 
@@ -59,7 +65,10 @@ def test_dblp_bibliography_with_pid():
         try:
             entries = DBLP.query(Query(object=fullname))
             assert len(entries) > 0
-        except requests.exceptions.ReadTimeout:
+        except (
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectTimeout
+        ):
             pass
 
 
@@ -82,7 +91,10 @@ def test_dblp_publication():
         for entry in entries:
             assert set(entry.keys()) == set(attributes)
             assert entry["year"] == year
-    except requests.exceptions.ReadTimeout:
+    except (
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.ConnectTimeout
+    ):
         pass
 
 
@@ -104,5 +116,8 @@ def test_dblp_researcher():
         assert len(entries) == 2
         assert len(entries[0]["authors"]) == 1
         assert len(entries[1]["authors"]) == 3
-    except requests.exceptions.ReadTimeout:
+    except (
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.ConnectTimeout
+    ):
         pass

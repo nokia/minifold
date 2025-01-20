@@ -356,7 +356,7 @@ class StorageCacheConnector(CacheConnector):
         """
         is_fresh = True
         if lifetime:
-            t_now = datetime.datetime.utcnow()
+            t_now = datetime.datetime.now(datetime.UTC)
             t_cache = mtime(cache_filename)
             is_fresh = (t_now - t_cache) < lifetime
             # Log.debug("t_now(%s) - t_cache(%s) = %s ?< lifetime %s" % (

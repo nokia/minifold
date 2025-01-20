@@ -47,7 +47,7 @@ def ctime(path: str) -> datetime.datetime:
         The corresponding datetime.
     """
     posix_time = os.path.getctime(path)
-    return datetime.datetime.utcfromtimestamp(posix_time)
+    return datetime.datetime.fromtimestamp(posix_time, datetime.UTC)
 
 
 def mtime(path: str) -> datetime.datetime:
@@ -61,7 +61,7 @@ def mtime(path: str) -> datetime.datetime:
         The corresponding datetime.
     """
     posix_time = os.path.getmtime(path)
-    return datetime.datetime.utcfromtimestamp(posix_time)
+    return datetime.datetime.fromtimestamp(posix_time, datetime.UTC)
 
 
 def mkdir(directory: str):

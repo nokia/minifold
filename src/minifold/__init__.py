@@ -20,6 +20,7 @@ from .cache import (
     CacheConnector,
     JsonCacheConnector,
     PickleCacheConnector,
+    make_cache_dir,
 )
 from .closure import is_multiple_key, closure, minimal_cover
 from .config import DEFAULT_MINIFOLD_CONFIG, Config

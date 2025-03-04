@@ -15,7 +15,12 @@ __version__ = '0.10.0'  # Use single quotes for bumpversion (see setup.cfg)
 
 from .binary_predicate import OPERATORS, OPERATORS_TO_STR, BinaryPredicate
 from .cached import CachedEntriesConnector, JsonCachedConnector, PickleCachedConnector
-from .cache import CacheConnector, JsonCacheConnector, PickleCacheConnector
+from .cache import (
+    DEFAULT_CACHE_STORAGE_BASE_DIR,
+    CacheConnector,
+    JsonCacheConnector,
+    PickleCacheConnector,
+)
 from .closure import is_multiple_key, closure, minimal_cover
 from .config import DEFAULT_MINIFOLD_CONFIG, Config
 from .connector import Connector

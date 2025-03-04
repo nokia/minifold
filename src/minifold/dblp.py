@@ -73,8 +73,10 @@ except ImportError as e:
     )
     raise e
 
+import datetime
 import json
 import operator
+import time
 from pprint import pformat
 
 from .binary_predicate import BinaryPredicate
@@ -126,7 +128,8 @@ class DblpConnector(Connector):
         self,
         map_dblp_id: dict = None,
         map_dblp_name: dict = None,
-        dblp_api_url: str = DBLP_API_URL
+        dblp_api_url: str = DBLP_API_URL,
+        wait_time: datetime.timedelta = datetime.timedelta(seconds=5)
     ):
         """
         Constructor.
@@ -137,6 +140,10 @@ class DblpConnector(Connector):
                 current full name.
             dblp_api_url (str): The URL of the DBLP server.
                 Defaults to :py:data:`DBLP_API_URL`.
+            wait_time (datetime.timedelta): Minimal time interval between two
+                DBLP query. This is to address `rate limitations
+                <https://dblp.org/faq/Am+I+allowed+to+crawl+the+dblp+website.html>`__
+                imposed by DBLP.
         """
         super().__init__()
         self.m_api_url = dblp_api_url
@@ -151,6 +158,8 @@ class DblpConnector(Connector):
             to_canonic_fullname(dblp_name): name
             for (name, dblp_name) in self.m_map_dblp_name.items()
         }
+        self.last_query_time = datetime.datetime.now() - wait_time
+        self.wait_time = wait_time
 
     def attributes(self, object: str) -> set:
         """
@@ -512,6 +521,14 @@ class DblpConnector(Connector):
                 }
 
             Log.info("--> DBLP: %s" % q_dblp)
+            wait_time = max(
+                0,
+                (
+                    self.wait_time - (datetime.datetime.now() - self.last_query_time)
+                ).total_seconds()
+            )
+            Log.info(f"Waiting {wait_time} seconds due to DBLP rate limiting")
+            time.sleep(wait_time)
             # http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
             # reply = http.request("GET", q_dblp, retries = 5)
             reply = requests.get(q_dblp, timeout=(5, 5))
@@ -567,4 +584,5 @@ class DblpConnector(Connector):
             else:
                 raise RuntimeError("Cannot get reply from %s" % self.api_url)
 
+        self.last_query_time = datetime.datetime.now()
         return self.answer(query, self.reshape_entries(query, entries))

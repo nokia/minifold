@@ -160,7 +160,7 @@ class Query:
         Returns:
             The corresponding string representation.
         """
-        return "%(action)s%(attributes)s%(object)s%(filters)s%(limit)s%(offset)s%(sort_by)s" % {
+        return "%(action)s %(attributes)s%(object)s%(filters)s%(limit)s%(offset)s%(sort_by)s" % {
             "action": action_to_str(self.action),
             "attributes": ", ".join(
                     sorted(set(self.attributes))

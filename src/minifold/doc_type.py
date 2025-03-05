@@ -35,11 +35,8 @@ class DocType(IntEnum):
         Returns:
             The corresponding string representation.
         """
-        s = IntEnum.__str__(self)
-        class_name = "%s" % self.__class__.__name__
-        s = s[len(class_name)+1:]
-        s = s.replace("_", " ")
-        return s.title()
+        return self._name_.replace("_", " ").title()
+
 
     def __lt__(self, other) -> bool:
         """
@@ -69,16 +66,11 @@ def doc_type_to_html(t: DocType, n: int = 1) -> str:
         "Misc" if t == DocType.UNKNOWN else
         "Editorship" if t == DocType.CHAPTER else
         "Journal article" if t == DocType.JOURNAL else
-        t
+        str(t)
     )
 
     # Add "s" at the end if needed
-    if n > 1 and t not in {
-        DocType.BOOKS_AND_THESES,
-        DocType.HDR,
-        DocType.CHAPTER,
-        DocType.UNKNOWN
-    }:
-        ret = f"{ret}s"
+    if n > 1 and t != DocType.BOOKS_AND_THESES:
+        ret += "s"
 
     return ret

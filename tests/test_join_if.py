@@ -26,7 +26,7 @@ ENTRIES2 = [
 def test_left_join():
     obtained = left_join_if(
         ENTRIES1, ENTRIES2,
-        lambda l, r: l["k12"] == r["k12"]
+        lambda left, right: left["k12"] == right["k12"]
     )
     expected = [
         {"k1": "left", "k12": "only1", "k2": None},
@@ -38,7 +38,7 @@ def test_left_join():
 def test_right_join():
     obtained = right_join_if(
         ENTRIES1, ENTRIES2,
-        lambda l, r: l["k12"] == r["k12"]
+        lambda left, right: left["k12"] == right["k12"]
     )
     expected = [
         {"k1": None, "k12": "only2", "k2": "right"},
@@ -50,7 +50,7 @@ def test_right_join():
 def test_full_outer_join():
     obtained = full_outer_join_if(
         ENTRIES1, ENTRIES2,
-        lambda l, r: l["k12"] == r["k12"]
+        lambda left, right: left["k12"] == right["k12"]
     )
     expected = [
         {"k1": "left", "k12": "only1", "k2": None},
@@ -63,7 +63,7 @@ def test_full_outer_join():
 def test_inner_join():
     obtained = inner_join_if(
         ENTRIES1, ENTRIES2,
-        lambda l, r: l["k12"] == r["k12"]
+        lambda left, right: left["k12"] == right["k12"]
     )
     expected = [
         {"k1": "match1", "k12": "match", "k2": "match2"}
@@ -82,7 +82,7 @@ def test_join_if_connector():
         connector = JoinIfConnector(
             EntriesConnector(ENTRIES1),
             EntriesConnector(ENTRIES2),
-            lambda l, r: l["k12"] == r["k12"],
+            lambda left, right: left["k12"] == right["k12"],
             mode
         )
         assert len(connector.query(Query())) == expected[mode]

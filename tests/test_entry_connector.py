@@ -53,13 +53,15 @@ def test_offset_limit():
             result = entries_connector.query(q)
             Log.debug(pformat(result))
 
-            assert len(result) == min(limit, len(ENTRIES) - offset),\
-                "Invalid #entries for %s:\n%s" % (str(q), pformat(result))
+            assert len(result) == min(limit, len(ENTRIES) - offset), (
+                f"Invalid #entries for {q}:\n"
+                f"{pformat(result)}"
+            )
             expected = [
                 {k: entry.get(k) for k in attributes}
                 for entry in ENTRIES[offset: offset + limit]
             ]
-            assert result == expected, """
-                Got      : %s\n
-                Expected : %s\n
-            """ % (result, expected)
+            assert result == expected, f"""
+                Got      : {result}\n
+                Expected : {expected}\n
+            """

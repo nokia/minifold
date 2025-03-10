@@ -135,16 +135,18 @@ def test_offset_limit():
                 result = cache_connector.query(query)
                 Log.info(pformat(result))
 
-                assert len(result) == min(limit, len(ENTRIES) - offset),\
-                    "Invalid #entries for %s:\n%s" % (str(query), pformat(result))
+                assert len(result) == min(limit, len(ENTRIES) - offset), (
+                    f"Invalid #entries for {query}:\n"
+                    f"{pformat(result)}"
+                )
                 expected = [
                     {k: entry.get(k) for k in attributes}
                     for entry in ENTRIES[offset: offset + limit]
                 ]
-                assert result == expected, """
-                    Got      : %s\n
-                    Expected : %s\n
-                """ % (result, expected)
+                assert result == expected, f"""
+                    Got      : {result}\n
+                    Expected : {expected}\n
+                """
 
 
 def test_cache_rebase():

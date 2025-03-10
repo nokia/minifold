@@ -37,7 +37,6 @@ class DocType(IntEnum):
         """
         return self._name_.replace("_", " ").title()
 
-
     def __lt__(self, other) -> bool:
         """
         Compares this :py:class:`DocType` instance to another one.

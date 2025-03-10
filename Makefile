@@ -27,7 +27,7 @@ PROJECT := minifold
 help:
 	@python3 -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+clean: clean-doc clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -63,10 +63,13 @@ coverage: ## check code coverage quickly with the default Python
 	poetry run coverage xml
 	$(BROWSER) htmlcov/index.html
 
-docs: ## generate Sphinx HTML documentation, including API docs
+clean-doc:
 	rm -rf docs/_build
 	rm -rf docs/_autosummary
-	poetry run sphinx-apidoc -f -o docs/ src/
+	rm -f docs/$(PROJECT).*.rst
+
+docs: clean-doc ## generate Sphinx HTML documentation, including API docs
+	poetry run sphinx-apidoc -f -o docs/ src/ --separate
 	poetry run sphinx-build -b html docs/ docs/_build/html
 	$(BROWSER) docs/_build/html/index.html
 

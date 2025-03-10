@@ -1,2 +1,6 @@
-_build
-*.rst
+_autosummary/
+_build/
+
+minifold.rst
+modules.rst
+minifold.*.rst

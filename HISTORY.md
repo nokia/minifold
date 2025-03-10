@@ -25,3 +25,12 @@
 * Improved tests to be more robust to network failures:
   * `GoogleScholarConnector`.
   * `HalConnector`.
+
+## 0.10.2 (2025-03-10)
+
+* Documentation:
+  * Improved documentation template.
+* Improved code quality (`flake8`).
+* Project:
+  * Improved `setup.cfg`.
+  * Improved `Makefile`.

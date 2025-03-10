@@ -18,14 +18,14 @@ testpaths = [
 
 [tool.poetry.dependencies]
 beautifulsoup4 = "*"
-python = ">=3.8"
+python = ">=3.9"
 pycountry = "*"
 pymongo = "*"
 ldap3 = "*"
-lxml = "*"
+lxml = ">=5.3.1"
 requests = "*"
 requests-cache = "*"
-tweepy = "*"
+tweepy = ">=4.15.0"
 urllib3 = "*"
 xmltodict = "*"
 

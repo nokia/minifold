@@ -129,7 +129,7 @@ class DblpConnector(Connector):
         map_dblp_id: dict = None,
         map_dblp_name: dict = None,
         dblp_api_url: str = DBLP_API_URL,
-        wait_time: datetime.timedelta = datetime.timedelta(seconds=5)
+        wait_time: datetime.timedelta = datetime.timedelta(seconds=10)
     ):
         """
         Constructor.
@@ -531,7 +531,7 @@ class DblpConnector(Connector):
             time.sleep(wait_time)
             # http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=1.0, read=2.0))
             # reply = http.request("GET", q_dblp, retries = 5)
-            reply = requests.get(q_dblp, timeout=(5, 5))
+            reply = requests.get(q_dblp, timeout=(10, 10))
 
             if reply.status_code == 200:
                 data = reply.content.decode("utf-8")
@@ -560,10 +560,11 @@ class DblpConnector(Connector):
                         publication_type = next(iter(d.keys()))
                         entry = d[publication_type]
                         entry["type"] = publication_type
-                        key = \
-                            "author" if "author" in entry.keys() else \
-                            "editor" if "editor" in entry.keys() else \
+                        key = (
+                            "author" if "author" in entry.keys() else
+                            "editor" if "editor" in entry.keys() else
                             None
+                        )
                         if key:
                             # Sometimes, author is represented by a dict with key
                             # '@orcid' and '#text'
@@ -576,6 +577,11 @@ class DblpConnector(Connector):
                             ]
                         else:
                             Log.warning(f"No author found for this DBLP publication:\n{pformat(entry)}")
+
+                        # In XML data, the DBLP base URL is missing
+                        url = entry.get("url")
+                        if url and not url.startswith("http"):
+                            entry["url"] = f"https://dblp.org/{url}"
                         return entry
 
                     entries = [xml_to_entry(d) for d in result["dblpperson"]["r"]]

@@ -25,12 +25,8 @@ build:
     post_install:
       # Install dependencies with 'docs' dependency group
       # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
-      - poetry install --with docs
-      - poetry build
-      - pip install dist/*whl
-    pre_build:
-      # Generate autodoc and call sphinx
-      - make docs
+      # Readthedoc and poetry
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with docs
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:

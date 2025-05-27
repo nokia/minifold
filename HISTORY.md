@@ -34,3 +34,7 @@
 * Project:
   * Improved `setup.cfg`.
   * Improved `Makefile`.
+
+## 0.10.2 (2025-05-27)
+
+* Fixed documentation build (readthedoc)
